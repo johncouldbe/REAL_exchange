@@ -2,14 +2,19 @@
   "name": "real_exchange",
   "version": "1.0.0",
   "description": "An app for REALTORS to better communicate through their Associations/Boards",
-  "main": "index.js",
+  "main": "server.js",
   "dependencies": {
-    "express": "^4.15.3"
+    "express": "^4.15.3",
+    "mongoose": "^4.10.4"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "chai": "^4.0.1",
+    "chai-http": "^3.0.0",
+    "mocha": "^3.4.2"
+  },
   "scripts": {
     "start": "node server.js",
-    "test": "Mocha"
+    "test": "mocha"
   },
   "keywords": [
     "REALTOR",
