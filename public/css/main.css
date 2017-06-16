@@ -1,0 +1,133 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    /*background-image: url('/assets/images/background.svg');
+    background-size: cover !important;
+    background-position: center center;*/
+  }
+
+main {
+  flex: 1 0 auto;
+}
+
+.hovered:hover {
+  cursor: pointer;
+}
+
+.tabs .indicator {
+    background-color: #ffc107 !important;
+}
+
+.dropdown-content {
+  width: 100% !important;
+  margin-top:104px;
+}
+
+.user-settings-icon {
+  margin-top: 15px;
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+.user-info-displayed p {
+  margin-top: 16px;
+}
+
+.left-border {
+  border-left: 1px solid #ffc107;
+}
+
+.left-border-white {
+  border-left: 2px solid #fff;
+}
+
+.left-border-color-amber {
+  border-left-color: #ffc107;
+}
+
+.left-padding {
+  padding-left: 24px;
+}
+
+.website {
+  word-wrap: break-word;
+}
+
+.post p {
+  margin: 0;
+}
+
+.secondary-nav {
+  background-color: transparent;
+}
+
+.tabs .tab a {
+  color: #81d4fa;
+}
+
+.tabs .tab a:hover, .tabs .tab a.active {
+  color: #03a9f4;
+}
+
+/* ======= Settings Menu ======= */
+
+.settings-menu {
+  overflow: hidden;
+  height: calc(100vh - 112px);
+  position: absolute;
+  width: 0;
+  top: 112px;
+  right: 0;
+  background-color: rgb(11, 45, 71);
+  color: #fff;
+}
+
+.dont-break-on-overflow {
+  min-width: 350px;
+}
+
+.settings-menu-options {
+  transform: translateY(10vh);
+}
+
+.settings-menu-options a {
+  color: #fff;
+}
+
+.settings-menu-options a:hover {
+  color: #ffc107;
+}
+
+.settings-back {
+  position: absolute;
+  height: 30px;
+  width: auto;
+  top: 10px;
+  right: 10px;
+}
+
+/* label color */
+.settings-menu .input-field label {
+  color: #fff;
+}
+/* label focus color */
+.settings-menu .input-field input[type=text]:focus + label {
+  color: #ffc107;
+}
+/* label underline focus color */
+.settings-menu .input-field input[type=text]:focus {
+  border-bottom: 1px solid #ffc107;
+  box-shadow: 0 1px 0 0 #ffc107;
+}
+
+@media screen and (max-width: 600px){
+  .settings-menu {
+    height: calc(100vh - 104px);
+    top: 104px;
+  }
+}

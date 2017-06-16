@@ -27,4 +27,61 @@ describe('Server', function(){
     })
   });
 
+  it('Should return users on GET /user', function() {
+    return chai.request(app)
+    .get('/users')
+    .then(function(res) {
+      res.should.have.status(200);
+      res.should.be.json;
+      res.body.should.have.length.of.at.least(1);
+    })
+  });
+
+  it('Should return the user on GET /users/:id', function() {
+    let userId;
+
+    return chai.request(app)
+    .get('/users')
+    .then(function(res) {
+      userId = res.body[0].id;
+    });
+
+    return chai.request(app)
+    .get('/users/:id')
+    .then(function(res) {
+      res.should.have.status(200);
+      res.body.id.should.equal(userId);
+      res.should.be.json;
+    });
+  });
+
+  it('Should return posts on GET /posts', function() {
+    return chai.request(app)
+    .get('/users')
+    .then(function(res) {
+      res.should.have.status(200);
+      res.should.be.json;
+      res.body.should.have.length.of.at.least(1);
+    })
+  });
+
+  it('Should return the users posts on GET /posts/:id', function() {
+    let userId;
+
+    return chai.request(app)
+    .get('/posts')
+    .then(function(res) {
+      userId = res.body[0].user_id;
+    });
+
+    return chai.request(app)
+    .get('/posts/:id')
+    .then(function(res) {
+      res.should.have.status(200);
+      res.body.user_id.should.equal(userId);
+      res.should.be.json;
+      res.body.should.have.length.of.at.least(1);
+    });
+  });
+
 });
