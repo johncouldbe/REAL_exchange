@@ -1,5 +1,5 @@
 {
-  "name": "real_exchange",
+  "name": "REAL_exchange",
   "version": "1.0.0",
   "description": "An app for REALTORS to better communicate through their Associations/Boards",
   "main": "server.js",
