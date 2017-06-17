@@ -42,10 +42,6 @@ main {
   border-left: 1px solid #ffc107;
 }
 
-.left-border-white {
-  border-left: 2px solid #fff;
-}
-
 .left-border-color-amber {
   border-left-color: #ffc107;
 }
@@ -54,16 +50,8 @@ main {
   padding-left: 24px;
 }
 
-.website {
-  word-wrap: break-word;
-}
-
 .post p {
   margin: 0;
-}
-
-.secondary-nav {
-  background-color: transparent;
 }
 
 .tabs .tab a {
@@ -74,15 +62,26 @@ main {
   color: #03a9f4;
 }
 
-/* ======= Settings Menu ======= */
-
-.settings-menu {
+.side-pull-out {
   overflow: hidden;
   height: calc(100vh - 112px);
   position: absolute;
   width: 0;
+}
+
+.absolute-right {
   top: 112px;
   right: 0;
+}
+
+.absolute-left {
+  top: 112px;
+  left: 0;
+}
+
+/* ======= Settings Menu ======= */
+
+.dark-blue-bg {
   background-color: rgb(11, 45, 71);
   color: #fff;
 }
@@ -110,23 +109,78 @@ main {
   top: 10px;
   right: 10px;
 }
+/* End of settings */
+
+.new-post-button-container {
+  position:fixed;
+  width:60px;
+  height:60px;
+  right: 10px;
+  z-index:1;
+  bottom:10px;
+  overflow-x: hidden !important;
+  transition: .4s;
+}
+
+.new-post-button {
+  width:100%;
+  height:100%;
+  border-radius: 50%;
+  overflow: hidden !important;
+}
+
+.new-post-button-font {
+  line-height:60px;
+  font-size:1.6rem;
+  position: absolute;
+  left:12.5px;
+  line-height:60px;
+  color: transparent;
+}
+
+.white-out {
+  color: #fff;
+  transition: .5s;
+}
+
+.new-post-button-icon {
+  line-height:60px;
+  font-size:2.4rem;
+  position: absolute;
+  right:12.5px;
+}
+
+.elongated {
+  width: 200px;
+  transition: .4s;
+}
+
+.elongated-borders {
+  border-radius: 500px;
+  transition: .4s;
+}
+
+/*.stay-put {
+  right: -75px;
+  transition: .4s;
+}*/
 
 /* label color */
-.settings-menu .input-field label {
+.side-pull-out .input-field label {
   color: #fff;
 }
 /* label focus color */
-.settings-menu .input-field input[type=text]:focus + label {
+.side-pull-out .input-field input[type=text]:focus + label {
   color: #ffc107;
 }
 /* label underline focus color */
-.settings-menu .input-field input[type=text]:focus {
+.side-pull-out .input-field input[type=text]:focus {
   border-bottom: 1px solid #ffc107;
   box-shadow: 0 1px 0 0 #ffc107;
 }
 
 @media screen and (max-width: 600px){
-  .settings-menu {
+  .absolute-left, .absolute-right {
     height: calc(100vh - 104px);
     top: 104px;
   }

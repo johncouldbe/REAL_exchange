@@ -30,7 +30,7 @@ $(function() {
 
     $('#user-page').html(userPage);
 
-    let insert = `
+    let editedUserInfo = `
     <a href="#edit-info" class="js-settings-back"><img class="settings-back" src="/assets/images/arrow-right.svg" /></a>
     <div class="row">
       <form class="col s12">
@@ -63,7 +63,7 @@ $(function() {
     </div>
 
     `;
-    $('#edit-info').html(insert);
+    $('#edit-info').html(editedUserInfo);
     Materialize.updateTextFields();
   })
   .catch(err => {
@@ -158,7 +158,6 @@ $(function() {
         </div>
         `;
       });
-      console.log(constructPosts);
       $('#js-my-post').append(constructPosts);
 
       $('#my-posts-tab').click();
@@ -180,6 +179,12 @@ $(function() {
     }
   }
 
+  function closeSidePullOut(arg) {
+    $(arg).animate({
+      width:"0"
+    });
+  }
+
   //Event Handlers
   $(".dropdown-button").dropdown();
 
@@ -193,11 +198,9 @@ $(function() {
     openFromSide(reference);
   });
 
-  $(".settings-menu").on('click', '.js-settings-back', function(e) {
+  $(".side-pull-out").on('click', '.js-settings-back', function(e) {
     let reference = $(this).attr('href');
-    $(reference).animate({
-      width:"0"
-    });
+    closeSidePullOut(reference);
   });
 
   $('.setting').click(function(e) {
@@ -205,6 +208,14 @@ $(function() {
     let reference = $(this).attr('href');
       openFromSide(reference);
   })
+
+  $('.new-post-button').hover(function() {
+    if($(window).width() > 600){
+      $('.new-post-button-container').toggleClass('elongated');
+      $('.new-post-button').toggleClass('elongated-borders');
+      $('.new-post-button-font').toggleClass('white-out');
+    }
+  });
   //End
 
   //window.dispatchEvent(new Event('resize'));

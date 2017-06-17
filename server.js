@@ -49,9 +49,9 @@ app.put('/users/:id', (req, res) => {
     console.error(message);
     res.status(400).json({message: message});
   }
-
   
-}
+
+});
 
 //Start and Stop server
 let server;
