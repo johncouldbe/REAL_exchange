@@ -31,27 +31,34 @@ app.get('/posts/', (req, res) => {
   res.json(mockPosts);
 });
 
-//Send posts specific to user
+//Send a requested post
 app.get('/posts/:id', (req, res) => {
+  id = req.params.id;
+  let posts = mockPosts.filter(function(post) {
+    return post.id == id;
+  });
+  res.json(posts);
+});
 
+//Send posts specific to user
+app.get('/posts/user/:id', (req, res) => {
+  id = req.params.id;
   let posts = mockPosts.filter(function(post) {
     return post.user_id == id;
   });
   res.json(posts);
 });
 
-app.put('/users/:id', (req, res) => {
-  // ensure that the id in the request path and the one in request body match
-  if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
-    const message = (
-      `Request path id (${req.params.id}) and request body id ` +
-      `(${req.body.id}) must match`);
-    console.error(message);
-    res.status(400).json({message: message});
-  }
-  
-
-});
+// app.put('/users/:id', (req, res) => {
+//   // ensure that the id in the request path and the one in request body match
+//   if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
+//     const message = (
+//       `Request path id (${req.params.id}) and request body id ` +
+//       `(${req.body.id}) must match`);
+//     console.error(message);
+//     res.status(400).json({message: message});
+//   }
+// });
 
 //Start and Stop server
 let server;

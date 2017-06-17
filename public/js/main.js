@@ -23,7 +23,7 @@ $(function() {
         <p class="flow-text">"${state.user.bio}"</p>
         <p class="flow-text">${state.user.phone}</p>
         <p class="flow-text">${state.user.email}</p>
-        <p class="flow-text website">${state.user.website}</p>
+        <p class="flow-text word-break">${state.user.website}</p>
       </div>
     </div>
     `;
@@ -31,7 +31,7 @@ $(function() {
     $('#user-page').html(userPage);
 
     let editedUserInfo = `
-    <a href="#edit-info" class="js-settings-back"><img class="settings-back" src="/assets/images/arrow-right.svg" /></a>
+    <a href="#edit-info" class="js-push-back"><img class="pull-out-back-icon" src="/assets/images/arrow-right.svg" /></a>
     <div class="row">
       <form class="col s12">
       <div class="settings-menu-options dont-break-on-overflow">
@@ -102,8 +102,9 @@ $(function() {
                     <p><strong>${post.subject}</strong></h5>
                   </div>
                 </div>
-                <div class="card-action right-align">
-                  <a href="#">View</a>
+                <div class="card-action">
+                  <a class="right view-post" href="#view-post" id="${post.id}">View</a>
+                  <span>5 comments</span>
                 </div>
               </div>
             </div>
@@ -117,7 +118,7 @@ $(function() {
   }
 
   function getUserPosts () {
-    axios.get(`/posts/${state.id}`)
+    axios.get(`/posts/user/${state.id}`)
     .then(function(posts) {
       const myPosts = posts.data;
       console.log(posts);
@@ -149,8 +150,9 @@ $(function() {
                   </div>
                 </div>
                 <div class="card-action right-align">
-                  <a href="#">View</a>
+                  <a class="view-post" href="#view-post" id="${post.id}">View</a>
                   <a class="left-border left-padding light-blue-text" href="#"> Edit</a>
+                  <span class="left">5 comments</span>
                 </div>
               </div>
             </div>
@@ -185,6 +187,44 @@ $(function() {
     });
   }
 
+  function createViewPost(arg) {
+    axios.get(`/posts/${arg}`)
+    .then(function(post) {
+      const postData = post.data[0];
+      console.log(post);
+      let viewedPost = '';
+
+      viewedPost = `
+      <a href="#view-post" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right-black.svg" /></a>
+      <div class="carousel">
+        <a class="carousel-item" href="#one!"><img src="http://lorempixel.com/250/250/nature/1"></a>
+        <a class="carousel-item" href="#two!"><img src="http://lorempixel.com/250/250/nature/2"></a>
+        <a class="carousel-item" href="#three!"><img src="http://lorempixel.com/250/250/nature/3"></a>
+        <a class="carousel-item" href="#four!"><img src="http://lorempixel.com/250/250/nature/4"></a>
+        <a class="carousel-item" href="#five!"><img src="http://lorempixel.com/250/250/nature/5"></a>
+      </div>
+      <div class="row">
+        <div class="col s12">
+          <div class="center dont-break-on-overflow">
+
+            <h4>${postData.first_name} ${postData.last_name}</h4>
+            <h5>${postData.subject}</h5>
+            <p>${postData.body}</p>
+          </div>
+        </div>
+      </div>
+
+      `;
+
+      $('#view-post').html(viewedPost);
+      setTimeout(function () { $('.carousel').carousel(); }, 400)
+
+    })
+    .catch(err => {
+      console.log(err);
+    });
+  }
+
   //Event Handlers
   $(".dropdown-button").dropdown();
 
@@ -192,22 +232,24 @@ $(function() {
 
   $('#js-get-all-posts').click(getAllPosts);
 
-  $(".user-settings-icon").on('click', '.js-settings', function(e) {
+  //View Settings and View-Post panels
+  $("main").on('click', '.js-settings, .view-post', function(e) {
     e.preventDefault();
     let reference = $(this).attr('href');
+
+    if($(this).hasClass('view-post')){
+      let postId = $(this).attr('id');
+      createViewPost(postId);
+    }
+
     openFromSide(reference);
   });
-
-  $(".side-pull-out").on('click', '.js-settings-back', function(e) {
+  //Close Panel
+  $(".side-pull-out").on('click', '.js-push-back', function(e) {
+    e.preventDefault();
     let reference = $(this).attr('href');
     closeSidePullOut(reference);
   });
-
-  $('.setting').click(function(e) {
-    e.preventDefault();
-    let reference = $(this).attr('href');
-      openFromSide(reference);
-  })
 
   $('.new-post-button').hover(function() {
     if($(window).width() > 600){

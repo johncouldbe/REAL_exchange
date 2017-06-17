@@ -13,6 +13,11 @@ body {
 
 main {
   flex: 1 0 auto;
+  margin-top: 48px;
+}
+
+.word-break {
+  word-break: break-all;
 }
 
 .hovered:hover {
@@ -63,10 +68,11 @@ main {
 }
 
 .side-pull-out {
-  overflow: hidden;
+  overflow-x: hidden;
   height: calc(100vh - 112px);
-  position: absolute;
+  position: fixed;
   width: 0;
+  z-index: 2;
 }
 
 .absolute-right {
@@ -102,15 +108,17 @@ main {
   color: #ffc107;
 }
 
-.settings-back {
+.pull-out-back-icon {
   position: absolute;
   height: 30px;
   width: auto;
   top: 10px;
   right: 10px;
+  z-index: 1000;
 }
 /* End of settings */
 
+/* New Post Button */
 .new-post-button-container {
   position:fixed;
   width:60px;
@@ -140,7 +148,7 @@ main {
 
 .white-out {
   color: #fff;
-  transition: .5s;
+  transition: .6s;
 }
 
 .new-post-button-icon {
@@ -151,7 +159,7 @@ main {
 }
 
 .elongated {
-  width: 200px;
+  width: 180px;
   transition: .4s;
 }
 
@@ -159,11 +167,7 @@ main {
   border-radius: 500px;
   transition: .4s;
 }
-
-/*.stay-put {
-  right: -75px;
-  transition: .4s;
-}*/
+/* End of New Post Button */
 
 /* label color */
 .side-pull-out .input-field label {
