@@ -11,6 +11,10 @@ body {
     background-position: center center;*/
   }
 
+.hidden {
+  display: none;
+}
+
 main {
   flex: 1 0 auto;
   margin-top: 48px;
@@ -30,7 +34,7 @@ main {
 
 .dropdown-content {
   width: 100% !important;
-  margin-top:104px;
+  margin-top:112px;
 }
 
 .user-settings-icon {
@@ -86,7 +90,6 @@ main {
 }
 
 /* ======= Settings Menu ======= */
-
 .dark-blue-bg {
   background-color: rgb(11, 45, 71);
   color: #fff;
@@ -109,12 +112,9 @@ main {
 }
 
 .pull-out-back-icon {
-  position: absolute;
+  float: right;
   height: 30px;
   width: auto;
-  top: 10px;
-  right: 10px;
-  z-index: 1000;
 }
 /* End of settings */
 
@@ -170,7 +170,7 @@ main {
 /* End of New Post Button */
 
 /* label color */
-.side-pull-out .input-field label {
+.side-pull-out .blue .darken-4 .input-field label {
   color: #fff;
 }
 /* label focus color */
@@ -187,5 +187,8 @@ main {
   .absolute-left, .absolute-right {
     height: calc(100vh - 104px);
     top: 104px;
+  }
+  .dropdown-content {
+    margin-top: 104px;
   }
 }

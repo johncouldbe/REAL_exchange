@@ -195,13 +195,18 @@ $(function() {
       let viewedPost = '';
 
       viewedPost = `
-      <a href="#view-post" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right-black.svg" /></a>
+      <div class="row">
+        <div class="col s12">
+        <a href="#view-post" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right-black.svg" /></a>
+        </div>
+      </div>
+
       <div class="carousel">
-        <a class="carousel-item" href="#one!"><img src="http://lorempixel.com/250/250/nature/1"></a>
-        <a class="carousel-item" href="#two!"><img src="http://lorempixel.com/250/250/nature/2"></a>
-        <a class="carousel-item" href="#three!"><img src="http://lorempixel.com/250/250/nature/3"></a>
-        <a class="carousel-item" href="#four!"><img src="http://lorempixel.com/250/250/nature/4"></a>
-        <a class="carousel-item" href="#five!"><img src="http://lorempixel.com/250/250/nature/5"></a>
+        <a class="carousel-item" href="#one!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/1"></a>
+        <a class="carousel-item" href="#two!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/2"></a>
+        <a class="carousel-item" href="#three!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/3"></a>
+        <a class="carousel-item" href="#four!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/4"></a>
+        <a class="carousel-item" href="#five!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/5"></a>
       </div>
       <div class="row">
         <div class="col s12">
@@ -213,11 +218,28 @@ $(function() {
           </div>
         </div>
       </div>
+      <div class="row">
+        <div class="col s12">
+          <div class="divider"></div>
+          <h5>Comments</h5>
+        </div>
+      </div>
+      <div class="row">
+        <form class="col s12">
+          <div class="row">
+            <div class="input-field col s12">
+              <i class="material-icons prefix">mode_edit</i>
+              <textarea id="icon_prefix2" class="materialize-textarea"></textarea>
+              <label for="icon_prefix2">Comment</label>
+            </div>
+          </div>
+        </form>
+      </div>
 
       `;
 
       $('#view-post').html(viewedPost);
-      setTimeout(function () { $('.carousel').carousel(); }, 400)
+      setTimeout(function () { $('.carousel').carousel(); $('.materialboxed').materialbox(); }, 400)
 
     })
     .catch(err => {
@@ -258,6 +280,25 @@ $(function() {
       $('.new-post-button-font').toggleClass('white-out');
     }
   });
+
+  if($('img .materialboxed .initialized').hasClass('active')){
+    $('.navbar-fixed').hide();
+  }
+
+// $('.side-pull-out').on('click', 'img', function() {
+//     $('.navbar-fixed').toggleClass('hidden');
+// })
+
+// $('body').click(function() {
+//   let count = 1;
+//   $('body').click(function() {
+//     if($('.navbar-fixed').css('display') == 'none'){
+//     $('.navbar-fixed').show();
+//     }
+//   });
+// });
+
+
   //End
 
   //window.dispatchEvent(new Event('resize'));
