@@ -1,6 +1,6 @@
 $(function() {
   const state = {
-    id: '5b966dcf-dda8-4bdc-8523-bf173dd785be'
+    id: '937d77f1-1c3c-4dfc-9e3e-89ac5c32886a'
   }
 
   axios.get(`/users/${state.id}`)
@@ -21,7 +21,7 @@ $(function() {
     <div class="col s12 l6 left-border">
       <div class="center-align user-info-displayed">
         <p class="flow-text">"${state.user.bio}"</p>
-        <p class="flow-text">${state.user.phone}</p>
+        <p class="flow-text">${state.user.phoneNumber}</p>
         <p class="flow-text">${state.user.email}</p>
         <p class="flow-text word-break">${state.user.website}</p>
       </div>

@@ -4,9 +4,15 @@
   "description": "An app for REALTORS to better communicate through their Associations/Boards",
   "main": "server.js",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.17.2",
     "express": "^4.15.3",
     "mongoose": "^4.10.4",
-    "socket.io": "^2.0.3"
+    "morgan": "^1.8.2",
+    "passport": "^0.3.2",
+    "passport-http": "^0.3.0",
+    "socket.io": "^2.0.3",
+    "uuid": "^3.1.0"
   },
   "devDependencies": {
     "chai": "^4.0.1",
