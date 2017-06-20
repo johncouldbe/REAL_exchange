@@ -23,15 +23,15 @@ $(function() {
         <p class="flow-text">"${state.user.bio}"</p>
         <p class="flow-text">${state.user.phone}</p>
         <p class="flow-text">${state.user.email}</p>
-        <p class="flow-text website">${state.user.website}</p>
+        <p class="flow-text word-break">${state.user.website}</p>
       </div>
     </div>
     `;
 
     $('#user-page').html(userPage);
 
-    let insert = `
-    <a href="#edit-info" class="js-settings-back"><img class="settings-back" src="/assets/images/arrow-right.svg" /></a>
+    let editedUserInfo = `
+    <a href="#edit-info" class="js-push-back"><img class="pull-out-back-icon" src="/assets/images/arrow-right.svg" /></a>
     <div class="row">
       <form class="col s12">
       <div class="settings-menu-options dont-break-on-overflow">
@@ -63,7 +63,7 @@ $(function() {
     </div>
 
     `;
-    $('#edit-info').html(insert);
+    $('#edit-info').html(editedUserInfo);
     Materialize.updateTextFields();
   })
   .catch(err => {
@@ -102,8 +102,9 @@ $(function() {
                     <p><strong>${post.subject}</strong></h5>
                   </div>
                 </div>
-                <div class="card-action right-align">
-                  <a href="#">View</a>
+                <div class="card-action">
+                  <a class="right view-post" href="#view-post" id="${post.id}">View</a>
+                  <span>5 comments</span>
                 </div>
               </div>
             </div>
@@ -117,7 +118,7 @@ $(function() {
   }
 
   function getUserPosts () {
-    axios.get(`/posts/${state.id}`)
+    axios.get(`/posts/user/${state.id}`)
     .then(function(posts) {
       const myPosts = posts.data;
       console.log(posts);
@@ -149,8 +150,9 @@ $(function() {
                   </div>
                 </div>
                 <div class="card-action right-align">
-                  <a href="#">View</a>
+                  <a class="view-post" href="#view-post" id="${post.id}">View</a>
                   <a class="left-border left-padding light-blue-text" href="#"> Edit</a>
+                  <span class="left">5 comments</span>
                 </div>
               </div>
             </div>
@@ -158,7 +160,6 @@ $(function() {
         </div>
         `;
       });
-      console.log(constructPosts);
       $('#js-my-post').append(constructPosts);
 
       $('#my-posts-tab').click();
@@ -180,6 +181,72 @@ $(function() {
     }
   }
 
+  function closeSidePullOut(arg) {
+    $(arg).animate({
+      width:"0"
+    });
+  }
+
+  function createViewPost(arg) {
+    axios.get(`/posts/${arg}`)
+    .then(function(post) {
+      const postData = post.data[0];
+      console.log(post);
+      let viewedPost = '';
+
+      viewedPost = `
+      <div class="row">
+        <div class="col s12">
+        <a href="#view-post" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right-black.svg" /></a>
+        </div>
+      </div>
+
+      <div class="carousel">
+        <a class="carousel-item" href="#one!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/1"></a>
+        <a class="carousel-item" href="#two!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/2"></a>
+        <a class="carousel-item" href="#three!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/3"></a>
+        <a class="carousel-item" href="#four!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/4"></a>
+        <a class="carousel-item" href="#five!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/5"></a>
+      </div>
+      <div class="row">
+        <div class="col s12">
+          <div class="center dont-break-on-overflow">
+
+            <h4>${postData.first_name} ${postData.last_name}</h4>
+            <h5>${postData.subject}</h5>
+            <p>${postData.body}</p>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col s12">
+          <div class="divider"></div>
+          <h5>Comments</h5>
+        </div>
+      </div>
+      <div class="row">
+        <form class="col s12">
+          <div class="row">
+            <div class="input-field col s12">
+              <i class="material-icons prefix">mode_edit</i>
+              <textarea id="icon_prefix2" class="materialize-textarea"></textarea>
+              <label for="icon_prefix2">Comment</label>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      `;
+
+      $('#view-post').html(viewedPost);
+      setTimeout(function () { $('.carousel').carousel(); $('.materialboxed').materialbox(); }, 400)
+
+    })
+    .catch(err => {
+      console.log(err);
+    });
+  }
+
   //Event Handlers
   $(".dropdown-button").dropdown();
 
@@ -187,24 +254,51 @@ $(function() {
 
   $('#js-get-all-posts').click(getAllPosts);
 
-  $(".user-settings-icon").on('click', '.js-settings', function(e) {
+  //View Settings and View-Post panels
+  $("main").on('click', '.js-settings, .view-post', function(e) {
     e.preventDefault();
     let reference = $(this).attr('href');
+
+    if($(this).hasClass('view-post')){
+      let postId = $(this).attr('id');
+      createViewPost(postId);
+    }
+
     openFromSide(reference);
   });
-
-  $(".settings-menu").on('click', '.js-settings-back', function(e) {
-    let reference = $(this).attr('href');
-    $(reference).animate({
-      width:"0"
-    });
-  });
-
-  $('.setting').click(function(e) {
+  //Close Panel
+  $(".side-pull-out").on('click', '.js-push-back', function(e) {
     e.preventDefault();
     let reference = $(this).attr('href');
-      openFromSide(reference);
-  })
+    closeSidePullOut(reference);
+  });
+
+  $('.new-post-button').hover(function() {
+    if($(window).width() > 600){
+      $('.new-post-button-container').toggleClass('elongated');
+      $('.new-post-button').toggleClass('elongated-borders');
+      $('.new-post-button-font').toggleClass('white-out');
+    }
+  });
+
+  if($('img .materialboxed .initialized').hasClass('active')){
+    $('.navbar-fixed').hide();
+  }
+
+// $('.side-pull-out').on('click', 'img', function() {
+//     $('.navbar-fixed').toggleClass('hidden');
+// })
+
+// $('body').click(function() {
+//   let count = 1;
+//   $('body').click(function() {
+//     if($('.navbar-fixed').css('display') == 'none'){
+//     $('.navbar-fixed').show();
+//     }
+//   });
+// });
+
+
   //End
 
   //window.dispatchEvent(new Event('resize'));

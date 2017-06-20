@@ -16,28 +16,31 @@
   <!-- ====================== -->
   <!-- ===== NAVIGATION ===== -->
   <!-- ====================== -->
-  <ul id="dropdown1" class="dropdown-content">
-    <li><a href="#!" class="amber-text right-align">Atlanta REALTORS&reg; Association</a></li>
-    <li><a href="#!" class="blue-text right-align">Habersham, White &amp; Stevens Board of REALTORS&reg;</a></li>
-    <li class="divider"></li>
-    <li><a href="#!" class="blue-text right-align">All</a></li>
-  </ul>
-  <nav class="nav-extended light-blue">
-    <div class="nav-wrapper">
-      <a href="#" class="brand-logo left">REAL Exchange</a>
-      <ul id="nav-mobile" class="right">
-        <li><a class="dropdown-button" href="#!" data-activates="dropdown1"><span class=" hide-on-med-and-down">Atlanta REALTORS&reg; Association</span><i class="material-icons right">arrow_drop_down</i></a></li>
-      </ul>
-    </div>
-    <div class="nav-content">
-      <ul class="tabs tabs-transparent">
-        <li class="tab"><a href="#home">Home</a></li>
-        <li class="tab"><a href="#contacts">Contacts</a></li>
-        <li class="tab"><a href="#messages">Messages</a></li>
-        <li class="tab" id="js-get-post"><a href="#posts">Posts</a></li>
-      </ul>
-    </div>
-  </nav>
+
+  <div class="navbar-fixed">
+    <ul id="dropdown1" class="dropdown-content">
+      <li><a href="#!" class="amber-text right-align">Atlanta REALTORS&reg; Association</a></li>
+      <li><a href="#!" class="blue-text right-align">Habersham, White &amp; Stevens Board of REALTORS&reg;</a></li>
+      <li class="divider"></li>
+      <li><a href="#!" class="blue-text right-align">All</a></li>
+    </ul>
+    <nav class="nav-extended light-blue">
+      <div class="nav-wrapper">
+        <a href="#" class="brand-logo left">REAL Exchange</a>
+        <ul id="nav-mobile" class="right">
+          <li><a class="dropdown-button" href="#!" data-activates="dropdown1"><span class=" hide-on-med-and-down">Atlanta REALTORS&reg; Association</span><i class="material-icons right">arrow_drop_down</i></a></li>
+        </ul>
+      </div>
+      <div class="nav-content">
+        <ul class="tabs tabs-transparent">
+          <li class="tab"><a href="#home">Home</a></li>
+          <li class="tab"><a href="#contacts">Contacts</a></li>
+          <li class="tab"><a href="#messages">Messages</a></li>
+          <li class="tab" id="js-get-post"><a href="#posts">Posts</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
   <!-- ====================== -->
   <!-- ===== End NAVIGATION ===== -->
   <!-- ====================== -->
@@ -52,32 +55,32 @@
       <!-- Settings Icon -->
       <div class="row user-settings-icon blue-text">
         <div class="col s12">
-          <div class="js">
+          <div>
             <a href="#settings" class="js-settings"><i class="material-icons right hovered">settings</i></a>
           </div>
         </div>
       </div>
       <!--  Settings -->
-      <div class="settings-menu red lighten-1" id="settings">
-        <a href="#settings" class="js-settings-back"><img class="settings-back"  src="/assets/images/arrow-right.svg" /></a>
+      <div class="side-pull-out white-text z-depth-2 red lighten-1 absolute-right" id="settings">
+        <a href="#settings" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right.svg" /></a>
         <div class="row">
           <div class="col s12 settings-menu-options">
             <div class="center dont-break-on-overflow">
               <ul>
-                <li><a href="#edit-info" class="setting">Edit Public Info</a></li>
-                <li><a href="#" class="setting">Manage Associations/Boards</a></li>
-                <li><a href="#leave-feedback" class="setting">Leave Feedback</a></li>
-                <li><a href="#about-us" class="setting">About REAL Exchange</a></li>
+                <li><a href="#edit-info" class="js-settings">Edit Public Info</a></li>
+                <li><a href="#" class="js-settings">Manage Associations/Boards</a></li>
+                <li><a href="#leave-feedback" class="js-settings">Leave Feedback</a></li>
+                <li><a href="#about-us" class="js-settings">About REAL Exchange</a></li>
               </ul>
             </div>
           </div>
         </div>
       </div>
       <!--  Settings Edit Info -->
-      <div class="settings-menu" id="edit-info"></div>
+      <div class="side-pull-out blue darken-4 white-text absolute-right" id="edit-info"></div>
       <!--  Settings Leave Feedback -->
-      <div class="settings-menu" id="leave-feedback">
-        <a href="#leave-feedback" class="js-settings-back"><img class="settings-back"  src="/assets/images/arrow-right.svg" /></a>
+      <div class="side-pull-out blue darken-4 white-text absolute-right" id="leave-feedback">
+        <a href="#leave-feedback" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right.svg" /></a>
         <div class="row">
           <form class="col s12">
             <div class="settings-menu-options dont-break-on-overflow">
@@ -97,8 +100,8 @@
         </div>
       </div>
       <!--  Settings About Us -->
-      <div class="settings-menu" id="about-us">
-        <a href="#about-us" class="js-settings-back"><img class="settings-back"  src="/assets/images/arrow-right.svg" /></a>
+      <div class="side-pull-out blue darken-4 white-text absolute-right" id="about-us">
+        <a href="#about-us" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right.svg" /></a>
         <div class="row">
           <div class="col s12">
             <div class="settings-menu-options dont-break-on-overflow">
@@ -130,7 +133,7 @@
     <div id="posts">
       <div class="row">
         <div class="col s12" id="parent-div">
-          <ul class="tabs secondary-nav">
+          <ul class="tabs transparent">
             <li class="tab col s3"><a id="my-posts-tab" href="#my-posts">My Posts</a></li>
             <li class="tab col s3" id="js-get-all-posts"><a href="#all-posts">All Posts</a></li>
           </ul>
@@ -138,15 +141,26 @@
       </div>
       <div class="row">
         <div id="my-posts">
-          <div class="post" id="js-my-post">
+          <div class="new-post-button-container">
+            <div class="new-post-button waves-effect waves-light red">
+              <a class="white-text"><span class="new-post-button-font">Create New</span><i class="material-icons new-post-button-icon">add</i></a>
+            </div>
           </div>
-        </div>
-        <div id="all-posts" class="col s12">
-          <div class="post" id="js-all-posts">
 
-          </div>
+          <div class="post" id="js-my-post"></div>
         </div>
       </div>
+          <!-- <div class="row">
+            <div class="col s12">
+              <button class="btn waves-effect waves-light light-blue right" type="submit" name="action">Create New
+              </button>
+            </div>
+          </div> -->
+        <div id="all-posts" class="col s12">
+          <div class="post" id="js-all-posts"></div>
+        </div>
+
+        <div class="side-pull-out absolute-right white z-depth-2" id="view-post"></div>
     </div>
   </main>
 
