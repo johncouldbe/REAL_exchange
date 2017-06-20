@@ -4,20 +4,19 @@ const passport = require('passport');
 const router = express.Router();
 const jsonParser = require('body-parser').json();
 const { User } = require('./models');
+const mongoose = require('mongoose');
 
 const mockUsers = require('../MOCK_DATA.json');
 const mockPosts = require('../MOCK_DATA_POSTS.json');
 
 router.use(jsonParser);
+const base = process.env.PWD;
 
 //Reusable Id for the main user
 let id;
 
-// //Send static Page
-router.use(express.static('public'));
-
 router.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
+  res.sendFile(base + '/views/index.html');
 });
 
 //Send all users
