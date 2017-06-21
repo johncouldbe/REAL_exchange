@@ -16,6 +16,10 @@ const base = process.env.PWD;
 let id;
 
 router.get('/', (req, res) => {
+  res.sendFile(base + '/views/login.html');
+});
+
+router.get('/home', (req, res) => {
   res.sendFile(base + '/views/index.html');
 });
 

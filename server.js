@@ -1,37 +1,54 @@
 const express = require('express');
 const app = express();
-const { PORT } = require('./config');
+const { PORT, DATABASE_URL } = require('./config');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
-const {router: usersRouter} = require('./users');
+const {router: loginRouter} = require('./routes');
+
+mongoose.Promise = global.Promise;
 
 // log the http layer
 app.use(morgan('common'));
 
-app.use('/', usersRouter);
+app.use('/', loginRouter);
 //Start and Stop server
-app.use('/home', dashboardRouter);
 let server;
 
 // //Send static Page
 app.use(express.static('public'));
 
-function runServer(port = PORT) {
-  return new Promise ((resolve, reject) => {
-    server = app.listen(port);
-    console.log(`Your listening on port ${port}.`);
-    resolve();
+function runServer(databaseUrl=DATABASE_URL, port=PORT) {
+
+  return new Promise((resolve, reject) => {
+    mongoose.connect(databaseUrl, err => {
+      if (err) {
+        return reject(err);
+      }
+      server = app.listen(port, () => {
+        console.log(`Your app is listening on port ${port}`);
+        resolve();
+      })
+      .on('error', err => {
+        mongoose.disconnect();
+        reject(err);
+      });
+    });
   });
 }
 
+// this function closes the server, and returns a promise. we'll
+// use it in our integration tests later.
 function closeServer() {
-  return new Promise ((resolve, reject) => {
-    server.close(err => {
-      if (err) {
-        reject(err);
-      }
-      resolve();
-    });
+  return mongoose.disconnect().then(() => {
+     return new Promise((resolve, reject) => {
+       console.log('Closing server');
+       server.close(err => {
+           if (err) {
+               return reject(err);
+           }
+           resolve();
+       });
+     });
   });
 }
 

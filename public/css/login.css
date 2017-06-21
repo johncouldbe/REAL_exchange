@@ -1,0 +1,20 @@
+/*.input-field label {
+  color: #fff;
+}*/
+/* label focus color */
+.input-field input[type=text]:focus + label {
+  color: #ffc107;
+}
+/* label underline focus color */
+.input-field input[type=text]:focus {
+  border-bottom: 1px solid #ffc107;
+  box-shadow: 0 1px 0 0 #ffc107;
+}
+main {
+  transform: translateY(25%);
+}
+
+.form-container {
+  border-radius: 4px;
+  padding-top: 20px !important;
+}
