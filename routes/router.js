@@ -1,75 +1,155 @@
-const { BasicStrategy } = require('passport-http');
-const express = require('express');
-const passport = require('passport');
-const router = express.Router();
-const jsonParser = require('body-parser').json();
-const { User } = require('./models');
-const mongoose = require('mongoose');
 
 const mockUsers = require('../MOCK_DATA.json');
 const mockPosts = require('../MOCK_DATA_POSTS.json');
 
-router.use(jsonParser);
+const express = require('express');
+const router = express.Router();
+const mongoose = require('mongoose');
+const { User } = require('../models/user');
+const passport = require('passport');
+
 const base = process.env.PWD;
 
-//Reusable Id for the main user
-let id;
+function isAuthenticated (req,res,next) {
+  console.log(req.user);
+   if(req.user){
+    return next();
+   }
+   else {
+    return res.redirect('/login');
+   }
+}
 
-router.get('/', (req, res) => {
-  res.sendFile(base + '/views/login.html');
+function loggedIn (req, res, next) {
+  if(req.user){
+   return res.redirect('/');
+  }
+  else {
+   return next();
+  }
+}
+
+router.get('/login', loggedIn, (req, res) => {
+    res.sendFile(base + '/views/login.html');
 });
 
-router.get('/home', (req, res) => {
-  res.sendFile(base + '/views/index.html');
+router.post('/login', passport.authenticate('local.signin', {
+  session: true,
+  failureRedirect: '/login',
+  successRedirect:'/'
+  }),
+  (req, res) => {
+    console.log('rerouting to dashboard.');
+    res.redirect('/');
 });
 
+router.get('/', isAuthenticated, (req, res) => {
+    // const userId = req.user._id;
+    // res.json({userId});
+    res.sendFile(base + '/views/index.html');
+});
 //Send all users
 router.get('/users', function(req, res) {
-  res.json(mockUsers);
+  User
+  .find()
+  .exec()
+  .then(users => {
+    res.json({
+      users: users.map(user => user.apiRepr())
+    });
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(500).json({message: 'Internal server error'});
+  })
 });
 
 //Send specific user
 router.get('/users/:id', function(req, res) {
   id = req.params.id;
-  let user = mockUsers.filter(function(usr) {
-    return usr.id == id;
-  });
-  res.json(user);
+  User
+  .findById(id)
+  .exec()
+  .then(_user => {
+    const user = _user.apiRepr()
+    res.json({ user });
+  })
+  .catch(err => {
+    console.log(err);
+    res.status(500).json({message: 'Internal server error'});
+  })
 });
 
+router.post('/newUser', (req, res) => {
+  if (!req.body) {
+    return res.status(400).json({message: 'No request body'});
+  }
 
-//Send all posts
-router.get('/posts', (req, res) => {
-  res.json(mockPosts);
+  if (!('licenseNumber' in req.body)) {
+    return res.status(422).json({message: 'Missing field: licenseNumber'});
+  }
+
+  let {licenseNumber, password, firstName, lastName, profilePic, bio, phoneNumber, email, website, associations ,friends} = req.body;
+
+  if (typeof licenseNumber !== 'number') {
+    return res.status(422).json({message: 'Incorrect field type: licenseNumber'});
+  }
+
+
+  if (licenseNumber === '') {
+    return res.status(422).json({message: 'Incorrect field length: licenseNumber'});
+  }
+
+  if (!(password)) {
+    return res.status(422).json({message: 'Missing field: password'});
+  }
+
+  if (typeof password !== 'string') {
+    return res.status(422).json({message: 'Incorrect field type: password'});
+  }
+
+  password = password.trim();
+
+  if (password === '') {
+    return res.status(422).json({message: 'Incorrect field length: password'});
+  }
+
+  // check for existing user
+  return User
+    .find({licenseNumber})
+    .count()
+    .exec()
+    .then(count => {
+      if (count > 0) {
+        return res.status(422).json({message: 'licenseNumber already taken'});
+      }
+      // if no existing user, hash password
+      return User.hashPassword(password)
+    })
+    .then(hash => {
+      return User
+        .create({
+          licenseNumber: licenseNumber,
+          password: hash,
+          firstName: firstName,
+          lastName: lastName,
+          profilePic: profilePic,
+          bio: bio,
+          phoneNumber: phoneNumber,
+          email: email,
+          website: website,
+          associations: associations,
+          friends: friends
+        })
+    })
+    .then(user => {
+      return res.status(201).json(user.apiRepr());
+    })
+    .catch(err => {
+      res.status(500).json({message: 'Internal server error'})
+    });
 });
 
-//Send a requested post
-router.get('/posts/:id', (req, res) => {
-  id = req.params.id;
-  let posts = mockPosts.filter(function(post) {
-    return post.id == id;
-  });
-  res.json(posts);
-});
-
-//Send posts specific to user
-router.get('/posts/user/:id', (req, res) => {
-  id = req.params.id;
-  let posts = mockPosts.filter(function(post) {
-    return post.user_id == id;
-  });
-  res.json(posts);
-});
-
-// app.put('/users/:id', (req, res) => {
-//   // ensure that the id in the request path and the one in request body match
-//   if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
-//     const message = (
-//       `Request path id (${req.params.id}) and request body id ` +
-//       `(${req.body.id}) must match`);
-//     console.error(message);
-//     res.status(400).json({message: message});
-//   }
-// });
+//res.json({user: req.user.apiRepr()});
 
 module.exports = { router };

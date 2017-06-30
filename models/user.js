@@ -1,13 +1,11 @@
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
-const uuidv1 = require('uuid/v1');
 
 mongoose.Promise = global.Promise;
 
 const UserSchema = mongoose.Schema({
-  id: { type: String, default: uuidv1 },
   licenseNumber: {
-    type: String,
+    type: Number,
     required: true,
     unique: true
   },
@@ -28,13 +26,22 @@ const UserSchema = mongoose.Schema({
 
 UserSchema.methods.apiRepr = function() {
   return {
+    _id: this._id,
     licenseNumber: this.licenseNumber || '',
     firstName: this.firstName || '',
-    lastName: this.lastName || ''
+    lastName: this.lastName || '',
+    profilePic: this.profilePic || '',
+    bio: this.bio || '',
+    phoneNumber: this.phoneNumber || '',
+    email: this.email || '',
+    website: this.website || '',
+    associations: this.associations || '',
+    friends: this.friends || ''
   };
 }
 
 UserSchema.methods.validatePassword = function(password) {
+  console.log('validating password');
   return bcrypt.compare(password, this.password);
 }
 
@@ -44,4 +51,10 @@ UserSchema.statics.hashPassword = function(password) {
 
 const User = mongoose.model('User', UserSchema);
 
-module.exports = {User};
+// function getUserByLicenseNum (username, callback) {
+//   const query = { username: username };
+//   User.findOne(query, callback)
+// }
+
+
+module.exports = { User };

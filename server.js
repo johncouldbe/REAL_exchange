@@ -1,21 +1,75 @@
 const express = require('express');
 const app = express();
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const { PORT, DATABASE_URL } = require('./config');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
-const {router: loginRouter} = require('./routes');
+const {router: router} = require('./routes');
+const session = require('express-session');
+const passport = require('passport');
+const path = require('path');
+const flash = require('connect-flash');
+const validator = require('express-validator');
+const MongoStore = require('connect-mongo')(session);
 
-mongoose.Promise = global.Promise;
+// Route Initializers
+const indexRouter = require('./routes/index.js');
 
 // log the http layer
 app.use(morgan('common'));
 
-app.use('/', loginRouter);
+mongoose.Promise = global.Promise;
+
+// Static Files
+app.use(express.static(path.join(__dirname, 'public')));
+
+//Passport Authentication
+require('./passport/passport');
+
+// Body Parser
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+
+//Express Validator
+app.use(validator());
+
+// Cookie Parser
+app.use(cookieParser());
+
+// Sessions
+app.use(session({
+  secret: 'johnssecret',
+  resave: false,
+  saveUninitialized: false,
+  // Session Store
+  store: new MongoStore({ mongooseConnection: mongoose.connection }),
+  // Session Expiration period → 3 hours
+  cookie: { maxAge: 180 * 60 * 1000 },
+}));
+
+// Use flash messages 
+app.use(flash());
+
+/* Passport */
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use((req, res, next) => {
+  res.locals.login = req.isAuthenticated();
+  res.locals.session = req.session;
+  next();
+});
+
+
+app.use('/', router);
+
+router.use('*', function(req, res) {
+  return res.status(404).json({message: 'Not Found'});
+});
+
 //Start and Stop server
 let server;
-
-// //Send static Page
-app.use(express.static('public'));
 
 function runServer(databaseUrl=DATABASE_URL, port=PORT) {
 
