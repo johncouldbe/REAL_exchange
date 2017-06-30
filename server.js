@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
+const hbs  = require('express-handlebars');
 const { PORT, DATABASE_URL } = require('./config');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
@@ -13,8 +14,13 @@ const flash = require('connect-flash');
 const validator = require('express-validator');
 const MongoStore = require('connect-mongo')(session);
 
+
 // Route Initializers
 const indexRouter = require('./routes/index.js');
+
+// View Engine
+app.engine('.hbs', hbs({ defaultLayout: 'layout', extname: '.hbs' }));
+app.set('view engine', '.hbs');
 
 // log the http layer
 app.use(morgan('common'));
@@ -48,7 +54,7 @@ app.use(session({
   cookie: { maxAge: 180 * 60 * 1000 },
 }));
 
-// Use flash messages 
+// Use flash messages
 app.use(flash());
 
 /* Passport */

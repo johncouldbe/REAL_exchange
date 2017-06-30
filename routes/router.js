@@ -44,9 +44,11 @@ router.post('/login', passport.authenticate('local.signin', {
 });
 
 router.get('/', isAuthenticated, (req, res) => {
-    // const userId = req.user._id;
-    // res.json({userId});
-    res.sendFile(base + '/views/index.html');
+    const user = req.user;
+    res.render('index', {
+      layout: 'layout',
+      user: user
+    });
 });
 //Send all users
 router.get('/users', function(req, res) {
