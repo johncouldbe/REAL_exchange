@@ -12,6 +12,17 @@ router.get('/', isAuthenticated, (req, res) => {
   });
 });
 
+//Send posts specific to user
+router.get('/user', isAuthenticated, (req, res) => {
+  console.log(req.user);
+  const id = req.user._id;
+  Post
+  .find({userId: id})
+  .then(posts => {
+    res.json({posts});
+  });
+});
+
 //Send a requested post
 router.get('/:id', isAuthenticated, (req, res) => {
   id = req.params.id;
@@ -21,17 +32,6 @@ router.get('/:id', isAuthenticated, (req, res) => {
     res.json({ post });
   })
   .catch(err => res.send(err));
-});
-
-//Send posts specific to user
-router.get('/user/posts', isAuthenticated, (req, res) => {
-  console.log(req.user);
-  const id = req.user._id;
-  Post
-  .find({userId: id})
-  .then(posts => {
-    res.json({posts});
-  });
 });
 
 function isAuthenticated (req,res,next) {

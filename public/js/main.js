@@ -12,7 +12,7 @@ $(function() {
         constructPosts += `
         <div class="row">
           <div class="col s12">
-            <div class="card horizontal">
+            <div class="card horizontal hoverable">
               <div class="card-image">
                 <img src="http://lorempixel.com/100/190/nature/">
               </div>
@@ -50,7 +50,7 @@ $(function() {
   }
 
   function getUserPosts () {
-    axios.get('/posts/user/posts')
+    axios.get('/posts/user')
     .then(function (posts) {
       console.log(posts);
       const myPosts = posts.data.posts;
@@ -60,7 +60,7 @@ $(function() {
         constructPosts += `
         <div class="row">
           <div class="col s12">
-            <div class="card horizontal">
+            <div class="card horizontal hoverable">
               <div class="card-image">
                 <img src="http://lorempixel.com/100/190/nature/">
               </div>
@@ -83,7 +83,7 @@ $(function() {
                 </div>
                 <div class="card-action right-align">
                   <a class="view-post" href="#view-post" id="${post._id}">View</a>
-                  <a class="left-border left-padding light-blue-text" href="#"> Edit</a>
+                  <a class="left-border left-padding light-blue-text" href="#edit-post"> Edit</a>
                   <span class="left">5 comments</span>
                 </div>
               </div>
@@ -101,11 +101,25 @@ $(function() {
     });
   }
 
+  function createEditPost(arg) {
+    axios.get(`/posts/${arg}`)
+    .then(function(post) {
+      let editPost = `
+      <div class="row">
+        <div class="col s12">
+        <a href="#view-post" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right-black.svg" /></a>
+        </div>
+      </div>
+
+      
+      `
+    })
+  }
+
   function createViewPost(arg) {
     axios.get(`/posts/${arg}`)
     .then(function(post) {
     console.log(post);
-      const postData = post.data.post;
       let viewedPost = '';
 
       viewedPost = `
@@ -126,9 +140,9 @@ $(function() {
         <div class="col s12">
           <div class="center dont-break-on-overflow">
 
-            <h4>${postData.firstName} ${postData.lastName}</h4>
-            <h5>${postData.subject}</h5>
-            <p>${postData.body}</p>
+            <h4>${post.data.post.firstName} ${post.data.post.lastName}</h4>
+            <h5>${post.data.post.subject}</h5>
+            <p>${post.data.post.body}</p>
           </div>
         </div>
       </div>
@@ -149,7 +163,6 @@ $(function() {
           </div>
         </form>
       </div>
-
       `;
 
       $('#view-post').html(viewedPost);
@@ -186,8 +199,8 @@ $(function() {
 
   $('#js-get-all-posts').click(getAllPosts);
 
-  //View Settings and View-Post panels
-  $("main").on('click', '.js-settings, .view-post', function(e) {
+  //View Settings, View-Post, and Edit-Post panels
+  $("main").on('click', '.js-settings, .view-post', '.edit-post' function(e) {
     e.preventDefault();
     let reference = $(this).attr('href');
 
@@ -196,8 +209,14 @@ $(function() {
       createViewPost(postId);
     }
 
+    if($(this).hasClass('edit-post')){
+      let postId = $(this).attr('id');
+      createEditPost(postId);
+    }
+
     openFromSide(reference);
   });
+
   //Close Panel
   $(".side-pull-out").on('click', '.js-push-back', function(e) {
     e.preventDefault();

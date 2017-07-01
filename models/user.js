@@ -38,7 +38,6 @@ UserSchema.methods.apiRepr = function() {
   };
 }
 
-
 UserSchema.methods.validatePassword = function(password) {
   console.log('validating password');
   return bcrypt.compareSync(password, this.password);
