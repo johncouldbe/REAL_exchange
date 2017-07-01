@@ -33,7 +33,7 @@ passport.use('local.signin', new LocalStrategy(
     if (!user.validatePassword(password)) {
       return done(null, false, { message: 'Wrong password 😔' });
     }
-
+    console.log('Password validated.');
     return done(null, user);
   });
   }

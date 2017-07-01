@@ -6,7 +6,6 @@ const hbs  = require('express-handlebars');
 const { PORT, DATABASE_URL } = require('./config');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
-const {router: router} = require('./routes');
 const session = require('express-session');
 const passport = require('passport');
 const path = require('path');
@@ -14,9 +13,11 @@ const flash = require('connect-flash');
 const validator = require('express-validator');
 const MongoStore = require('connect-mongo')(session);
 
-
 // Route Initializers
-const indexRouter = require('./routes/index.js');
+const indexRouter = require('./routes/index');
+const loginRouter = require('./routes/login');
+const usersRouter = require('./routes/users');
+const postsRouter = require('./routes/posts');
 
 // View Engine
 app.engine('.hbs', hbs({ defaultLayout: 'layout', extname: '.hbs' }));
@@ -67,10 +68,13 @@ app.use((req, res, next) => {
   next();
 });
 
+// Routes
+app.use('/', indexRouter);
+app.use('/login', loginRouter);
+app.use('/users', usersRouter);
+app.use('/posts', postsRouter);
 
-app.use('/', router);
-
-router.use('*', function(req, res) {
+app.get('*', function(req, res) {
   return res.status(404).json({message: 'Not Found'});
 });
 

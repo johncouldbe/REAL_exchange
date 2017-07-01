@@ -1,3 +1,3 @@
 exports.PORT = process.env.PORT || 8080;
-exports.DATABASE_URL = process.env.DATABASE_URL || 'mongodb://localhost/realexchange/users';
+exports.DATABASE_URL = process.env.DATABASE_URL || 'mongodb://localhost/realexchange';
 exports.SECRET_KEY = process.env.SECRET_KEY || 'local-secret';
