@@ -23,17 +23,17 @@ describe('Server', function(){
     .get('/')
     .then(function(res) {
       res.should.have.status(200);
-      res.should.have.header('content-type', 'text/html; charset=UTF-8');
+      res.should.have.header('content-type', 'text/html; charset=utf-8');
     })
   });
-
+  //
   // it('Should return users on GET /user', function() {
   //   return chai.request(app)
   //   .get('/users')
   //   .then(function(res) {
   //     res.should.have.status(200);
   //     res.should.be.json;
-  //     res.body.should.have.length.of.at.least(1);
+  //     res.body.users.should.have.length.of.at.least(1);
   //   })
   // });
   //
@@ -43,25 +43,25 @@ describe('Server', function(){
   //   return chai.request(app)
   //   .get('/users')
   //   .then(function(res) {
-  //     userId = res.body[0].id;
+  //     userId = res.body.users[0]._id;
   //   });
   //
   //   return chai.request(app)
   //   .get('/users/:id')
   //   .then(function(res) {
   //     res.should.have.status(200);
-  //     res.body.id.should.equal(userId);
+  //     res.body.user._id.should.equal(userId);
   //     res.should.be.json;
   //   });
   // });
   //
   // it('Should return posts on GET /posts', function() {
   //   return chai.request(app)
-  //   .get('/users')
+  //   .get('/posts')
   //   .then(function(res) {
   //     res.should.have.status(200);
   //     res.should.be.json;
-  //     res.body.should.have.length.of.at.least(1);
+  //     res.body.posts.should.have.length.of.at.least(1);
   //   })
   // });
   //

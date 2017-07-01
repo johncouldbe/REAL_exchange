@@ -7,24 +7,6 @@ const passport = require('passport');
 
 // const base = process.env.PWD;
 
-function isAuthenticated (req,res,next) {
-   if(req.user){
-    return next();
-   }
-   else {
-    return res.redirect('/login');
-   }
-}
-
-function loggedIn (req, res, next) {
-  if(req.user){
-   return res.redirect('/');
-  }
-  else {
-   return next();
-  }
-}
-
 router.get('/login', loggedIn, (req, res) => {
     res.render('login', {
       layout: 'layout',
@@ -51,7 +33,7 @@ router.get('/', isAuthenticated, (req, res) => {
     });
 });
 //Send all users
-router.get('/users', function(req, res) {
+router.get('/users', isAuthenticated, function(req, res) {
   User
   .find()
   .exec()
@@ -67,7 +49,7 @@ router.get('/users', function(req, res) {
 });
 
 //Send specific user
-router.get('/users/:id', function(req, res) {
+router.get('/users/:id', isAuthenticated, function(req, res) {
   id = req.params.id;
   User
   .findById(id)
@@ -194,5 +176,23 @@ router.get('/posts/user/posts', isAuthenticated, (req, res) => {
 //     res.status(400).json({message: message});
 //   }
 // });
+
+function isAuthenticated (req,res,next) {
+   if(req.user){
+    return next();
+   }
+   else {
+    return res.redirect('/login');
+   }
+}
+
+function loggedIn (req, res, next) {
+  if(req.user){
+   return res.redirect('/');
+  }
+  else {
+   return next();
+  }
+}
 
 module.exports = { router };

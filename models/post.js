@@ -8,7 +8,7 @@ const PostSchema = mongoose.Schema({
   subject: {type: String, default: ""},
   date: {type: String, default: ""},
   type: {type: String, default: ""},
-  comments: {type: Array, defaul: []}
+  comments: {type: Array, default: []}
 });
 
 const Post = mongoose.model('Post', PostSchema);
