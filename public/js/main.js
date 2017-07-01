@@ -1,80 +1,11 @@
+// const { myFunc } = require('./helpers');
 $(function() {
-  const state = {
-    id: '937d77f1-1c3c-4dfc-9e3e-89ac5c32886a'
-  }
-
-  axios.get(`/users/${state.id}`)
-  .then(function(user) {
-    state.user = user.data[0];
-    console.log(state.user);
-    let userPage = `
-    <div class="col s12 l6">
-      <h4 class="center-align greeting">Hello, ${state.user.first_name} ${state.user.last_name}</h4>
-      <div class="col s4 offset-s4 m2 offset-m5 l4 offset-l4">
-        <img src="https://lorempixel.com/400/400/" class="circle responsive-img" />
-      </div>
-      <div class="col s12 center-align">
-        <h6 class="flow-text hovered"><a>Change Picture</a></h6>
-      </div>
-    </div>
-
-    <div class="col s12 l6 left-border">
-      <div class="center-align user-info-displayed">
-        <p class="flow-text">"${state.user.bio}"</p>
-        <p class="flow-text">${state.user.phoneNumber}</p>
-        <p class="flow-text">${state.user.email}</p>
-        <p class="flow-text word-break">${state.user.website}</p>
-      </div>
-    </div>
-    `;
-
-    $('#user-page').html(userPage);
-
-    let editedUserInfo = `
-    <a href="#edit-info" class="js-push-back"><img class="pull-out-back-icon" src="/assets/images/arrow-right.svg" /></a>
-    <div class="row">
-      <form class="col s12">
-      <div class="settings-menu-options dont-break-on-overflow">
-        <div class="row">
-          <div class="input-field col s12 m8 offset-m2">
-            <textarea id="settings-bio" class="materialize-textarea">${state.user.bio}</textarea>
-            <label for="textarea1">Bio</label>
-          </div>
-          <div class="input-field col s12 m8 offset-m2">
-            <input value="${state.user.phone}" id="settings-phone-number" type="tel" class="validate">
-            <label for="telephone">Phone Number</label>
-          </div>
-          <div class="input-field col s12 m8 offset-m2">
-            <input value="${state.user.email}" id="settings-email" type="email" class="validate">
-            <label for="email">Email</label>
-          </div>
-          <div class="input-field col s12 m8 offset-m2">
-            <input value="${state.user.website}" id="settings-website" type="text" class="validate">
-            <label for="website">Website</label>
-          </div>
-        </div>
-        <div class="col s12 center">
-          <button class="btn waves-effect waves-light amber" type="submit" name="action">Submit
-            <i class="material-icons right">send</i>
-          </button>
-        </div>
-      </div>
-      </form>
-    </div>
-
-    `;
-    $('#edit-info').html(editedUserInfo);
-    Materialize.updateTextFields();
-  })
-  .catch(err => {
-    console.log(err);
-  });
+  const state = {};
 
   function getAllPosts() {
     axios.get('/posts')
-    .then(function (posts) {
-      const allPosts = posts.data;
-      console.log(posts);
+    .then(function (post) {
+      const allPosts = post.data.posts;
       let constructPosts = '';
 
       allPosts.forEach(function(post) {
@@ -89,7 +20,7 @@ $(function() {
                 <div class="card-content">
                   <div class="row">
                     <div class="col s6">
-                      <p>${post.first_name} ${post.last_name}</p>
+                      <p>${post.firstName} ${post.lastName}</p>
                     </div>
                     <div class="col s6 right-align">
                       <p>${post.date}</p>
@@ -103,7 +34,7 @@ $(function() {
                   </div>
                 </div>
                 <div class="card-action">
-                  <a class="right view-post" href="#view-post" id="${post.id}">View</a>
+                  <a class="right view-post" href="#view-post" id="${post._id}">View</a>
                   <span>5 comments</span>
                 </div>
               </div>
@@ -112,16 +43,17 @@ $(function() {
         </div>
         `;
       });
+
       $('#js-all-posts').html(constructPosts);
 
     });
   }
 
   function getUserPosts () {
-    axios.get(`/posts/user/${state.id}`)
-    .then(function(posts) {
-      const myPosts = posts.data;
+    axios.get('/posts/user/posts')
+    .then(function (posts) {
       console.log(posts);
+      const myPosts = posts.data.posts;
       let constructPosts ='';
 
       myPosts.forEach(function(post) {
@@ -136,7 +68,7 @@ $(function() {
                 <div class="card-content">
                   <div class="row">
                     <div class="col s6">
-                      <p>${post.first_name} ${post.last_name}</p>
+                      <p>${post.firstName} ${post.lastName}</p>
                     </div>
                     <div class="col s6 right-align">
                       <p>${post.date}</p>
@@ -150,7 +82,7 @@ $(function() {
                   </div>
                 </div>
                 <div class="card-action right-align">
-                  <a class="view-post" href="#view-post" id="${post.id}">View</a>
+                  <a class="view-post" href="#view-post" id="${post._id}">View</a>
                   <a class="left-border left-padding light-blue-text" href="#"> Edit</a>
                   <span class="left">5 comments</span>
                 </div>
@@ -169,29 +101,11 @@ $(function() {
     });
   }
 
-  function openFromSide(arg) {
-    if($(window).width() < 601){
-      $(arg).animate({
-        width:"100vw"
-      });
-    } else {
-      $(arg).animate({
-        width:"50vw"
-      });
-    }
-  }
-
-  function closeSidePullOut(arg) {
-    $(arg).animate({
-      width:"0"
-    });
-  }
-
   function createViewPost(arg) {
     axios.get(`/posts/${arg}`)
     .then(function(post) {
-      const postData = post.data[0];
-      console.log(post);
+    console.log(post);
+      const postData = post.data.post;
       let viewedPost = '';
 
       viewedPost = `
@@ -212,7 +126,7 @@ $(function() {
         <div class="col s12">
           <div class="center dont-break-on-overflow">
 
-            <h4>${postData.first_name} ${postData.last_name}</h4>
+            <h4>${postData.firstName} ${postData.lastName}</h4>
             <h5>${postData.subject}</h5>
             <p>${postData.body}</p>
           </div>
@@ -244,6 +158,24 @@ $(function() {
     })
     .catch(err => {
       console.log(err);
+    });
+  }
+
+  function openFromSide(arg) {
+    if($(window).width() < 601){
+      $(arg).animate({
+        width:"100vw"
+      });
+    } else {
+      $(arg).animate({
+        width:"50vw"
+      });
+    }
+  }
+
+  function closeSidePullOut(arg) {
+    $(arg).animate({
+      width:"0"
     });
   }
 
@@ -297,7 +229,6 @@ $(function() {
 //     }
 //   });
 // });
-
 
   //End
 

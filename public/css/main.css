@@ -2,6 +2,26 @@
   box-sizing: border-box;
 }
 
+/* LOGIN SCREEN */
+/* label focus color */
+.login-screen .input-field input[type=text]:focus + label {
+  color: #ffc107;
+}
+/* label underline focus color */
+.login-screen .input-field input[type=text]:focus {
+  border-bottom: 1px solid #ffc107;
+  box-shadow: 0 1px 0 0 #ffc107;
+}
+main .login-screen {
+  transform: translateY(25%);
+}
+
+.login-screen .form-container {
+  border-radius: 4px;
+  padding-top: 20px !important;
+}
+/* End LOGIN SCREEN */
+
 body {
     display: flex;
     min-height: 100vh;
@@ -115,6 +135,7 @@ main {
   float: right;
   height: 30px;
   width: auto;
+  margin: 5px;
 }
 /* End of settings */
 

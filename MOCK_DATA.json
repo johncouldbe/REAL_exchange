@@ -1,7 +1,7 @@
 [
   {
     "id": "937d77f1-1c3c-4dfc-9e3e-89ac5c32886a",
-    "licenseNumber": 3,
+    "licenseNumber": 1,
     "password": "z7J9tjLFGS0z",
     "first_name": "Gregorio",
     "last_name": "See",
@@ -30,7 +30,7 @@
   },
   {
     "id": "d1e4b2b5-eee5-4687-b77b-9fad22336a5f",
-    "licenseNumber": 1,
+    "licenseNumber": 2,
     "password": "lAd1NxwX5M",
     "first_name": "Pascale",
     "last_name": "Goodred",
@@ -63,7 +63,7 @@
   },
   {
     "id": "1ce72168-14c6-45a0-a743-ac28b3405620",
-    "licenseNumber": 1,
+    "licenseNumber": 3,
     "password": "b9CaP6iv7gN0",
     "first_name": "Terry",
     "last_name": "Elington",
@@ -92,7 +92,7 @@
   },
   {
     "id": "3718e118-b8ed-4860-afa9-21f0e228d3be",
-    "licenseNumber": 3,
+    "licenseNumber": 4,
     "password": "rmy3ml8LCl",
     "first_name": "Faulkner",
     "last_name": "Leidl",
@@ -121,7 +121,7 @@
   },
   {
     "id": "4e0d6b29-71b8-4756-b73b-e04ccc876b54",
-    "licenseNumber": 2,
+    "licenseNumber": 5,
     "password": "7yZCmW",
     "first_name": "Dotty",
     "last_name": "Daintier",
@@ -154,7 +154,7 @@
   },
   {
     "id": "ab79da16-b776-4f5d-b35e-ffc8ce16ed16",
-    "licenseNumber": 3,
+    "licenseNumber": 6,
     "password": "D6kWFk",
     "first_name": "Megen",
     "last_name": "Zywicki",
@@ -183,7 +183,7 @@
   },
   {
     "id": "cb85d159-0b60-4b0b-bc28-bee7a1601b33",
-    "licenseNumber": 2,
+    "licenseNumber": 7,
     "password": "By00Il9GxT",
     "first_name": "Humphrey",
     "last_name": "Armstead",
@@ -212,7 +212,7 @@
   },
   {
     "id": "d2ed6293-c3e1-4bd4-9a87-791e4bc48fc4",
-    "licenseNumber": 1,
+    "licenseNumber": 8,
     "password": "srOare",
     "first_name": "Hervey",
     "last_name": "Hickford",
@@ -241,7 +241,7 @@
   },
   {
     "id": "58d93779-08d7-48eb-90f2-9e61fbc6699c",
-    "licenseNumber": 1,
+    "licenseNumber": 9,
     "password": "qwVJaDKnkVl",
     "first_name": "Kiersten",
     "last_name": "Keford",
@@ -270,7 +270,7 @@
   },
   {
     "id": "c0e75d30-5bf2-46c1-bd9e-7822c18eacb2",
-    "licenseNumber": 1,
+    "licenseNumber": 10,
     "password": "GX7ZA9Cxv4X",
     "first_name": "Christoforo",
     "last_name": "Phorsby",
