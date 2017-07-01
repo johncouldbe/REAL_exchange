@@ -1,17 +1,13 @@
-
-const mockUsers = require('../MOCK_DATA.json');
-const mockPosts = require('../MOCK_DATA_POSTS.json');
-
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const { Post } = require('../models/post');
 const { User } = require('../models/user');
 const passport = require('passport');
 
-const base = process.env.PWD;
+// const base = process.env.PWD;
 
 function isAuthenticated (req,res,next) {
-  console.log(req.user);
    if(req.user){
     return next();
    }
@@ -30,7 +26,10 @@ function loggedIn (req, res, next) {
 }
 
 router.get('/login', loggedIn, (req, res) => {
-    res.sendFile(base + '/views/login.html');
+    res.render('login', {
+      layout: 'layout',
+      loginClass: true
+    });
 });
 
 router.post('/login', passport.authenticate('local.signin', {
@@ -47,7 +46,8 @@ router.get('/', isAuthenticated, (req, res) => {
     const user = req.user;
     res.render('index', {
       layout: 'layout',
-      user: user
+      user: user,
+      associations: user.associations
     });
 });
 //Send all users
@@ -152,6 +152,47 @@ router.post('/newUser', (req, res) => {
     });
 });
 
-//res.json({user: req.user.apiRepr()});
+
+//Send all posts
+router.get('/posts', isAuthenticated, (req, res) => {
+  Post
+  .find()
+  .then(posts => {
+    res.json({ posts });
+  });
+});
+
+//Send a requested post
+router.get('/posts/:id', isAuthenticated, (req, res) => {
+  id = req.params.id;
+  Post
+  .findOne({ _id: id })
+  .then(post => {
+    res.json({ post });
+  })
+  .catch(err => res.send(err));
+});
+
+//Send posts specific to user
+router.get('/posts/user/posts', isAuthenticated, (req, res) => {
+  console.log(req.user);
+  const id = req.user._id;
+  Post
+  .find({userId: id})
+  .then(posts => {
+    res.json({posts});
+  });
+});
+
+// app.put('/users/:id', (req, res) => {
+//   // ensure that the id in the request path and the one in request body match
+//   if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
+//     const message = (
+//       `Request path id (${req.params.id}) and request body id ` +
+//       `(${req.body.id}) must match`);
+//     console.error(message);
+//     res.status(400).json({message: message});
+//   }
+// });
 
 module.exports = { router };

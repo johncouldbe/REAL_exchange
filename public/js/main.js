@@ -1,11 +1,11 @@
+// const { myFunc } = require('./helpers');
 $(function() {
   const state = {};
 
   function getAllPosts() {
     axios.get('/posts')
-    .then(function (posts) {
-      const allPosts = posts.data;
-      console.log(posts);
+    .then(function (post) {
+      const allPosts = post.data.posts;
       let constructPosts = '';
 
       allPosts.forEach(function(post) {
@@ -20,7 +20,7 @@ $(function() {
                 <div class="card-content">
                   <div class="row">
                     <div class="col s6">
-                      <p>${post.first_name} ${post.last_name}</p>
+                      <p>${post.firstName} ${post.lastName}</p>
                     </div>
                     <div class="col s6 right-align">
                       <p>${post.date}</p>
@@ -34,7 +34,7 @@ $(function() {
                   </div>
                 </div>
                 <div class="card-action">
-                  <a class="right view-post" href="#view-post" id="${post.id}">View</a>
+                  <a class="right view-post" href="#view-post" id="${post._id}">View</a>
                   <span>5 comments</span>
                 </div>
               </div>
@@ -43,16 +43,17 @@ $(function() {
         </div>
         `;
       });
+
       $('#js-all-posts').html(constructPosts);
 
     });
   }
 
   function getUserPosts () {
-    axios.get(`/posts/user/${state.id}`)
-    .then(function(posts) {
-      const myPosts = posts.data;
+    axios.get('/posts/user/posts')
+    .then(function (posts) {
       console.log(posts);
+      const myPosts = posts.data.posts;
       let constructPosts ='';
 
       myPosts.forEach(function(post) {
@@ -67,7 +68,7 @@ $(function() {
                 <div class="card-content">
                   <div class="row">
                     <div class="col s6">
-                      <p>${post.first_name} ${post.last_name}</p>
+                      <p>${post.firstName} ${post.lastName}</p>
                     </div>
                     <div class="col s6 right-align">
                       <p>${post.date}</p>
@@ -81,7 +82,7 @@ $(function() {
                   </div>
                 </div>
                 <div class="card-action right-align">
-                  <a class="view-post" href="#view-post" id="${post.id}">View</a>
+                  <a class="view-post" href="#view-post" id="${post._id}">View</a>
                   <a class="left-border left-padding light-blue-text" href="#"> Edit</a>
                   <span class="left">5 comments</span>
                 </div>
@@ -100,29 +101,11 @@ $(function() {
     });
   }
 
-  function openFromSide(arg) {
-    if($(window).width() < 601){
-      $(arg).animate({
-        width:"100vw"
-      });
-    } else {
-      $(arg).animate({
-        width:"50vw"
-      });
-    }
-  }
-
-  function closeSidePullOut(arg) {
-    $(arg).animate({
-      width:"0"
-    });
-  }
-
   function createViewPost(arg) {
     axios.get(`/posts/${arg}`)
     .then(function(post) {
-      const postData = post.data[0];
-      console.log(post);
+    console.log(post);
+      const postData = post.data.post;
       let viewedPost = '';
 
       viewedPost = `
@@ -143,7 +126,7 @@ $(function() {
         <div class="col s12">
           <div class="center dont-break-on-overflow">
 
-            <h4>${postData.first_name} ${postData.last_name}</h4>
+            <h4>${postData.firstName} ${postData.lastName}</h4>
             <h5>${postData.subject}</h5>
             <p>${postData.body}</p>
           </div>
@@ -175,6 +158,24 @@ $(function() {
     })
     .catch(err => {
       console.log(err);
+    });
+  }
+
+  function openFromSide(arg) {
+    if($(window).width() < 601){
+      $(arg).animate({
+        width:"100vw"
+      });
+    } else {
+      $(arg).animate({
+        width:"50vw"
+      });
+    }
+  }
+
+  function closeSidePullOut(arg) {
+    $(arg).animate({
+      width:"0"
     });
   }
 
@@ -228,36 +229,6 @@ $(function() {
 //     }
 //   });
 // });
-
-// function checkCredentials(lNum, pw) {
-//   axios.get(`/login`, {
-//     params: {
-//       licensenumber: lNum,
-//       password: pw
-//     },
-//     auth: {
-//     username: lNum,
-//     password: pw
-//     }
-//   })
-//   .then(function(returned) {
-//     state.user = returned;
-//     console.log(returned);
-//   })
-//   .catch(err => {
-//     console.log(err);
-//   })
-// }
-//
-//
-// $('#js-login').click(function(e) {
-//   e.preventDefault();
-//   if($('#licenseNumber').val() != '' && $('#password').val() != '') {
-//     let licenseNumber = $('#licenseNumber').val();
-//     let password = $('#password').val();
-//     checkCredentials(licenseNumber, password);
-//   }
-// })
 
   //End
 
