@@ -52,7 +52,7 @@ main {
     background-color: #ffc107 !important;
 }
 
-.dropdown-content {
+#association-drop {
   width: 100% !important;
   margin-top:112px;
 }
@@ -209,7 +209,7 @@ main {
     height: calc(100vh - 104px);
     top: 104px;
   }
-  .dropdown-content {
+  #association-drop {
     margin-top: 104px;
   }
 }

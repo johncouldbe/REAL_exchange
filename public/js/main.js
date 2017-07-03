@@ -49,7 +49,7 @@ $(function() {
     });
   }
 
-  function getUserPosts () {
+  function getUserPosts() {
     axios.get('/posts/user')
     .then(function (posts) {
       console.log(posts);
@@ -82,8 +82,8 @@ $(function() {
                   </div>
                 </div>
                 <div class="card-action right-align">
-                  <a class="view-post" href="#view-post" id="${post._id}">View</a>
-                  <a class="left-border left-padding light-blue-text" href="#edit-post"> Edit</a>
+                  <a class="${post._id} view-post" href="#view-post">View</a>
+                  <a class="${post._id} left-border left-padding light-blue-text edit-post" href="#edit-post"> Edit</a>
                   <span class="left">5 comments</span>
                 </div>
               </div>
@@ -101,20 +101,100 @@ $(function() {
     });
   }
 
-  function createEditPost(arg) {
+  function createEditPostPanel(arg) {
     axios.get(`/posts/${arg}`)
     .then(function(post) {
       let editPost = `
       <div class="row">
         <div class="col s12">
-        <a href="#view-post" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right-black.svg" /></a>
+        <a href="#edit-post" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right-black.svg" /></a>
         </div>
       </div>
+      <div class="row">
+        <form class="col-s12 js-edit-form"  id="${post.data.post._id}">
+          <div class="row">
+            <div class="input-field col s12">
+              <input id="edit-subject" type="text" value="${post.data.post.subject}">
+              <label class="active" for="subject">Subject</label>
+            </div>
+            <div class="input-field col s12 m6">
+              <select id="edit-category">
+                <option value="" disabled selected>Choose your category</option>
+                <option value="1">Wanted</option>
+                <option value="2">Available</option>
+                <option value="3">Announcement</option>
+              </select>
+              <label>Materialize Select</label>
+            </div>
+            <div class="input-field col s12">
+              <textarea id="edit-message" class="materialize-textarea">${post.data.post.body}</textarea>
+              <label for="icon_prefix2" class="active">Message</label>
+            </div>
+          </div>
+        </div>
+        </form>
+        <div class="row">
+          <div class="col s6">
+            <button class="right btn waves-effect waves-light red" type="submit" id="js-delete-post">Delete</button>
+          </div>
+          <div class="col s6">
+            <button class="left btn waves-effect waves-light green" type="submit" id="js-edit-post">Submit</button>
+          </div>
+      </div>
+      `;
+      $('#edit-post').html(editPost);
 
-      
-      `
+      $('select').material_select();
     })
+    .catch(err => console.log(err));
   }
+
+  function validateEditPost(subject, message, category, err) {
+    if(subject == '') {
+      err += '\nMissing subject';
+    }
+    if(message == '') {
+      err += '\nMissing message';
+    }
+    if(category == 'Choose your category') {
+      err += '\nMissing Category';
+    }
+    if(err != 'Error:') {
+      alert(err);
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  function editPost(subject, message, category, id) {
+    axios.put(`/posts/${id}`, {
+      data: {
+        "subject": subject,
+        "body": message,
+        "type": category
+      }
+    })
+    .then(function (returned) {
+      console.log('yay!');
+    })
+    .catch(err => console.log(err))
+  }
+
+  $('#edit-post').on('click', '#js-edit-post', function(e) {
+    e.preventDefault();
+    let editSubject = $('#edit-subject').val();
+    let editMessage = $('textarea#edit-message').val();
+    let editCategory = $('#edit-category').find(':selected').text();
+    let errorMsg = 'Error:';
+    let id = $('.js-edit-form').attr('id');
+
+    if(validateEditPost(editSubject, editMessage, editCategory, errorMsg)) {
+      editPost(editSubject, editMessage, editCategory, id);
+    }
+
+
+  });
 
   function createViewPost(arg) {
     axios.get(`/posts/${arg}`)
@@ -200,18 +280,18 @@ $(function() {
   $('#js-get-all-posts').click(getAllPosts);
 
   //View Settings, View-Post, and Edit-Post panels
-  $("main").on('click', '.js-settings, .view-post', '.edit-post' function(e) {
+  $("main").on('click', '.js-settings, .view-post, .edit-post', function(e) {
     e.preventDefault();
     let reference = $(this).attr('href');
 
     if($(this).hasClass('view-post')){
-      let postId = $(this).attr('id');
+      let postId = $(this).attr('class').split(' ')[0];
       createViewPost(postId);
     }
 
     if($(this).hasClass('edit-post')){
-      let postId = $(this).attr('id');
-      createEditPost(postId);
+      let postId = $(this).attr('class').split(' ')[0];
+      createEditPostPanel(postId);
     }
 
     openFromSide(reference);
