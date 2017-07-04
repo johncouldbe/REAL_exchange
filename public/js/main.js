@@ -175,10 +175,22 @@ $(function() {
         "type": category
       }
     })
-    .then(function (returned) {
-      console.log('yay!');
-    })
     .catch(err => console.log(err))
+  }
+
+  function successScreen() {
+    let successScreen = `
+    <div class="row">
+      <div class="col s12">
+      <a href="#edit-post" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right-black.svg" /></a>
+      </div>
+    </div>
+      <div class="row">
+        <div class="col s12 full-height green">
+        </div>
+      </div>
+    `;
+    $('#edit-post').html(successScreen);
   }
 
   $('#edit-post').on('click', '#js-edit-post', function(e) {
@@ -192,8 +204,7 @@ $(function() {
     if(validateEditPost(editSubject, editMessage, editCategory, errorMsg)) {
       editPost(editSubject, editMessage, editCategory, id);
     }
-
-
+    successScreen();
   });
 
   function createViewPost(arg) {

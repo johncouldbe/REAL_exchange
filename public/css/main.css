@@ -40,6 +40,10 @@ main {
   margin-top: 48px;
 }
 
+.full-green-screen {
+  height: inherit;
+}
+
 .word-break {
   word-break: break-all;
 }
@@ -93,10 +97,14 @@ main {
 
 .side-pull-out {
   overflow-x: hidden;
-  height: calc(100vh - 112px);
   position: fixed;
   width: 0;
   z-index: 2;
+}
+
+.full-height {
+  top: 112px;
+  height: calc(100vh - 112px);
 }
 
 .absolute-right {
@@ -206,6 +214,11 @@ main {
 
 @media screen and (max-width: 600px){
   .absolute-left, .absolute-right {
+    height: calc(100vh - 104px);
+    top: 104px;
+  }
+
+  .full-height {
     height: calc(100vh - 104px);
     top: 104px;
   }
