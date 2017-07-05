@@ -1,4 +1,4 @@
-// const { myFunc } = require('./helpers');
+/* global $ axios*/
 $(function() {
   const state = {};
 
@@ -34,7 +34,7 @@ $(function() {
                   </div>
                 </div>
                 <div class="card-action">
-                  <a class="right view-post" href="#view-post" id="${post._id}">View</a>
+                  <a class="${post._id} right view-post" href="#view-post" >View</a>
                   <span>5 comments</span>
                 </div>
               </div>
@@ -101,33 +101,11 @@ $(function() {
     });
   }
   
-  $('#edit-post').on('click', '.upload-btn', function (){
-    $('#upload-photo').click();
-    $('.progress-bar').text('0%');
-    $('.progress-bar').width('0%');
-  });
-  
-  $('#edit-post').on('change', '#upload-photo', function(){
-
-  var files = $(this).get(0).files;
-
-  if (files.length > 0){
-    // create a FormData object which will be sent as the data payload in the
-    // AJAX request
-    var formData = new FormData();
-
-    // loop through all the selected files and add them to the formData object
-    for (var i = 0; i < files.length; i++) {
-      var file = files[i];
-
-      // add the files to formData object for the data payload
-      formData.append('uploads[]', file, file.name);
-    }
-
+  function uploadPostPhoto() {
     $.ajax({
-      url: '/upload',
+      url: '/posts/upload',
       type: 'POST',
-      data: formData,
+      data: state.formData,
       processData: false,
       contentType: false,
       success: function(data){
@@ -161,6 +139,32 @@ $(function() {
         return xhr;
       }
     });
+  }
+  
+  $('#edit-post').on('click', '.upload-btn', function (e){
+    $('.progress-bar').text('0%');
+    $('.progress-bar').width('0%');
+    uploadPostPhoto();
+  });
+  
+  $('#edit-post').on('change', '#upload-photo', function(){
+
+  var files = $(this).get(0).files;
+
+  if (files.length > 0){
+    // create a FormData object which will be sent as the data payload in the
+    // AJAX request
+    var formData = new FormData();
+
+    // loop through all the selected files and add them to the formData object
+    for (var i = 0; i < files.length; i++) {
+      var file = files[i];
+
+      // add the files to formData object for the data payload
+      formData.append('uploads[]', file, file.name);
+    }
+    
+    state.formData = formData;
 
   }
 });
@@ -174,24 +178,30 @@ $(function() {
         <a href="#edit-post" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right-black.svg" /></a>
         </div>
       </div>
-      <div class="progress">
-       <div class="determinate progress-bar" ></div>
-      </div>
-      <div class="row">
+      
+      <div class="row center">
+        <h5>Images</h5>
         <form action="#" class="col s12">
           <div class="file-field input-field">
             <div class="btn light-blue">
-              <span>File</span>
+              <span>Find</span>
               <input id="upload-photo" name="uploads[]" type="file" multiple>
             </div>
             <div class="file-path-wrapper">
             <input class="file-path validate" type="text" placeholder="Upload one or more files">
             </div>
           </div>
-          <button class="btn light-blue upload-btn" type="button">Upload</button>
+          <div class="progress col s12">
+            <div class="determinate progress-bar" ></div>
+          </div>
+            <button class="btn light-blue upload-btn" type="button">Upload</button>
         </form>
+        
+      
       </div>
-      <div class="row">
+      <div class="row center">
+        <div class="divider"></div>
+        <h5>Post</h5>
         <form class="col-s12 js-edit-form"  id="${post.data.post._id}">
           <div class="row">
             <div class="input-field col s12">
