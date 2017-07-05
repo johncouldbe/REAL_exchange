@@ -100,6 +100,70 @@ $(function() {
       console.log(err);
     });
   }
+  
+  $('#edit-post').on('click', '.upload-btn', function (){
+    $('#upload-photo').click();
+    $('.progress-bar').text('0%');
+    $('.progress-bar').width('0%');
+  });
+  
+  $('#edit-post').on('change', '#upload-photo', function(){
+
+  var files = $(this).get(0).files;
+
+  if (files.length > 0){
+    // create a FormData object which will be sent as the data payload in the
+    // AJAX request
+    var formData = new FormData();
+
+    // loop through all the selected files and add them to the formData object
+    for (var i = 0; i < files.length; i++) {
+      var file = files[i];
+
+      // add the files to formData object for the data payload
+      formData.append('uploads[]', file, file.name);
+    }
+
+    $.ajax({
+      url: '/upload',
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function(data){
+          console.log('upload successful!\n' + data);
+      },
+      xhr: function() {
+        // create an XMLHttpRequest
+        var xhr = new XMLHttpRequest();
+
+        // listen to the 'progress' event
+        xhr.upload.addEventListener('progress', function(evt) {
+
+          if (evt.lengthComputable) {
+            // calculate the percentage of upload completed
+            var percentComplete = evt.loaded / evt.total;
+            percentComplete = parseInt(percentComplete * 100);
+
+            // update the Bootstrap progress bar with the new percentage
+            $('.progress-bar').text(percentComplete + '%');
+            $('.progress-bar').width(percentComplete + '%');
+
+            // once the upload reaches 100%, set the progress bar text to done
+            if (percentComplete === 100) {
+              $('.progress-bar').html('Done');
+            }
+
+          }
+
+        }, false);
+
+        return xhr;
+      }
+    });
+
+  }
+});
 
   function createEditPostPanel(arg) {
     axios.get(`/posts/${arg}`)
@@ -109,6 +173,23 @@ $(function() {
         <div class="col s12">
         <a href="#edit-post" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right-black.svg" /></a>
         </div>
+      </div>
+      <div class="progress">
+       <div class="determinate progress-bar" ></div>
+      </div>
+      <div class="row">
+        <form action="#" class="col s12">
+          <div class="file-field input-field">
+            <div class="btn light-blue">
+              <span>File</span>
+              <input id="upload-photo" name="uploads[]" type="file" multiple>
+            </div>
+            <div class="file-path-wrapper">
+            <input class="file-path validate" type="text" placeholder="Upload one or more files">
+            </div>
+          </div>
+          <button class="btn light-blue upload-btn" type="button">Upload</button>
+        </form>
       </div>
       <div class="row">
         <form class="col-s12 js-edit-form"  id="${post.data.post._id}">
@@ -138,7 +219,7 @@ $(function() {
             <button class="right btn waves-effect waves-light red" type="submit" id="js-delete-post">Delete</button>
           </div>
           <div class="col s6">
-            <button class="left btn waves-effect waves-light green" type="submit" id="js-edit-post">Submit</button>
+            <button class="left btn waves-effect waves-light light-blue" type="submit" id="js-edit-post">Submit</button>
           </div>
       </div>
       `;
