@@ -8,6 +8,7 @@ const PostSchema = mongoose.Schema({
   subject: {type: String, default: ""},
   date: {type: String, default: ""},
   type: {type: String, default: ""},
+  images: {type: Array, default: []},
   comments: {type: Array, default: []}
 });
 

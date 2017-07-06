@@ -100,10 +100,10 @@ $(function() {
       console.log(err);
     });
   }
-  
-  function uploadPostPhoto() {
+
+  function uploadPostPhoto(id) {
     $.ajax({
-      url: '/posts/upload',
+      url: `/posts/upload/${id}`,
       type: 'POST',
       data: state.formData,
       processData: false,
@@ -140,13 +140,14 @@ $(function() {
       }
     });
   }
-  
+
   $('#edit-post').on('click', '.upload-btn', function (e){
     $('.progress-bar').text('0%');
     $('.progress-bar').width('0%');
-    uploadPostPhoto();
+    const id = $(this).attr('id');
+    uploadPostPhoto(id);
   });
-  
+
   $('#edit-post').on('change', '#upload-photo', function(){
 
   var files = $(this).get(0).files;
@@ -163,7 +164,7 @@ $(function() {
       // add the files to formData object for the data payload
       formData.append('uploads[]', file, file.name);
     }
-    
+
     state.formData = formData;
 
   }
@@ -178,7 +179,7 @@ $(function() {
         <a href="#edit-post" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right-black.svg" /></a>
         </div>
       </div>
-      
+
       <div class="row center">
         <h5>Images</h5>
         <form action="#" class="col s12">
@@ -194,15 +195,15 @@ $(function() {
           <div class="progress col s12">
             <div class="determinate progress-bar" ></div>
           </div>
-            <button class="btn light-blue upload-btn" type="button">Upload</button>
+            <button class="btn light-blue upload-btn" type="button" id="${post.data.post._id}">Upload</button>
         </form>
-        
-      
+
+
       </div>
       <div class="row center">
         <div class="divider"></div>
         <h5>Post</h5>
-        <form class="col-s12 js-edit-form"  id="${post.data.post._id}">
+        <form class="col-s12 js-edit-form">
           <div class="row">
             <div class="input-field col s12">
               <input id="edit-subject" type="text" value="${post.data.post.subject}">
@@ -223,14 +224,14 @@ $(function() {
             </div>
           </div>
         </div>
+        <div class="col s6">
+          <button class="right btn waves-effect waves-light red" type="submit" id="js-delete-post">Delete</button>
+        </div>
+        <div class="col s6">
+          <button class="left btn waves-effect waves-light light-blue" type="submit" id="js-edit-post">Submit</button>
+        </div>
         </form>
         <div class="row">
-          <div class="col s6">
-            <button class="right btn waves-effect waves-light red" type="submit" id="js-delete-post">Delete</button>
-          </div>
-          <div class="col s6">
-            <button class="left btn waves-effect waves-light light-blue" type="submit" id="js-edit-post">Submit</button>
-          </div>
       </div>
       `;
       $('#edit-post').html(editPost);

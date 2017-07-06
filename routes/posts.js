@@ -1,4 +1,5 @@
 const express = require('express');
+const cloudinary = require('cloudinary');
 var formidable = require('formidable');
 var fs = require('fs');
 const router = express.Router();
@@ -60,33 +61,46 @@ router.delete('/:id', isAuthenticated, (req, res) => {
   console.log(`Delete post id:${req.params.id}`);
 });
 
-router.post('/upload', function(req, res){
+function sendToCloud(file, id) {
+  console.log('Image added to post:' + id);
+  cloudinary.uploader.upload(file, function(_result) {
+    console.log(_result)
+    const image = _result.secure_url;
+    Post
+    .update({'_id': id}, { $push: { images: image } })
+    .then(function(post) {
+      console.log("Added image to post");
+      console.log(post);
+    }).catch(err => console.log(err))
+  });
+}
 
+router.post('/upload/:postId', function(req, res){
+  const id = req.params.postId;
+  let fileNames = [];
   // create an incoming form object
   var form = new formidable.IncomingForm();
-
   // specify that we want to allow the user to upload multiple files in a single request
   form.multiples = true;
-
   // store all uploads in the /uploads directory
   form.uploadDir = path.join(__dirname, '../uploads');
-
   // every time a file has been uploaded successfully,
   // rename it to it's orignal name
   form.on('file', function(field, file) {
-    fs.rename(file.path, path.join(form.uploadDir, file.name));
+    fileNames.push(path.join(form.uploadDir, file.name));
+    fs.rename(file.path, file.name);
   });
-
   // log any errors that occur
   form.on('error', function(err) {
     console.log('An error has occured: \n' + err);
   });
-
   // once all the files have been uploaded, send a response to the client
   form.on('end', function() {
+    fileNames.forEach(function(file) {
+      sendToCloud(file, id);
+    })
     res.end('success');
   });
-
   // parse the incoming request containing the form data
   form.parse(req);
 });
