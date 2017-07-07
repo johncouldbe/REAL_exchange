@@ -63,15 +63,17 @@ router.delete('/:id', isAuthenticated, (req, res) => {
 
 function sendToCloud(file, id) {
   console.log('Image added to post:' + id);
-  cloudinary.uploader.upload(file, function(_result) {
-    console.log(_result)
+  cloudinary.uploader.upload(file, function(result) {
+    console.log(result)
     const image = _result.secure_url;
     Post
-    .update({'_id': id}, { $push: { images: image } })
-    .then(function(post) {
+    .update(
+      { '_id': id },
+      { $push: { images: image }
+     })
+    .then(function() {
       console.log("Added image to post");
-      console.log(post);
-    }).catch(err => console.log(err))
+    }).catch(err => console.log(err));
   });
 }
 
