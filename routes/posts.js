@@ -61,11 +61,12 @@ router.delete('/:id', isAuthenticated, (req, res) => {
   console.log(`Delete post id:${req.params.id}`);
 });
 
-function sendToCloud(file, id) {
+const sendToCloud = (file, id) => {
   console.log('Image added to post:' + id);
-  cloudinary.uploader.upload(file, function(result) {
-    console.log(result)
-    const image = _result.secure_url;
+  cloudinary.uploader.upload(file, (err, result) => {
+    console.log("----" + result);
+    console.log('====' + JSON.stringify(err));
+    const image = result.secure_url;
     Post
     .update(
       { '_id': id },
@@ -73,11 +74,12 @@ function sendToCloud(file, id) {
      })
     .then(function() {
       console.log("Added image to post");
-    }).catch(err => console.log(err));
+    })
+    .catch(err => console.log(err));
   });
 }
 
-router.post('/upload/:postId', function(req, res){
+router.post('/upload/:postId', (req, res) => {
   const id = req.params.postId;
   let fileNames = [];
   // create an incoming form object

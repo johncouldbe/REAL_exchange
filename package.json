@@ -32,7 +32,7 @@
   "scripts": {
     "start": "node server.js",
     "test": "mocha",
-    "build": "webpack public/js/main.js public/js/dist/bundle.js"
+    "build": "webpack public/js/main.js --watch public/js/dist/bundle.js"
   },
   "keywords": [
     "REALTOR",

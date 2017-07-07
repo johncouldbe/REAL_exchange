@@ -86,6 +86,7 @@ $(function() {
   const state = {};
 
   function uploadPostPhoto(id) {
+    console.log(state);
     $.ajax({
       url: `/posts/upload/${id}`,
       type: 'POST',
@@ -94,6 +95,9 @@ $(function() {
       contentType: false,
       success: function(data){
           console.log('upload successful!\n' + data);
+      },
+      error: err => {
+        console.log(`--- ${JSON.stringify(err)}`);
       },
       xhr: function() {
         // create an XMLHttpRequest
@@ -113,7 +117,7 @@ $(function() {
             }
           }
         }, false);
-        
+
         return xhr;
       }
     });
@@ -128,7 +132,7 @@ $(function() {
 
   $('#edit-post').on('change', '#upload-photo', function(){
   var files = $(this).get(0).files;
-
+  console.log(`Files: ${files}`);
   if (files.length > 0){
     // create a FormData object which will be sent as the data payload in the
     // AJAX request
@@ -136,27 +140,14 @@ $(function() {
     // loop through all the selected files and add them to the formData object
     for (var i = 0; i < files.length; i++) {
       var file = files[i];
+      console.log(`File loop: ${file}`);
       // add the files to formData object for the data payload
       formData.append('uploads[]', file, file.name);
     }
     state.formData = formData;
+    console.log(state.formData.uploads);
   }
 });
-
-  function successScreen() {
-    let successScreen = `
-    <div class="row">
-      <div class="col s12">
-      <a href="#edit-post" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right-black.svg" /></a>
-      </div>
-    </div>
-      <div class="row">
-        <div class="col s12 full-height green">
-        </div>
-      </div>
-    `;
-    $('#edit-post').html(successScreen);
-  }
 
   $('#edit-post').on('click', '#js-edit-post', function(e) {
     e.preventDefault();
