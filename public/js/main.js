@@ -1,105 +1,13 @@
+import { getAllPosts } from './posts/create-all-posts';
+import { getUserPosts } from './posts/create-user-posts';
+import { createViewPost } from './posts/create-view-post-panel';
+import { createEditPostPanel } from './posts/create-edit-post-panel';
+import { editPost, validateEditPost } from './posts/edit-post';
+
 /* global $ axios*/
 $(function() {
+
   const state = {};
-
-  function getAllPosts() {
-    axios.get('/posts')
-    .then(function (post) {
-      const allPosts = post.data.posts;
-      let constructPosts = '';
-
-      allPosts.forEach(function(post) {
-        constructPosts += `
-        <div class="row">
-          <div class="col s12">
-            <div class="card horizontal hoverable">
-              <div class="card-image">
-                <img src="http://lorempixel.com/100/190/nature/">
-              </div>
-              <div class="card-stacked">
-                <div class="card-content">
-                  <div class="row">
-                    <div class="col s6">
-                      <p>${post.firstName} ${post.lastName}</p>
-                    </div>
-                    <div class="col s6 right-align">
-                      <p>${post.date}</p>
-                    </div>
-                    <div class="col s12">
-                      <p><strong>${post.type}</strong></p>
-                    </div>
-                  </div>
-                  <div class="col s12">
-                    <p><strong>${post.subject}</strong></h5>
-                  </div>
-                </div>
-                <div class="card-action">
-                  <a class="${post._id} right view-post" href="#view-post" >View</a>
-                  <span>5 comments</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        `;
-      });
-
-      $('#js-all-posts').html(constructPosts);
-
-    });
-  }
-
-  function getUserPosts() {
-    axios.get('/posts/user')
-    .then(function (posts) {
-      console.log(posts);
-      const myPosts = posts.data.posts;
-      let constructPosts ='';
-
-      myPosts.forEach(function(post) {
-        constructPosts += `
-        <div class="row">
-          <div class="col s12">
-            <div class="card horizontal hoverable">
-              <div class="card-image">
-                <img src="http://lorempixel.com/100/190/nature/">
-              </div>
-              <div class="card-stacked">
-                <div class="card-content">
-                  <div class="row">
-                    <div class="col s6">
-                      <p>${post.firstName} ${post.lastName}</p>
-                    </div>
-                    <div class="col s6 right-align">
-                      <p>${post.date}</p>
-                    </div>
-                    <div class="col s12">
-                      <p><strong>${post.type}</strong></p>
-                    </div>
-                  </div>
-                  <div class="col s12">
-                    <p><strong>${post.subject}</strong></h5>
-                  </div>
-                </div>
-                <div class="card-action right-align">
-                  <a class="${post._id} view-post" href="#view-post">View</a>
-                  <a class="${post._id} left-border left-padding light-blue-text edit-post" href="#edit-post"> Edit</a>
-                  <span class="left">5 comments</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        `;
-      });
-      $('#js-my-post').append(constructPosts);
-
-      $('#my-posts-tab').click();
-    })
-    .catch(err => {
-      console.log(err);
-    });
-  }
 
   function uploadPostPhoto(id) {
     $.ajax({
@@ -114,28 +22,22 @@ $(function() {
       xhr: function() {
         // create an XMLHttpRequest
         var xhr = new XMLHttpRequest();
-
         // listen to the 'progress' event
         xhr.upload.addEventListener('progress', function(evt) {
-
           if (evt.lengthComputable) {
             // calculate the percentage of upload completed
             var percentComplete = evt.loaded / evt.total;
             percentComplete = parseInt(percentComplete * 100);
-
             // update the Bootstrap progress bar with the new percentage
             $('.progress-bar').text(percentComplete + '%');
             $('.progress-bar').width(percentComplete + '%');
-
             // once the upload reaches 100%, set the progress bar text to done
             if (percentComplete === 100) {
               $('.progress-bar').html('Done');
             }
-
           }
-
         }, false);
-
+        
         return xhr;
       }
     });
@@ -149,126 +51,21 @@ $(function() {
   });
 
   $('#edit-post').on('change', '#upload-photo', function(){
-
   var files = $(this).get(0).files;
 
   if (files.length > 0){
     // create a FormData object which will be sent as the data payload in the
     // AJAX request
     var formData = new FormData();
-
     // loop through all the selected files and add them to the formData object
     for (var i = 0; i < files.length; i++) {
       var file = files[i];
-
       // add the files to formData object for the data payload
       formData.append('uploads[]', file, file.name);
     }
-
     state.formData = formData;
-
   }
 });
-
-  function createEditPostPanel(arg) {
-    axios.get(`/posts/${arg}`)
-    .then(function(post) {
-      let editPost = `
-      <div class="row">
-        <div class="col s12">
-        <a href="#edit-post" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right-black.svg" /></a>
-        </div>
-      </div>
-
-      <div class="row center">
-        <h5>Images</h5>
-        <form action="#" class="col s12">
-          <div class="file-field input-field">
-            <div class="btn light-blue">
-              <span>Find</span>
-              <input id="upload-photo" name="uploads[]" type="file" multiple>
-            </div>
-            <div class="file-path-wrapper">
-            <input class="file-path validate" type="text" placeholder="Upload one or more files">
-            </div>
-          </div>
-          <div class="progress col s12">
-            <div class="determinate progress-bar" ></div>
-          </div>
-            <button class="btn light-blue upload-btn" type="button" id="${post.data.post._id}">Upload</button>
-        </form>
-
-
-      </div>
-      <div class="row center">
-        <div class="divider"></div>
-        <h5>Post</h5>
-        <form class="col-s12 js-edit-form">
-          <div class="row">
-            <div class="input-field col s12">
-              <input id="edit-subject" type="text" value="${post.data.post.subject}">
-              <label class="active" for="subject">Subject</label>
-            </div>
-            <div class="input-field col s12 m6">
-              <select id="edit-category">
-                <option value="" disabled selected>Choose your category</option>
-                <option value="1">Wanted</option>
-                <option value="2">Available</option>
-                <option value="3">Announcement</option>
-              </select>
-              <label>Materialize Select</label>
-            </div>
-            <div class="input-field col s12">
-              <textarea id="edit-message" class="materialize-textarea">${post.data.post.body}</textarea>
-              <label for="icon_prefix2" class="active">Message</label>
-            </div>
-          </div>
-        </div>
-        <div class="col s6">
-          <button class="right btn waves-effect waves-light red" type="submit" id="js-delete-post">Delete</button>
-        </div>
-        <div class="col s6">
-          <button class="left btn waves-effect waves-light light-blue" type="submit" id="js-edit-post">Submit</button>
-        </div>
-        </form>
-        <div class="row">
-      </div>
-      `;
-      $('#edit-post').html(editPost);
-
-      $('select').material_select();
-    })
-    .catch(err => console.log(err));
-  }
-
-  function validateEditPost(subject, message, category, err) {
-    if(subject == '') {
-      err += '\nMissing subject';
-    }
-    if(message == '') {
-      err += '\nMissing message';
-    }
-    if(category == 'Choose your category') {
-      err += '\nMissing Category';
-    }
-    if(err != 'Error:') {
-      alert(err);
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  function editPost(subject, message, category, id) {
-    axios.put(`/posts/${id}`, {
-      data: {
-        "subject": subject,
-        "body": message,
-        "type": category
-      }
-    })
-    .catch(err => console.log(err))
-  }
 
   function successScreen() {
     let successScreen = `
@@ -287,75 +84,17 @@ $(function() {
 
   $('#edit-post').on('click', '#js-edit-post', function(e) {
     e.preventDefault();
-    let editSubject = $('#edit-subject').val();
-    let editMessage = $('textarea#edit-message').val();
-    let editCategory = $('#edit-category').find(':selected').text();
-    let errorMsg = 'Error:';
-    let id = $('.js-edit-form').attr('id');
+    const editSubject = $('#edit-subject').val();
+    const editMessage = $('textarea#edit-message').val();
+    const editCategory = $('#edit-category').find(':selected').text();
+    const errorMsg = 'Error:';
+    const id = $('.js-edit-form').attr('id');
 
     if(validateEditPost(editSubject, editMessage, editCategory, errorMsg)) {
       editPost(editSubject, editMessage, editCategory, id);
     }
-    successScreen();
+    closeSidePullOut('#edit-post');
   });
-
-  function createViewPost(arg) {
-    axios.get(`/posts/${arg}`)
-    .then(function(post) {
-    console.log(post);
-      let viewedPost = '';
-
-      viewedPost = `
-      <div class="row">
-        <div class="col s12">
-        <a href="#view-post" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right-black.svg" /></a>
-        </div>
-      </div>
-
-      <div class="carousel">
-        <a class="carousel-item" href="#one!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/1"></a>
-        <a class="carousel-item" href="#two!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/2"></a>
-        <a class="carousel-item" href="#three!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/3"></a>
-        <a class="carousel-item" href="#four!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/4"></a>
-        <a class="carousel-item" href="#five!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/5"></a>
-      </div>
-      <div class="row">
-        <div class="col s12">
-          <div class="center dont-break-on-overflow">
-
-            <h4>${post.data.post.firstName} ${post.data.post.lastName}</h4>
-            <h5>${post.data.post.subject}</h5>
-            <p>${post.data.post.body}</p>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col s12">
-          <div class="divider"></div>
-          <h5>Comments</h5>
-        </div>
-      </div>
-      <div class="row">
-        <form class="col s12">
-          <div class="row">
-            <div class="input-field col s12">
-              <i class="material-icons prefix">mode_edit</i>
-              <textarea id="icon_prefix2" class="materialize-textarea"></textarea>
-              <label for="icon_prefix2">Comment</label>
-            </div>
-          </div>
-        </form>
-      </div>
-      `;
-
-      $('#view-post').html(viewedPost);
-      setTimeout(function () { $('.carousel').carousel(); $('.materialboxed').materialbox(); }, 400)
-
-    })
-    .catch(err => {
-      console.log(err);
-    });
-  }
 
   function openFromSide(arg) {
     if($(window).width() < 601){
