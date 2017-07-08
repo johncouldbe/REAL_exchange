@@ -204,9 +204,16 @@ function getAllPosts() {
       <div class="row">
         <div class="col s12">
           <div class="card horizontal hoverable">
-            <div class="card-image">
-              <img src="http://lorempixel.com/100/190/nature/">
-            </div>
+      `;
+        if(post.images.length > 0) {
+          constructPosts += `
+          <div class="card-image">
+          <img src="${post.images[0]}">
+          </div>
+          `;
+        }
+
+      constructPosts += `
             <div class="card-stacked">
               <div class="card-content">
                 <div class="row">
@@ -259,20 +266,16 @@ function getUserPosts() {
       <div class="row post-card">
         <div class="col s12">
           <div class="card horizontal hoverable">
-            <div class="card-image">
       `;
         if(post.images.length > 0) {
           constructPosts += `
-          <img src="${post.images[0]}">
-          `;
-        } else {
-          constructPosts += `
-          <img src="http://lorempixel.com/100/190/nature/">
+          <div class="card-image">
+          <img src="${post.images[0].image}">
+          </div>
           `;
         }
 
       constructPosts += `
-            </div>
             <div class="card-stacked">
               <div class="card-content">
                 <div class="row">
@@ -338,8 +341,8 @@ function createViewPost(arg) {
 
       for(let i=0; i < post.data.post.images.length; i++) {
         viewedPost += `
-        <a class="carousel-item" href="#${i}" data-featherlight="${post.data.post.images[i]}">
-          <img class="materialboxed slider-img" src="${post.data.post.images[i]}" >
+        <a class="carousel-item" href="#${i}">
+          <img class="materialboxed slider-img" src="${post.data.post.images[i].image}" >
         </a>`;
       }
 
@@ -394,10 +397,24 @@ function createViewPost(arg) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = createEditPostPanel;
-function createEditPostPanel(arg) {
+const imageDisplay = (post) => {
+    let str = '<form action="#" class="col s12">';
+    for (let i = 0; i < post.data.post.images.length; i++) {
+      str +=`
+        <p>
+          <input type="checkbox" id="${post.data.post.images[i].signature}" />
+          <label for="Image ${i}">${post.data.post.images[i].imageName}</label>
+        </p>
+      `;
+    }
+    str += `</form>`
+
+    return str;
+}
+
+const createEditPostPanel = arg => {
   axios.get(`/posts/${arg}`)
-  .then(function(post) {
+  .then( post => {
     let editPost = `
     <div class="row">
       <div class="col s12">
@@ -407,6 +424,13 @@ function createEditPostPanel(arg) {
 
     <div class="row center">
       <h5>Images</h5>
+    `;
+
+    if(post.data.post.images.length > 0){
+      editPost += imageDisplay(post);
+    }
+
+    editPost += `
       <form action="#" class="col s12">
         <div class="file-field input-field">
           <div class="btn light-blue">
@@ -422,9 +446,8 @@ function createEditPostPanel(arg) {
         </div>
           <button class="btn light-blue upload-btn" type="button" id="${post.data.post._id}">Upload</button>
       </form>
-
-
     </div>
+
     <div class="row center">
       <div class="divider"></div>
       <h5>Post</h5>
@@ -465,6 +488,8 @@ function createEditPostPanel(arg) {
   })
   .catch(err => console.log(err));
 }
+/* harmony export (immutable) */ __webpack_exports__["a"] = createEditPostPanel;
+
 
 
 /***/ }),

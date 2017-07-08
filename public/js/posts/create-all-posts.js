@@ -9,9 +9,16 @@ export function getAllPosts() {
       <div class="row">
         <div class="col s12">
           <div class="card horizontal hoverable">
-            <div class="card-image">
-              <img src="http://lorempixel.com/100/190/nature/">
-            </div>
+      `;
+        if(post.images.length > 0) {
+          constructPosts += `
+          <div class="card-image">
+          <img src="${post.images[0]}">
+          </div>
+          `;
+        }
+
+      constructPosts += `
             <div class="card-stacked">
               <div class="card-content">
                 <div class="row">

@@ -61,23 +61,6 @@ router.delete('/:id', isAuthenticated, (req, res) => {
   console.log(`Delete post id:${req.params.id}`);
 });
 
-const sendToCloud = (file, id) => {
-  console.log('Image added to post:' + id);
-  cloudinary.uploader.upload(file, result => {
-    console.log("----" + result);
-    const image = result.secure_url;
-    Post
-    .update(
-      { '_id': id },
-      { $push: { images: image }
-     })
-    .then(function() {
-      console.log("Added image to post");
-    })
-    .catch(err => console.log(err));
-  });
-}
-
 router.post('/upload/:postId', (req, res) => {
   const id = req.params.postId;
   let fileNames = [];
@@ -117,6 +100,31 @@ function isAuthenticated (req,res,next) {
    else {
     return res.redirect('/login');
    }
+}
+
+const sendToCloud = (file, id) => {
+  console.log('Image added to post:' + id);
+  cloudinary.uploader.upload(file, result => {
+    console.log("----" + JSON.stringify(result));
+    const img = result.secure_url;
+    const imgNm = result.original_filename;
+    const sig = result.signature
+    Post
+    .update(
+      { '_id': id },
+      { $push: {
+          images: {
+            'image': img,
+            'imageName': imgNm,
+            'signature': sig 
+          }
+        }
+      })
+    .then(function() {
+      console.log("Added image to post");
+    })
+    .catch(err => console.log(err));
+  });
 }
 
 module.exports = router;

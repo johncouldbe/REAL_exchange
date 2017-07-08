@@ -1,6 +1,21 @@
-export function createEditPostPanel(arg) {
+const imageDisplay = (post) => {
+    let str = '<form action="#" class="col s12">';
+    for (let i = 0; i < post.data.post.images.length; i++) {
+      str +=`
+        <p>
+          <input type="checkbox" id="${post.data.post.images[i].signature}" />
+          <label for="Image ${i}">${post.data.post.images[i].imageName}</label>
+        </p>
+      `;
+    }
+    str += `</form>`
+
+    return str;
+}
+
+export const createEditPostPanel = arg => {
   axios.get(`/posts/${arg}`)
-  .then(function(post) {
+  .then( post => {
     let editPost = `
     <div class="row">
       <div class="col s12">
@@ -10,6 +25,13 @@ export function createEditPostPanel(arg) {
 
     <div class="row center">
       <h5>Images</h5>
+    `;
+
+    if(post.data.post.images.length > 0){
+      editPost += imageDisplay(post);
+    }
+
+    editPost += `
       <form action="#" class="col s12">
         <div class="file-field input-field">
           <div class="btn light-blue">
@@ -25,9 +47,8 @@ export function createEditPostPanel(arg) {
         </div>
           <button class="btn light-blue upload-btn" type="button" id="${post.data.post._id}">Upload</button>
       </form>
-
-
     </div>
+
     <div class="row center">
       <div class="divider"></div>
       <h5>Post</h5>

@@ -81,8 +81,8 @@ main {
 }
 
 .card-image {
-  max-width: 100px !important;
-  max-height: 100px;
+  width: 100px !important;
+  height: 100px;
   overflow: hidden !important;
   border-radius: 0 0 2px 0;
 }

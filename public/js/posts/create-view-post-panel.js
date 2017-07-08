@@ -19,8 +19,8 @@ export function createViewPost(arg) {
 
       for(let i=0; i < post.data.post.images.length; i++) {
         viewedPost += `
-        <a class="carousel-item" href="#${i}" data-featherlight="${post.data.post.images[i]}">
-          <img class="materialboxed slider-img" src="${post.data.post.images[i]}" >
+        <a class="carousel-item" href="#${i}">
+          <img class="materialboxed slider-img" src="${post.data.post.images[i].image}" >
         </a>`;
       }
 

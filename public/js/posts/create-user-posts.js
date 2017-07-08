@@ -10,20 +10,16 @@ export function getUserPosts() {
       <div class="row post-card">
         <div class="col s12">
           <div class="card horizontal hoverable">
-            <div class="card-image">
       `;
         if(post.images.length > 0) {
           constructPosts += `
-          <img src="${post.images[0]}">
-          `;
-        } else {
-          constructPosts += `
-          <img src="http://lorempixel.com/100/190/nature/">
+          <div class="card-image">
+          <img src="${post.images[0].image}">
+          </div>
           `;
         }
 
       constructPosts += `
-            </div>
             <div class="card-stacked">
               <div class="card-content">
                 <div class="row">
