@@ -7,17 +7,27 @@ export function createViewPost(arg) {
     viewedPost = `
     <div class="row">
       <div class="col s12">
-      <a href="#view-post" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right-black.svg" /></a>
+      <a href="#view-post" class="js-push-back"><img class="pull-out-back-icon"
+      src="/assets/images/arrow-right-black.svg" /></a>
       </div>
     </div>
 
-    <div class="carousel">
-      <a class="carousel-item" href="#one!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/1"></a>
-      <a class="carousel-item" href="#two!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/2"></a>
-      <a class="carousel-item" href="#three!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/3"></a>
-      <a class="carousel-item" href="#four!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/4"></a>
-      <a class="carousel-item" href="#five!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/5"></a>
-    </div>
+    `;
+    //Carousel
+    if(post.data.post.images.length > 0) {
+      viewedPost += `<div class="carousel">`;
+
+      for(let i=0; i < post.data.post.images.length; i++) {
+        viewedPost += `
+        <a class="carousel-item" href="#${i}" data-featherlight="${post.data.post.images[i]}">
+          <img class="materialboxed slider-img" src="${post.data.post.images[i]}" >
+        </a>`;
+      }
+
+      viewedPost += `</div>`;
+    }
+
+    viewedPost += `
     <div class="row">
       <div class="col s12">
         <div class="center dont-break-on-overflow">
@@ -48,7 +58,10 @@ export function createViewPost(arg) {
     `;
 
     $('#view-post').html(viewedPost);
-    setTimeout(function () { $('.carousel').carousel(); $('.materialboxed').materialbox(); }, 400)
+    setTimeout(function () {
+      $('.carousel').carousel();
+      $('.materialboxed').materialbox();
+    }, 500)
 
   })
   .catch(err => {

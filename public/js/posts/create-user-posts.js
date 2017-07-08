@@ -7,11 +7,22 @@ export function getUserPosts() {
 
     myPosts.forEach(function(post) {
       constructPosts += `
-      <div class="row">
+      <div class="row post-card">
         <div class="col s12">
           <div class="card horizontal hoverable">
             <div class="card-image">
-              <img src="http://lorempixel.com/100/190/nature/">
+      `;
+        if(post.images.length > 0) {
+          constructPosts += `
+          <img src="${post.images[0]}">
+          `;
+        } else {
+          constructPosts += `
+          <img src="http://lorempixel.com/100/190/nature/">
+          `;
+        }
+
+      constructPosts += `
             </div>
             <div class="card-stacked">
               <div class="card-content">
@@ -41,9 +52,9 @@ export function getUserPosts() {
       </div>
       `;
     });
-    $('#js-my-post').append(constructPosts);
+    $('#js-user-posts').append(constructPosts);
 
-    $('#my-posts-tab').click();
+    $('#user-posts-tab').click();
   })
   .catch(err => {
     console.log(err);

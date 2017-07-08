@@ -80,6 +80,13 @@ main {
   padding-left: 24px;
 }
 
+.card-image {
+  max-width: 100px !important;
+  max-height: 100px;
+  overflow: hidden !important;
+  border-radius: 0 0 2px 0;
+}
+
 .post p {
   margin: 0;
 }
@@ -92,7 +99,6 @@ main {
   color: #03a9f4;
 }
 
-
 .side-pull-out {
   overflow-x: hidden;
   position: fixed;
@@ -103,6 +109,11 @@ main {
 .full-height {
   top: 112px;
   height: calc(100vh - 112px);
+}
+
+.slider-img {
+  height:auto;
+  width:100%;
 }
 
 .absolute-right {

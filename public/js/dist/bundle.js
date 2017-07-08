@@ -74,6 +74,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__posts_edit_post__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__upload_images__ = __webpack_require__(6);
+
 
 
 
@@ -81,45 +83,26 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /* global $ axios*/
+
 $(function() {
 
   const state = {};
 
-  function uploadPostPhoto(id) {
-    console.log(state);
-    $.ajax({
-      url: `/posts/upload/${id}`,
-      type: 'POST',
-      data: state.formData,
-      processData: false,
-      contentType: false,
-      success: function(data){
-          console.log('upload successful!\n' + data);
-      },
-      error: err => {
-        console.log(`--- ${JSON.stringify(err)}`);
-      },
-      xhr: function() {
-        // create an XMLHttpRequest
-        var xhr = new XMLHttpRequest();
-        // listen to the 'progress' event
-        xhr.upload.addEventListener('progress', function(evt) {
-          if (evt.lengthComputable) {
-            // calculate the percentage of upload completed
-            var percentComplete = evt.loaded / evt.total;
-            percentComplete = parseInt(percentComplete * 100);
-            // update the Bootstrap progress bar with the new percentage
-            $('.progress-bar').text(percentComplete + '%');
-            $('.progress-bar').width(percentComplete + '%');
-            // once the upload reaches 100%, set the progress bar text to done
-            if (percentComplete === 100) {
-              $('.progress-bar').html('Done');
-            }
-          }
-        }, false);
+  let openFromSide = (arg) => {
+    if($(window).width() < 601){
+      $(arg).animate({
+        width:"100vw"
+      });
+    } else {
+      $(arg).animate({
+        width:"50vw"
+      });
+    }
+  }
 
-        return xhr;
-      }
+  let closeSidePullOut = (arg) => {
+    $(arg).animate({
+      width:"0"
     });
   }
 
@@ -127,26 +110,12 @@ $(function() {
     $('.progress-bar').text('0%');
     $('.progress-bar').width('0%');
     const id = $(this).attr('id');
-    uploadPostPhoto(id);
+    __WEBPACK_IMPORTED_MODULE_5__upload_images__["b" /* uploadPostPhoto */](id);
   });
 
   $('#edit-post').on('change', '#upload-photo', function(){
-  var files = $(this).get(0).files;
-  console.log(`Files: ${files}`);
-  if (files.length > 0){
-    // create a FormData object which will be sent as the data payload in the
-    // AJAX request
-    var formData = new FormData();
-    // loop through all the selected files and add them to the formData object
-    for (var i = 0; i < files.length; i++) {
-      var file = files[i];
-      console.log(`File loop: ${file}`);
-      // add the files to formData object for the data payload
-      formData.append('uploads[]', file, file.name);
-    }
-    state.formData = formData;
-    console.log(state.formData.uploads);
-  }
+    const that = $(this);
+    __WEBPACK_IMPORTED_MODULE_5__upload_images__["a" /* enterPhotos */](that);
 });
 
   $('#edit-post').on('click', '#js-edit-post', function(e) {
@@ -162,24 +131,6 @@ $(function() {
     }
     closeSidePullOut('#edit-post');
   });
-
-  function openFromSide(arg) {
-    if($(window).width() < 601){
-      $(arg).animate({
-        width:"100vw"
-      });
-    } else {
-      $(arg).animate({
-        width:"50vw"
-      });
-    }
-  }
-
-  function closeSidePullOut(arg) {
-    $(arg).animate({
-      width:"0"
-    });
-  }
 
   //Event Handlers
   $(".dropdown-button").dropdown();
@@ -212,7 +163,7 @@ $(function() {
     let reference = $(this).attr('href');
     closeSidePullOut(reference);
   });
-
+  //New Post Button Animation
   $('.new-post-button').hover(function() {
     if($(window).width() > 600){
       $('.new-post-button-container').toggleClass('elongated');
@@ -221,26 +172,18 @@ $(function() {
     }
   });
 
-  if($('img .materialboxed .initialized').hasClass('active')){
-    $('.navbar-fixed').hide();
-  }
-
-// $('.side-pull-out').on('click', 'img', function() {
-//     $('.navbar-fixed').toggleClass('hidden');
-// })
-
-// $('body').click(function() {
-//   let count = 1;
-//   $('body').click(function() {
-//     if($('.navbar-fixed').css('display') == 'none'){
-//     $('.navbar-fixed').show();
-//     }
-//   });
-// });
+  // $('#view-post').on('click', 'img.materialboxed', (e) => {
+  //   e.stopPropagation();
+  //   console.log(e.currentTarget);
+  //   console.log($(this));
+  //   setTimeout( () => {
+  //     if($(e.currentTarget).hasClass('initialized')){
+  //       $('.navbar-fixed').height('0px');
+  //     }
+  //   }, 100);
+  // });
 
   //End
-
-  //window.dispatchEvent(new Event('resize'));
 });
 
 
@@ -313,11 +256,22 @@ function getUserPosts() {
 
     myPosts.forEach(function(post) {
       constructPosts += `
-      <div class="row">
+      <div class="row post-card">
         <div class="col s12">
           <div class="card horizontal hoverable">
             <div class="card-image">
-              <img src="http://lorempixel.com/100/190/nature/">
+      `;
+        if(post.images.length > 0) {
+          constructPosts += `
+          <img src="${post.images[0]}">
+          `;
+        } else {
+          constructPosts += `
+          <img src="http://lorempixel.com/100/190/nature/">
+          `;
+        }
+
+      constructPosts += `
             </div>
             <div class="card-stacked">
               <div class="card-content">
@@ -347,9 +301,9 @@ function getUserPosts() {
       </div>
       `;
     });
-    $('#js-my-post').append(constructPosts);
+    $('#js-user-posts').append(constructPosts);
 
-    $('#my-posts-tab').click();
+    $('#user-posts-tab').click();
   })
   .catch(err => {
     console.log(err);
@@ -372,17 +326,27 @@ function createViewPost(arg) {
     viewedPost = `
     <div class="row">
       <div class="col s12">
-      <a href="#view-post" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right-black.svg" /></a>
+      <a href="#view-post" class="js-push-back"><img class="pull-out-back-icon"
+      src="/assets/images/arrow-right-black.svg" /></a>
       </div>
     </div>
 
-    <div class="carousel">
-      <a class="carousel-item" href="#one!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/1"></a>
-      <a class="carousel-item" href="#two!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/2"></a>
-      <a class="carousel-item" href="#three!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/3"></a>
-      <a class="carousel-item" href="#four!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/4"></a>
-      <a class="carousel-item" href="#five!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/5"></a>
-    </div>
+    `;
+    //Carousel
+    if(post.data.post.images.length > 0) {
+      viewedPost += `<div class="carousel">`;
+
+      for(let i=0; i < post.data.post.images.length; i++) {
+        viewedPost += `
+        <a class="carousel-item" href="#${i}" data-featherlight="${post.data.post.images[i]}">
+          <img class="materialboxed slider-img" src="${post.data.post.images[i]}" >
+        </a>`;
+      }
+
+      viewedPost += `</div>`;
+    }
+
+    viewedPost += `
     <div class="row">
       <div class="col s12">
         <div class="center dont-break-on-overflow">
@@ -413,7 +377,10 @@ function createViewPost(arg) {
     `;
 
     $('#view-post').html(viewedPost);
-    setTimeout(function () { $('.carousel').carousel(); $('.materialboxed').materialbox(); }, 400)
+    setTimeout(function () {
+      $('.carousel').carousel();
+      $('.materialboxed').materialbox();
+    }, 500)
 
   })
   .catch(err => {
@@ -533,6 +500,71 @@ function validateEditPost(subject, message, category, err) {
     return false;
   } else {
     return true;
+  }
+}
+
+
+/***/ }),
+/* 6 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return uploadPostPhoto; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return enterPhotos; });
+const state = {};
+
+let uploadPostPhoto = (id) => {
+  $.ajax({
+    url: `/posts/upload/${id}`,
+    type: 'POST',
+    data: state.formData,
+    processData: false,
+    contentType: false,
+    success: function(data){
+        console.log('upload successful!\n' + data);
+    },
+    error: err => {
+      console.log(`--- ${JSON.stringify(err)}`);
+    },
+    xhr: function() {
+      // create an XMLHttpRequest
+      var xhr = new XMLHttpRequest();
+      // listen to the 'progress' event
+      xhr.upload.addEventListener('progress', function(evt) {
+        if (evt.lengthComputable) {
+          // calculate the percentage of upload completed
+          var percentComplete = evt.loaded / evt.total;
+          percentComplete = parseInt(percentComplete * 100);
+          // update the Bootstrap progress bar with the new percentage
+          $('.progress-bar').text(percentComplete + '%');
+          $('.progress-bar').width(percentComplete + '%');
+          // once the upload reaches 100%, set the progress bar text to done
+          if (percentComplete === 100) {
+            $('.progress-bar').html('Done');
+          }
+        }
+      }, false);
+
+      return xhr;
+    }
+  });
+}
+
+let enterPhotos = (arg) => {
+  var files = arg.get(0).files;
+  console.log(`Files: ${files}`);
+  if (files.length > 0){
+    // create a FormData object which will be sent as the data payload in the
+    // AJAX request
+    var formData = new FormData();
+    // loop through all the selected files and add them to the formData object
+    for (var i = 0; i < files.length; i++) {
+      var file = files[i];
+      console.log(`File loop: ${file}`);
+      // add the files to formData object for the data payload
+      formData.append('uploads[]', file, file.name);
+    }
+    state.formData = formData;
   }
 }
 
