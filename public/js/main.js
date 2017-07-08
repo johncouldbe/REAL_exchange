@@ -5,6 +5,7 @@ import { createEditPostPanel } from './posts/create-edit-post-panel';
 import { editPost, validateEditPost } from './posts/edit-post';
 
 /* global $ axios*/
+
 $(function() {
 
   const state = {};

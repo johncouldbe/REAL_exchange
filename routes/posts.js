@@ -63,9 +63,8 @@ router.delete('/:id', isAuthenticated, (req, res) => {
 
 const sendToCloud = (file, id) => {
   console.log('Image added to post:' + id);
-  cloudinary.uploader.upload(file, (err, result) => {
+  cloudinary.uploader.upload(file, result => {
     console.log("----" + result);
-    console.log('====' + JSON.stringify(err));
     const image = result.secure_url;
     Post
     .update(
@@ -88,11 +87,13 @@ router.post('/upload/:postId', (req, res) => {
   form.multiples = true;
   // store all uploads in the /uploads directory
   form.uploadDir = path.join(__dirname, '../uploads');
+
   // every time a file has been uploaded successfully,
   // rename it to it's orignal name
   form.on('file', function(field, file) {
-    fileNames.push(path.join(form.uploadDir, file.name));
-    fs.rename(file.path, file.name);
+    const fileName = path.join(form.uploadDir, file.name)
+    fileNames.push(fileName);
+    fs.rename(file.path, fileName);
   });
   // log any errors that occur
   form.on('error', function(err) {
