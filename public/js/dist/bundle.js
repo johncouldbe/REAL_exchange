@@ -74,7 +74,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__posts_edit_post__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__upload_images__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__images__ = __webpack_require__(7);
 
 
 
@@ -88,6 +88,7 @@ $(function() {
 
   const state = {};
 
+  //Open panel
   let openFromSide = (arg) => {
     if($(window).width() < 601){
       $(arg).animate({
@@ -100,24 +101,45 @@ $(function() {
     }
   }
 
-  let closeSidePullOut = (arg) => {
-    $(arg).animate({
-      width:"0"
-    });
-  }
+  //Association Dropdown
+  $(".dropdown-button").dropdown();
 
+  //New Post Button Animation
+  $('.new-post-button').hover(function() {
+    if($(window).width() > 600){
+      $('.new-post-button-container').toggleClass('elongated');
+      $('.new-post-button').toggleClass('elongated-borders');
+      $('.new-post-button-font').toggleClass('white-out');
+    }
+  });
+
+  /* ========= Click Event Handlers ========= */
+
+  $('#edit-post').on('click', '.delete-images', () => {
+    const checkedImages = $('.image-checkbox:checked').map(function() {
+    return $(this).attr('id');
+    }).get();
+
+    checkedImages.forEach( image => {
+      __WEBPACK_IMPORTED_MODULE_5__images__["a" /* deletePostImages */](image);
+    });
+  });
+
+  //Upload Photos
   $('#edit-post').on('click', '.upload-btn', function (e){
     $('.progress-bar').text('0%');
     $('.progress-bar').width('0%');
     const id = $(this).attr('id');
-    __WEBPACK_IMPORTED_MODULE_5__upload_images__["b" /* uploadPostPhoto */](id);
+    __WEBPACK_IMPORTED_MODULE_5__images__["b" /* uploadPostPhoto */](id);
   });
 
+  //Store photos to upload
   $('#edit-post').on('change', '#upload-photo', function(){
     const that = $(this);
-    __WEBPACK_IMPORTED_MODULE_5__upload_images__["a" /* enterPhotos */](that);
-});
+    enterPostPhotos(that);
+  });
 
+  //Edit post
   $('#edit-post').on('click', '#js-edit-post', function(e) {
     e.preventDefault();
     const editSubject = $('#edit-subject').val();
@@ -132,14 +154,19 @@ $(function() {
     closeSidePullOut('#edit-post');
   });
 
-  //Event Handlers
-  $(".dropdown-button").dropdown();
-
+  //Get all Users Posts
   $('#js-get-post').click(__WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]);
-
+  //Get all posts
   $('#js-get-all-posts').click(__WEBPACK_IMPORTED_MODULE_0__posts_create_all_posts__["a" /* getAllPosts */]);
 
-  //View Settings, View-Post, and Edit-Post panels
+  //Close Panel
+  $(".side-pull-out").on('click', '.js-push-back', function(e) {
+    e.preventDefault();
+    let reference = $(this).attr('href');
+    closeSidePullOut(reference);
+  });
+
+  //Open View Settings, View-Post, and Edit-Post panels
   $("main").on('click', '.js-settings, .view-post, .edit-post', function(e) {
     e.preventDefault();
     let reference = $(this).attr('href');
@@ -158,20 +185,13 @@ $(function() {
   });
 
   //Close Panel
-  $(".side-pull-out").on('click', '.js-push-back', function(e) {
-    e.preventDefault();
-    let reference = $(this).attr('href');
-    closeSidePullOut(reference);
-  });
-  //New Post Button Animation
-  $('.new-post-button').hover(function() {
-    if($(window).width() > 600){
-      $('.new-post-button-container').toggleClass('elongated');
-      $('.new-post-button').toggleClass('elongated-borders');
-      $('.new-post-button-font').toggleClass('white-out');
-    }
-  });
+  let closeSidePullOut = (arg) => {
+    $(arg).animate({
+      width:"0"
+    });
+  }
 
+  // KINDA WORKS
   // $('#view-post').on('click', 'img.materialboxed', (e) => {
   //   e.stopPropagation();
   //   console.log(e.currentTarget);
@@ -323,7 +343,7 @@ function getUserPosts() {
 function createViewPost(arg) {
   axios.get(`/posts/${arg}`)
   .then(function(post) {
-  console.log(post);
+    console.log(post);
     let viewedPost = '';
 
     viewedPost = `
@@ -332,9 +352,8 @@ function createViewPost(arg) {
       <a href="#view-post" class="js-push-back"><img class="pull-out-back-icon"
       src="/assets/images/arrow-right-black.svg" /></a>
       </div>
-    </div>
+    </div>`;
 
-    `;
     //Carousel
     if(post.data.post.images.length > 0) {
       viewedPost += `<div class="carousel">`;
@@ -398,19 +417,24 @@ function createViewPost(arg) {
 
 "use strict";
 const imageDisplay = (post) => {
-    let str = '<form action="#" class="col s12">';
+    let str = '<form action="#" class="col s12 light-blue lighten-5">';
     for (let i = 0; i < post.data.post.images.length; i++) {
       str +=`
         <p>
-          <input type="checkbox" id="${post.data.post.images[i].signature}" />
-          <label for="Image ${i}">${post.data.post.images[i].imageName}</label>
+          <input type="checkbox" class="image-checkbox" id="${post.data.post.images[i].signature}" />
+          <label class="black-text" for="${post.data.post.images[i].signature}">
+          ${post.data.post.images[i].imageName}</label>
         </p>
       `;
     }
-    str += `</form>`
 
+    str += `
+      <p><a class="red-text delete-images" href="#" id="${post.data.post._id}">Delete selected</a></p>
+    </form>`;
     return str;
 }
+/* unused harmony export imageDisplay */
+
 
 const createEditPostPanel = arg => {
   axios.get(`/posts/${arg}`)
@@ -424,6 +448,7 @@ const createEditPostPanel = arg => {
 
     <div class="row center">
       <h5>Images</h5>
+      <div class="image-list">
     `;
 
     if(post.data.post.images.length > 0){
@@ -431,6 +456,7 @@ const createEditPostPanel = arg => {
     }
 
     editPost += `
+      </div>
       <form action="#" class="col s12">
         <div class="file-field input-field">
           <div class="btn light-blue">
@@ -449,7 +475,6 @@ const createEditPostPanel = arg => {
     </div>
 
     <div class="row center">
-      <div class="divider"></div>
       <h5>Post</h5>
       <form class="col-s12 js-edit-form" id="${post.data.post._id}">
         <div class="row">
@@ -530,17 +555,16 @@ function validateEditPost(subject, message, category, err) {
 
 
 /***/ }),
-/* 6 */
+/* 6 */,
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return uploadPostPhoto; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return enterPhotos; });
 const state = {};
 
-let uploadPostPhoto = (id) => {
+const uploadPostPhoto = id => {
   $.ajax({
-    url: `/posts/upload/${id}`,
+    url: `/posts/image/upload/${id}`,
     type: 'POST',
     data: state.formData,
     processData: false,
@@ -574,8 +598,10 @@ let uploadPostPhoto = (id) => {
     }
   });
 }
+/* harmony export (immutable) */ __webpack_exports__["b"] = uploadPostPhoto;
 
-let enterPhotos = (arg) => {
+
+const enterPostPhotos = arg => {
   var files = arg.get(0).files;
   console.log(`Files: ${files}`);
   if (files.length > 0){
@@ -592,6 +618,24 @@ let enterPhotos = (arg) => {
     state.formData = formData;
   }
 }
+/* unused harmony export enterPostPhotos */
+
+
+const deletePostImages = (post, image) => {
+  axios.put(`/posts/image/delete/${post}`, {
+    data: {
+      'signature': image
+    }
+  })
+  .then( () => {
+    console.log('Deleted Image(s)');
+  })
+  .catch( err => {
+    console.log(err);
+  });
+};
+/* harmony export (immutable) */ __webpack_exports__["a"] = deletePostImages;
+
 
 
 /***/ })

@@ -58,10 +58,10 @@ router.put('/:id', isAuthenticated, (req, res) => {
 router.delete('/:id', isAuthenticated, (req, res) => {
   Post
   .delete(req.params.id);
-  console.log(`Delete post id:${req.params.id}`);
+  console.log(`Delete post id: ${req.params.id}`);
 });
 
-router.post('/upload/:postId', (req, res) => {
+router.post('/image/upload/:postId', (req, res) => {
   const id = req.params.postId;
   let fileNames = [];
   // create an incoming form object
@@ -93,6 +93,26 @@ router.post('/upload/:postId', (req, res) => {
   form.parse(req);
 });
 
+router.put( '/image/delete/:postId', (req, res) => {
+    const id = req.params.postId;
+    const sig = req.body.signature;
+    Post.
+    update(
+    { _id: id },
+    { $pull: {
+       images : {
+          signature : sig
+        }
+      }
+    })
+    .then( () => {
+      console.log('Deleted picture from Database;');
+    })
+    .catch(err => console.log(err));
+});
+
+
+
 function isAuthenticated (req,res,next) {
    if(req.user){
     return next();
@@ -116,7 +136,7 @@ const sendToCloud = (file, id) => {
           images: {
             'image': img,
             'imageName': imgNm,
-            'signature': sig 
+            'signature': sig
           }
         }
       })

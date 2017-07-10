@@ -1,9 +1,9 @@
 import { getAllPosts } from './posts/create-all-posts';
 import { getUserPosts } from './posts/create-user-posts';
 import { createViewPost } from './posts/create-view-post-panel';
-import { createEditPostPanel } from './posts/create-edit-post-panel';
+import { createEditPostPanel, imageDisplay } from './posts/create-edit-post-panel';
 import { editPost, validateEditPost } from './posts/edit-post';
-import { uploadPostPhoto, enterPhotos } from './upload-images';
+import { uploadPostPhoto, enterPhotos, deletePostImages } from './images';
 
 /* global $ axios*/
 
@@ -11,6 +11,7 @@ $(function() {
 
   const state = {};
 
+  //Open panel
   let openFromSide = (arg) => {
     if($(window).width() < 601){
       $(arg).animate({
@@ -23,12 +24,31 @@ $(function() {
     }
   }
 
-  let closeSidePullOut = (arg) => {
-    $(arg).animate({
-      width:"0"
-    });
-  }
+  //Association Dropdown
+  $(".dropdown-button").dropdown();
 
+  //New Post Button Animation
+  $('.new-post-button').hover(function() {
+    if($(window).width() > 600){
+      $('.new-post-button-container').toggleClass('elongated');
+      $('.new-post-button').toggleClass('elongated-borders');
+      $('.new-post-button-font').toggleClass('white-out');
+    }
+  });
+
+  /* ========= Click Event Handlers ========= */
+
+  $('#edit-post').on('click', '.delete-images', () => {
+    const checkedImages = $('.image-checkbox:checked').map(function() {
+    return $(this).attr('id');
+    }).get();
+
+    checkedImages.forEach( image => {
+      deletePostImages(image);
+    });
+  });
+
+  //Upload Photos
   $('#edit-post').on('click', '.upload-btn', function (e){
     $('.progress-bar').text('0%');
     $('.progress-bar').width('0%');
@@ -36,11 +56,13 @@ $(function() {
     uploadPostPhoto(id);
   });
 
+  //Store photos to upload
   $('#edit-post').on('change', '#upload-photo', function(){
     const that = $(this);
-    enterPhotos(that);
-});
+    enterPostPhotos(that);
+  });
 
+  //Edit post
   $('#edit-post').on('click', '#js-edit-post', function(e) {
     e.preventDefault();
     const editSubject = $('#edit-subject').val();
@@ -55,14 +77,19 @@ $(function() {
     closeSidePullOut('#edit-post');
   });
 
-  //Event Handlers
-  $(".dropdown-button").dropdown();
-
+  //Get all Users Posts
   $('#js-get-post').click(getUserPosts);
-
+  //Get all posts
   $('#js-get-all-posts').click(getAllPosts);
 
-  //View Settings, View-Post, and Edit-Post panels
+  //Close Panel
+  $(".side-pull-out").on('click', '.js-push-back', function(e) {
+    e.preventDefault();
+    let reference = $(this).attr('href');
+    closeSidePullOut(reference);
+  });
+
+  //Open View Settings, View-Post, and Edit-Post panels
   $("main").on('click', '.js-settings, .view-post, .edit-post', function(e) {
     e.preventDefault();
     let reference = $(this).attr('href');
@@ -81,20 +108,13 @@ $(function() {
   });
 
   //Close Panel
-  $(".side-pull-out").on('click', '.js-push-back', function(e) {
-    e.preventDefault();
-    let reference = $(this).attr('href');
-    closeSidePullOut(reference);
-  });
-  //New Post Button Animation
-  $('.new-post-button').hover(function() {
-    if($(window).width() > 600){
-      $('.new-post-button-container').toggleClass('elongated');
-      $('.new-post-button').toggleClass('elongated-borders');
-      $('.new-post-button-font').toggleClass('white-out');
-    }
-  });
+  let closeSidePullOut = (arg) => {
+    $(arg).animate({
+      width:"0"
+    });
+  }
 
+  // KINDA WORKS
   // $('#view-post').on('click', 'img.materialboxed', (e) => {
   //   e.stopPropagation();
   //   console.log(e.currentTarget);

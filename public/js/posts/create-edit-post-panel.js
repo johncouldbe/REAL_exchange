@@ -1,15 +1,18 @@
-const imageDisplay = (post) => {
-    let str = '<form action="#" class="col s12">';
+export const imageDisplay = (post) => {
+    let str = '<form action="#" class="col s12 light-blue lighten-5">';
     for (let i = 0; i < post.data.post.images.length; i++) {
       str +=`
         <p>
-          <input type="checkbox" id="${post.data.post.images[i].signature}" />
-          <label for="Image ${i}">${post.data.post.images[i].imageName}</label>
+          <input type="checkbox" class="image-checkbox" id="${post.data.post.images[i].signature}" />
+          <label class="black-text" for="${post.data.post.images[i].signature}">
+          ${post.data.post.images[i].imageName}</label>
         </p>
       `;
     }
-    str += `</form>`
 
+    str += `
+      <p><a class="red-text delete-images" href="#" id="${post.data.post._id}">Delete selected</a></p>
+    </form>`;
     return str;
 }
 
@@ -25,6 +28,7 @@ export const createEditPostPanel = arg => {
 
     <div class="row center">
       <h5>Images</h5>
+      <div class="image-list">
     `;
 
     if(post.data.post.images.length > 0){
@@ -32,6 +36,7 @@ export const createEditPostPanel = arg => {
     }
 
     editPost += `
+      </div>
       <form action="#" class="col s12">
         <div class="file-field input-field">
           <div class="btn light-blue">
@@ -50,7 +55,6 @@ export const createEditPostPanel = arg => {
     </div>
 
     <div class="row center">
-      <div class="divider"></div>
       <h5>Post</h5>
       <form class="col-s12 js-edit-form" id="${post.data.post._id}">
         <div class="row">

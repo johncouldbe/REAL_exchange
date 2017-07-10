@@ -1,8 +1,8 @@
 const state = {};
 
-export let uploadPostPhoto = (id) => {
+export const uploadPostPhoto = id => {
   $.ajax({
-    url: `/posts/upload/${id}`,
+    url: `/posts/image/upload/${id}`,
     type: 'POST',
     data: state.formData,
     processData: false,
@@ -37,7 +37,7 @@ export let uploadPostPhoto = (id) => {
   });
 }
 
-export let enterPhotos = (arg) => {
+export const enterPostPhotos = arg => {
   var files = arg.get(0).files;
   console.log(`Files: ${files}`);
   if (files.length > 0){
@@ -54,3 +54,17 @@ export let enterPhotos = (arg) => {
     state.formData = formData;
   }
 }
+
+export const deletePostImages = (post, image) => {
+  axios.put(`/posts/image/delete/${post}`, {
+    data: {
+      'signature': image
+    }
+  })
+  .then( () => {
+    console.log('Deleted Image(s)');
+  })
+  .catch( err => {
+    console.log(err);
+  });
+};

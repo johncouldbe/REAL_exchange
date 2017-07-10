@@ -1,7 +1,7 @@
 export function createViewPost(arg) {
   axios.get(`/posts/${arg}`)
   .then(function(post) {
-  console.log(post);
+    console.log(post);
     let viewedPost = '';
 
     viewedPost = `
@@ -10,9 +10,8 @@ export function createViewPost(arg) {
       <a href="#view-post" class="js-push-back"><img class="pull-out-back-icon"
       src="/assets/images/arrow-right-black.svg" /></a>
       </div>
-    </div>
+    </div>`;
 
-    `;
     //Carousel
     if(post.data.post.images.length > 0) {
       viewedPost += `<div class="carousel">`;
