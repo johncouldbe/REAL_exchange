@@ -74,7 +74,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__posts_edit_post__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__images__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__images__ = __webpack_require__(6);
 
 
 
@@ -114,29 +114,35 @@ $(function() {
   });
 
   /* ========= Click Event Handlers ========= */
-
-  $('#edit-post').on('click', '.delete-images', () => {
+  
+  //Delete Images
+  $('#edit-post').on('click', '.delete-images', (e) => {
+    e.preventDefault();
+    const postId = $(e.currentTarget).data('id');
+    console.log("POSTID: " + postId);
     const checkedImages = $('.image-checkbox:checked').map(function() {
     return $(this).attr('id');
     }).get();
-
+    
     checkedImages.forEach( image => {
-      __WEBPACK_IMPORTED_MODULE_5__images__["a" /* deletePostImages */](image);
+      __WEBPACK_IMPORTED_MODULE_5__images__["a" /* deletePostImages */](postId, image);
     });
+    
+    console.log('This is your state: ' + JSON.stringify(state.post.data.post._id));
+     __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["b" /* getPost */](postId, state, post => { __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["a" /* createEditPostPanel */](post)});
   });
-
   //Upload Photos
   $('#edit-post').on('click', '.upload-btn', function (e){
     $('.progress-bar').text('0%');
     $('.progress-bar').width('0%');
     const id = $(this).attr('id');
-    __WEBPACK_IMPORTED_MODULE_5__images__["b" /* uploadPostPhoto */](id);
+    __WEBPACK_IMPORTED_MODULE_5__images__["c" /* uploadPostPhoto */](id);
   });
 
   //Store photos to upload
   $('#edit-post').on('change', '#upload-photo', function(){
     const that = $(this);
-    enterPostPhotos(that);
+    __WEBPACK_IMPORTED_MODULE_5__images__["b" /* enterPostImages */](that);
   });
 
   //Edit post
@@ -178,9 +184,8 @@ $(function() {
 
     if($(this).hasClass('edit-post')){
       let postId = $(this).attr('class').split(' ')[0];
-      __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["a" /* createEditPostPanel */](postId);
+    __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["b" /* getPost */](postId, state, post => { __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["a" /* createEditPostPanel */](post)});
     }
-
     openFromSide(reference);
   });
 
@@ -324,7 +329,7 @@ function getUserPosts() {
       </div>
       `;
     });
-    $('#js-user-posts').append(constructPosts);
+    $('#js-user-posts').html(constructPosts);
 
     $('#user-posts-tab').click();
   })
@@ -416,7 +421,8 @@ function createViewPost(arg) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-const imageDisplay = (post) => {
+const imageDisplay = post => {
+    console.log(post);
     let str = '<form action="#" class="col s12 light-blue lighten-5">';
     for (let i = 0; i < post.data.post.images.length; i++) {
       str +=`
@@ -429,16 +435,25 @@ const imageDisplay = (post) => {
     }
 
     str += `
-      <p><a class="red-text delete-images" href="#" id="${post.data.post._id}">Delete selected</a></p>
+      <p><a class="red-text delete-images" data-id="${post.data.post._id}" >Delete selected</a></p>
     </form>`;
     return str;
 }
 /* unused harmony export imageDisplay */
 
 
-const createEditPostPanel = arg => {
+const getPost = (arg, state, cb) => {
   axios.get(`/posts/${arg}`)
-  .then( post => {
+  .then(post => {
+    state.post = post;
+    cb(post);
+    })
+  .catch(err => console.log(err));
+}
+/* harmony export (immutable) */ __webpack_exports__["b"] = getPost;
+
+
+const createEditPostPanel = post => {
     let editPost = `
     <div class="row">
       <div class="col s12">
@@ -510,11 +525,8 @@ const createEditPostPanel = arg => {
     $('#edit-post').html(editPost);
 
     $('select').material_select();
-  })
-  .catch(err => console.log(err));
-}
+  }
 /* harmony export (immutable) */ __webpack_exports__["a"] = createEditPostPanel;
-
 
 
 /***/ }),
@@ -555,18 +567,17 @@ function validateEditPost(subject, message, category, err) {
 
 
 /***/ }),
-/* 6 */,
-/* 7 */
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-const state = {};
+let formData = '';
 
 const uploadPostPhoto = id => {
   $.ajax({
     url: `/posts/image/upload/${id}`,
     type: 'POST',
-    data: state.formData,
+    data: formData,
     processData: false,
     contentType: false,
     success: function(data){
@@ -598,16 +609,16 @@ const uploadPostPhoto = id => {
     }
   });
 }
-/* harmony export (immutable) */ __webpack_exports__["b"] = uploadPostPhoto;
+/* harmony export (immutable) */ __webpack_exports__["c"] = uploadPostPhoto;
 
 
-const enterPostPhotos = arg => {
+const enterPostImages = arg => {
   var files = arg.get(0).files;
   console.log(`Files: ${files}`);
   if (files.length > 0){
     // create a FormData object which will be sent as the data payload in the
     // AJAX request
-    var formData = new FormData();
+    formData = new FormData();
     // loop through all the selected files and add them to the formData object
     for (var i = 0; i < files.length; i++) {
       var file = files[i];
@@ -615,16 +626,15 @@ const enterPostPhotos = arg => {
       // add the files to formData object for the data payload
       formData.append('uploads[]', file, file.name);
     }
-    state.formData = formData;
   }
 }
-/* unused harmony export enterPostPhotos */
+/* harmony export (immutable) */ __webpack_exports__["b"] = enterPostImages;
 
 
-const deletePostImages = (post, image) => {
-  axios.put(`/posts/image/delete/${post}`, {
+const deletePostImages = (postId, image) => {
+  axios.put(`/posts/image/delete/${postId}`, {
     data: {
-      'signature': image
+      "signature": image
     }
   })
   .then( () => {

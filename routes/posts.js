@@ -73,17 +73,15 @@ router.post('/image/upload/:postId', (req, res) => {
 
   // every time a file has been uploaded successfully,
   // rename it to it's orignal name
-  form.on('file', function(field, file) {
+  form.on('file', (field, file) => {
     const fileName = path.join(form.uploadDir, file.name)
     fileNames.push(fileName);
     fs.rename(file.path, fileName);
   });
   // log any errors that occur
-  form.on('error', function(err) {
-    console.log('An error has occured: \n' + err);
-  });
+  form.on('error', err => console.log('An error has occured: \n' + err));
   // once all the files have been uploaded, send a response to the client
-  form.on('end', function() {
+  form.on('end', () => {
     fileNames.forEach(function(file) {
       sendToCloud(file, id);
     })
@@ -95,20 +93,14 @@ router.post('/image/upload/:postId', (req, res) => {
 
 router.put( '/image/delete/:postId', (req, res) => {
     const id = req.params.postId;
-    const sig = req.body.signature;
+    const sig = req.body.data.signature;
+    console.log(sig);
     Post.
     update(
     { _id: id },
-    { $pull: {
-       images : {
-          signature : sig
-        }
-      }
-    })
-    .then( () => {
-      console.log('Deleted picture from Database;');
-    })
-    .catch(err => console.log(err));
+    { $pull: { "images" : { "signature" : sig } }})
+    .then( () => console.log('Deleted picture from Database.'))
+    .catch( err => console.log(err));
 });
 
 
@@ -140,9 +132,7 @@ const sendToCloud = (file, id) => {
           }
         }
       })
-    .then(function() {
-      console.log("Added image to post");
-    })
+    .then( () => console.log("Added image to post"))
     .catch(err => console.log(err));
   });
 }

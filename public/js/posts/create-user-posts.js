@@ -48,7 +48,7 @@ export function getUserPosts() {
       </div>
       `;
     });
-    $('#js-user-posts').append(constructPosts);
+    $('#js-user-posts').html(constructPosts);
 
     $('#user-posts-tab').click();
   })

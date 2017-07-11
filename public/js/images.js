@@ -1,10 +1,10 @@
-const state = {};
+let formData = '';
 
 export const uploadPostPhoto = id => {
   $.ajax({
     url: `/posts/image/upload/${id}`,
     type: 'POST',
-    data: state.formData,
+    data: formData,
     processData: false,
     contentType: false,
     success: function(data){
@@ -37,13 +37,13 @@ export const uploadPostPhoto = id => {
   });
 }
 
-export const enterPostPhotos = arg => {
+export const enterPostImages = arg => {
   var files = arg.get(0).files;
   console.log(`Files: ${files}`);
   if (files.length > 0){
     // create a FormData object which will be sent as the data payload in the
     // AJAX request
-    var formData = new FormData();
+    formData = new FormData();
     // loop through all the selected files and add them to the formData object
     for (var i = 0; i < files.length; i++) {
       var file = files[i];
@@ -51,14 +51,13 @@ export const enterPostPhotos = arg => {
       // add the files to formData object for the data payload
       formData.append('uploads[]', file, file.name);
     }
-    state.formData = formData;
   }
 }
 
-export const deletePostImages = (post, image) => {
-  axios.put(`/posts/image/delete/${post}`, {
+export const deletePostImages = (postId, image) => {
+  axios.put(`/posts/image/delete/${postId}`, {
     data: {
-      'signature': image
+      "signature": image
     }
   })
   .then( () => {

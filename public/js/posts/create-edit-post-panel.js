@@ -1,4 +1,5 @@
-export const imageDisplay = (post) => {
+export const imageDisplay = post => {
+    console.log(post);
     let str = '<form action="#" class="col s12 light-blue lighten-5">';
     for (let i = 0; i < post.data.post.images.length; i++) {
       str +=`
@@ -11,14 +12,21 @@ export const imageDisplay = (post) => {
     }
 
     str += `
-      <p><a class="red-text delete-images" href="#" id="${post.data.post._id}">Delete selected</a></p>
+      <p><a class="red-text delete-images" data-id="${post.data.post._id}" >Delete selected</a></p>
     </form>`;
     return str;
 }
 
-export const createEditPostPanel = arg => {
+export const getPost = (arg, state, cb) => {
   axios.get(`/posts/${arg}`)
-  .then( post => {
+  .then(post => {
+    state.post = post;
+    cb(post);
+    })
+  .catch(err => console.log(err));
+}
+
+export const createEditPostPanel = post => {
     let editPost = `
     <div class="row">
       <div class="col s12">
@@ -90,6 +98,4 @@ export const createEditPostPanel = arg => {
     $('#edit-post').html(editPost);
 
     $('select').material_select();
-  })
-  .catch(err => console.log(err));
-}
+  }

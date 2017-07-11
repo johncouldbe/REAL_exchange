@@ -1,9 +1,9 @@
 import { getAllPosts } from './posts/create-all-posts';
 import { getUserPosts } from './posts/create-user-posts';
 import { createViewPost } from './posts/create-view-post-panel';
-import { createEditPostPanel, imageDisplay } from './posts/create-edit-post-panel';
+import { getPost, createEditPostPanel, imageDisplay } from './posts/create-edit-post-panel';
 import { editPost, validateEditPost } from './posts/edit-post';
-import { uploadPostPhoto, enterPhotos, deletePostImages } from './images';
+import { uploadPostPhoto, enterPostImages, deletePostImages } from './images';
 
 /* global $ axios*/
 
@@ -37,17 +37,23 @@ $(function() {
   });
 
   /* ========= Click Event Handlers ========= */
-
-  $('#edit-post').on('click', '.delete-images', () => {
+  
+  //Delete Images
+  $('#edit-post').on('click', '.delete-images', (e) => {
+    e.preventDefault();
+    const postId = $(e.currentTarget).data('id');
+    console.log("POSTID: " + postId);
     const checkedImages = $('.image-checkbox:checked').map(function() {
     return $(this).attr('id');
     }).get();
-
+    
     checkedImages.forEach( image => {
-      deletePostImages(image);
+      deletePostImages(postId, image);
     });
+    
+    console.log('This is your state: ' + JSON.stringify(state.post.data.post._id));
+     getPost(postId, state, post => { createEditPostPanel(post)});
   });
-
   //Upload Photos
   $('#edit-post').on('click', '.upload-btn', function (e){
     $('.progress-bar').text('0%');
@@ -59,7 +65,7 @@ $(function() {
   //Store photos to upload
   $('#edit-post').on('change', '#upload-photo', function(){
     const that = $(this);
-    enterPostPhotos(that);
+    enterPostImages(that);
   });
 
   //Edit post
@@ -101,9 +107,8 @@ $(function() {
 
     if($(this).hasClass('edit-post')){
       let postId = $(this).attr('class').split(' ')[0];
-      createEditPostPanel(postId);
+    getPost(postId, state, post => { createEditPostPanel(post)});
     }
-
     openFromSide(reference);
   });
 
