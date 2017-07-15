@@ -4,15 +4,15 @@ export const imageDisplay = post => {
     for (let i = 0; i < post.data.post.images.length; i++) {
       str +=`
         <p>
-          <input type="checkbox" class="image-checkbox" id="${post.data.post.images[i].signature}" />
-          <label class="black-text" for="${post.data.post.images[i].signature}">
+          <input type="checkbox" class="image-checkbox" id="${post.data.post.images[i].publicId}" />
+          <label class="black-text" for="${post.data.post.images[i].publicId}">
           ${post.data.post.images[i].imageName}</label>
         </p>
       `;
     }
 
     str += `
-      <p><a class="red-text delete-images" data-id="${post.data.post._id}" >Delete selected</a></p>
+      <p><a class="red-text delete-images hovered" data-id="${post.data.post._id}" >Delete selected</a></p>
     </form>`;
     return str;
 }

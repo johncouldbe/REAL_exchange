@@ -1,39 +1,43 @@
 let formData = '';
 
 export const uploadPostPhoto = id => {
-  $.ajax({
-    url: `/posts/image/upload/${id}`,
-    type: 'POST',
-    data: formData,
-    processData: false,
-    contentType: false,
-    success: function(data){
+  return new Promise(resolve => {
+  
+    $.ajax({
+      url: `/posts/image/upload/${id}`,
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function(data){
         console.log('upload successful!\n' + data);
-    },
-    error: err => {
-      console.log(`--- ${JSON.stringify(err)}`);
-    },
-    xhr: function() {
-      // create an XMLHttpRequest
-      var xhr = new XMLHttpRequest();
-      // listen to the 'progress' event
-      xhr.upload.addEventListener('progress', function(evt) {
-        if (evt.lengthComputable) {
-          // calculate the percentage of upload completed
-          var percentComplete = evt.loaded / evt.total;
-          percentComplete = parseInt(percentComplete * 100);
-          // update the Bootstrap progress bar with the new percentage
-          $('.progress-bar').text(percentComplete + '%');
-          $('.progress-bar').width(percentComplete + '%');
-          // once the upload reaches 100%, set the progress bar text to done
-          if (percentComplete === 100) {
-            $('.progress-bar').html('Done');
+        resolve();
+      },
+      error: err => {
+        console.log(`--- ${JSON.stringify(err)}`);
+      },
+      xhr: function() {
+        // create an XMLHttpRequest
+        var xhr = new XMLHttpRequest();
+        // listen to the 'progress' event
+        xhr.upload.addEventListener('progress', function(evt) {
+          if (evt.lengthComputable) {
+            // calculate the percentage of upload completed
+            var percentComplete = evt.loaded / evt.total;
+            percentComplete = parseInt(percentComplete * 100);
+            // update the Bootstrap progress bar with the new percentage
+            $('.progress-bar').text(percentComplete + '%');
+            $('.progress-bar').width(percentComplete + '%');
+            // once the upload reaches 100%, set the progress bar text to done
+            if (percentComplete === 100) {
+              $('.progress-bar').html('Done');
+            }
           }
-        }
-      }, false);
-
-      return xhr;
-    }
+        }, false);
+  
+        return xhr;
+      }
+    });
   });
 }
 
@@ -54,14 +58,16 @@ export const enterPostImages = arg => {
   }
 }
 
-export const deletePostImages = (postId, image) => {
+export const deletePostImages = (postId, images, resolve) => {
   axios.put(`/posts/image/delete/${postId}`, {
     data: {
-      "signature": image
+      "publicIds": images
     }
   })
-  .then( () => {
+  .then( (res) => {
     console.log('Deleted Image(s)');
+    console.log(res);
+    resolve();
   })
   .catch( err => {
     console.log(err);

@@ -1,4 +1,4 @@
-export function editPost(subject, message, category, id) {
+export function editPost(subject, message, category, id, cb) {
   axios.put(`/posts/${id}`, {
     data: {
       "subject": subject,
@@ -6,7 +6,10 @@ export function editPost(subject, message, category, id) {
       "type": category
     }
   })
-  .catch(err => console.log(err))
+  .then(() => {
+    cb();
+  })
+  .catch(err => console.log(err));
 }
 
 export function validateEditPost(subject, message, category, err) {

@@ -1,11 +1,11 @@
 export function getUserPosts() {
   axios.get('/posts/user')
   .then(function (posts) {
-    console.log(posts);
-    const myPosts = posts.data.posts;
+    console.log('GETTING ALL POSTS', posts);
+    const userPosts = posts.data.posts;
     let constructPosts ='';
 
-    myPosts.forEach(function(post) {
+    userPosts.forEach(function(post) {
       constructPosts += `
       <div class="row post-card">
         <div class="col s12">

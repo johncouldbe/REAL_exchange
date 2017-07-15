@@ -119,24 +119,32 @@ $(function() {
   $('#edit-post').on('click', '.delete-images', (e) => {
     e.preventDefault();
     const postId = $(e.currentTarget).data('id');
-    console.log("POSTID: " + postId);
     const checkedImages = $('.image-checkbox:checked').map(function() {
     return $(this).attr('id');
     }).get();
     
-    checkedImages.forEach( image => {
-      __WEBPACK_IMPORTED_MODULE_5__images__["a" /* deletePostImages */](postId, image);
+    new Promise( (resolve,reject) => {
+      __WEBPACK_IMPORTED_MODULE_5__images__["a" /* deletePostImages */](postId, checkedImages, resolve)
+    }).then(() => {
+      __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["b" /* getPost */](postId, state, post => { __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["a" /* createEditPostPanel */](post)});
+      __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]();
     });
     
-    console.log('This is your state: ' + JSON.stringify(state.post.data.post._id));
-     __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["b" /* getPost */](postId, state, post => { __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["a" /* createEditPostPanel */](post)});
+    
+    // checkedImages.forEach( imagePublicId => {
+    //   deletePostImages(postId, imagePublicId);
+    // });
+    
   });
   //Upload Photos
   $('#edit-post').on('click', '.upload-btn', function (e){
     $('.progress-bar').text('0%');
     $('.progress-bar').width('0%');
     const id = $(this).attr('id');
-    __WEBPACK_IMPORTED_MODULE_5__images__["c" /* uploadPostPhoto */](id);
+    __WEBPACK_IMPORTED_MODULE_5__images__["c" /* uploadPostPhoto */](id).then(() => {
+      __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["b" /* getPost */](id, state, post => { __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["a" /* createEditPostPanel */](post)});
+      __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]();
+    })
   });
 
   //Store photos to upload
@@ -155,9 +163,10 @@ $(function() {
     const id = $('.js-edit-form').attr('id');
 
     if(__WEBPACK_IMPORTED_MODULE_4__posts_edit_post__["b" /* validateEditPost */](editSubject, editMessage, editCategory, errorMsg)) {
-      __WEBPACK_IMPORTED_MODULE_4__posts_edit_post__["a" /* editPost */](editSubject, editMessage, editCategory, id);
+      __WEBPACK_IMPORTED_MODULE_4__posts_edit_post__["a" /* editPost */](editSubject, editMessage, editCategory, id, __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */])
+      closeSidePullOut('#edit-post');
     }
-    closeSidePullOut('#edit-post');
+    
   });
 
   //Get all Users Posts
@@ -282,11 +291,11 @@ function getAllPosts() {
 function getUserPosts() {
   axios.get('/posts/user')
   .then(function (posts) {
-    console.log(posts);
-    const myPosts = posts.data.posts;
+    console.log('GETTING ALL POSTS', posts);
+    const userPosts = posts.data.posts;
     let constructPosts ='';
 
-    myPosts.forEach(function(post) {
+    userPosts.forEach(function(post) {
       constructPosts += `
       <div class="row post-card">
         <div class="col s12">
@@ -427,15 +436,15 @@ const imageDisplay = post => {
     for (let i = 0; i < post.data.post.images.length; i++) {
       str +=`
         <p>
-          <input type="checkbox" class="image-checkbox" id="${post.data.post.images[i].signature}" />
-          <label class="black-text" for="${post.data.post.images[i].signature}">
+          <input type="checkbox" class="image-checkbox" id="${post.data.post.images[i].publicId}" />
+          <label class="black-text" for="${post.data.post.images[i].publicId}">
           ${post.data.post.images[i].imageName}</label>
         </p>
       `;
     }
 
     str += `
-      <p><a class="red-text delete-images" data-id="${post.data.post._id}" >Delete selected</a></p>
+      <p><a class="red-text delete-images hovered" data-id="${post.data.post._id}" >Delete selected</a></p>
     </form>`;
     return str;
 }
@@ -536,7 +545,7 @@ const createEditPostPanel = post => {
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = editPost;
 /* harmony export (immutable) */ __webpack_exports__["b"] = validateEditPost;
-function editPost(subject, message, category, id) {
+function editPost(subject, message, category, id, cb) {
   axios.put(`/posts/${id}`, {
     data: {
       "subject": subject,
@@ -544,7 +553,10 @@ function editPost(subject, message, category, id) {
       "type": category
     }
   })
-  .catch(err => console.log(err))
+  .then(() => {
+    cb();
+  })
+  .catch(err => console.log(err));
 }
 
 function validateEditPost(subject, message, category, err) {
@@ -574,39 +586,43 @@ function validateEditPost(subject, message, category, err) {
 let formData = '';
 
 const uploadPostPhoto = id => {
-  $.ajax({
-    url: `/posts/image/upload/${id}`,
-    type: 'POST',
-    data: formData,
-    processData: false,
-    contentType: false,
-    success: function(data){
+  return new Promise(resolve => {
+  
+    $.ajax({
+      url: `/posts/image/upload/${id}`,
+      type: 'POST',
+      data: formData,
+      processData: false,
+      contentType: false,
+      success: function(data){
         console.log('upload successful!\n' + data);
-    },
-    error: err => {
-      console.log(`--- ${JSON.stringify(err)}`);
-    },
-    xhr: function() {
-      // create an XMLHttpRequest
-      var xhr = new XMLHttpRequest();
-      // listen to the 'progress' event
-      xhr.upload.addEventListener('progress', function(evt) {
-        if (evt.lengthComputable) {
-          // calculate the percentage of upload completed
-          var percentComplete = evt.loaded / evt.total;
-          percentComplete = parseInt(percentComplete * 100);
-          // update the Bootstrap progress bar with the new percentage
-          $('.progress-bar').text(percentComplete + '%');
-          $('.progress-bar').width(percentComplete + '%');
-          // once the upload reaches 100%, set the progress bar text to done
-          if (percentComplete === 100) {
-            $('.progress-bar').html('Done');
+        resolve();
+      },
+      error: err => {
+        console.log(`--- ${JSON.stringify(err)}`);
+      },
+      xhr: function() {
+        // create an XMLHttpRequest
+        var xhr = new XMLHttpRequest();
+        // listen to the 'progress' event
+        xhr.upload.addEventListener('progress', function(evt) {
+          if (evt.lengthComputable) {
+            // calculate the percentage of upload completed
+            var percentComplete = evt.loaded / evt.total;
+            percentComplete = parseInt(percentComplete * 100);
+            // update the Bootstrap progress bar with the new percentage
+            $('.progress-bar').text(percentComplete + '%');
+            $('.progress-bar').width(percentComplete + '%');
+            // once the upload reaches 100%, set the progress bar text to done
+            if (percentComplete === 100) {
+              $('.progress-bar').html('Done');
+            }
           }
-        }
-      }, false);
-
-      return xhr;
-    }
+        }, false);
+  
+        return xhr;
+      }
+    });
   });
 }
 /* harmony export (immutable) */ __webpack_exports__["c"] = uploadPostPhoto;
@@ -631,14 +647,16 @@ const enterPostImages = arg => {
 /* harmony export (immutable) */ __webpack_exports__["b"] = enterPostImages;
 
 
-const deletePostImages = (postId, image) => {
+const deletePostImages = (postId, images, resolve) => {
   axios.put(`/posts/image/delete/${postId}`, {
     data: {
-      "signature": image
+      "publicIds": images
     }
   })
-  .then( () => {
+  .then( (res) => {
     console.log('Deleted Image(s)');
+    console.log(res);
+    resolve();
   })
   .catch( err => {
     console.log(err);

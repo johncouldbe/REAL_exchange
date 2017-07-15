@@ -52,6 +52,7 @@ router.put('/:id', isAuthenticated, (req, res) => {
     { '_id': id },
     {$set: {"body": body, "subject": subject, "type": type}}
   )
+  .then( post => res.json(post))
   .catch(err => console.log(err));
 });
 
@@ -61,7 +62,7 @@ router.delete('/:id', isAuthenticated, (req, res) => {
   console.log(`Delete post id: ${req.params.id}`);
 });
 
-router.post('/image/upload/:postId', (req, res) => {
+router.post('/image/upload/:postId', isAuthenticated, (req, res) => {
   const id = req.params.postId;
   let fileNames = [];
   // create an incoming form object
@@ -82,25 +83,45 @@ router.post('/image/upload/:postId', (req, res) => {
   form.on('error', err => console.log('An error has occured: \n' + err));
   // once all the files have been uploaded, send a response to the client
   form.on('end', () => {
-    fileNames.forEach(function(file) {
-      sendToCloud(file, id);
+    
+    const promises = fileNames.map(file => {
+      return new Promise((resolve, reject) => {
+        sendToCloud(file, id, resolve);
+      })
     })
-    res.end('success');
+
+    Promise.all(promises).then(result => {
+      res.send(result);  
+    })
+  
   });
   // parse the incoming request containing the form data
   form.parse(req);
 });
 
-router.put( '/image/delete/:postId', (req, res) => {
+router.put( '/image/delete/:postId', isAuthenticated, (req, res) => {
     const id = req.params.postId;
-    const sig = req.body.data.signature;
-    console.log(sig);
-    Post.
-    update(
-    { _id: id },
-    { $pull: { "images" : { "signature" : sig } }})
-    .then( () => console.log('Deleted picture from Database.'))
-    .catch( err => console.log(err));
+    const pubIds = req.body.data.publicIds;
+    
+    const promises = pubIds.map( pubId => {
+      return new Promise((resolve, reject) => {
+        Post
+        .update(
+        { _id: id },
+        { $pull: { "images" : { "publicId" : pubId } }})
+       .then( () => {
+          cloudinary.uploader.destroy(pubId, (error, result) => {
+            console.log(result);
+          });
+          resolve();
+        })
+        .catch( err => console.log(err));
+      });
+    });
+    
+    Promise.all(promises).then(result => res.send(result));
+    
+    
 });
 
 
@@ -114,13 +135,15 @@ function isAuthenticated (req,res,next) {
    }
 }
 
-const sendToCloud = (file, id) => {
+const sendToCloud = (file, id, resolve) => {
   console.log('Image added to post:' + id);
   cloudinary.uploader.upload(file, result => {
     console.log("----" + JSON.stringify(result));
     const img = result.secure_url;
     const imgNm = result.original_filename;
-    const sig = result.signature
+    const pubId = result.public_id;
+    resolve(imgNm);
+    
     Post
     .update(
       { '_id': id },
@@ -128,11 +151,21 @@ const sendToCloud = (file, id) => {
           images: {
             'image': img,
             'imageName': imgNm,
-            'signature': sig
+            'publicId': pubId
           }
         }
       })
-    .then( () => console.log("Added image to post"))
+    .then( (image) => {
+      
+      console.log("Added image to post");
+      fs.unlink(file, (err) => {
+        if (err) {
+            console.log("failed to delete local image:"+err);
+        } else {
+            console.log('successfully deleted local image');                                
+        }
+      });
+    })
     .catch(err => console.log(err));
   });
 }

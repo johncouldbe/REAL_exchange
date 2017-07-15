@@ -42,24 +42,32 @@ $(function() {
   $('#edit-post').on('click', '.delete-images', (e) => {
     e.preventDefault();
     const postId = $(e.currentTarget).data('id');
-    console.log("POSTID: " + postId);
     const checkedImages = $('.image-checkbox:checked').map(function() {
     return $(this).attr('id');
     }).get();
     
-    checkedImages.forEach( image => {
-      deletePostImages(postId, image);
+    new Promise( (resolve,reject) => {
+      deletePostImages(postId, checkedImages, resolve)
+    }).then(() => {
+      getPost(postId, state, post => { createEditPostPanel(post)});
+      getUserPosts();
     });
     
-    console.log('This is your state: ' + JSON.stringify(state.post.data.post._id));
-     getPost(postId, state, post => { createEditPostPanel(post)});
+    
+    // checkedImages.forEach( imagePublicId => {
+    //   deletePostImages(postId, imagePublicId);
+    // });
+    
   });
   //Upload Photos
   $('#edit-post').on('click', '.upload-btn', function (e){
     $('.progress-bar').text('0%');
     $('.progress-bar').width('0%');
     const id = $(this).attr('id');
-    uploadPostPhoto(id);
+    uploadPostPhoto(id).then(() => {
+      getPost(id, state, post => { createEditPostPanel(post)});
+      getUserPosts();
+    })
   });
 
   //Store photos to upload
@@ -78,9 +86,10 @@ $(function() {
     const id = $('.js-edit-form').attr('id');
 
     if(validateEditPost(editSubject, editMessage, editCategory, errorMsg)) {
-      editPost(editSubject, editMessage, editCategory, id);
+      editPost(editSubject, editMessage, editCategory, id, getUserPosts)
+      closeSidePullOut('#edit-post');
     }
-    closeSidePullOut('#edit-post');
+    
   });
 
   //Get all Users Posts
