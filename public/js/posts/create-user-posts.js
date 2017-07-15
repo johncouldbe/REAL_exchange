@@ -1,8 +1,19 @@
-export function getUserPosts() {
+export function getUserPosts(state) {
   axios.get('/posts/user')
   .then(function (posts) {
+    state.user = {
+      id: posts.data.posts[0].userId,
+      firstName: posts.data.posts[0].firstName,
+      lastName: posts.data.posts[0].lastName,
+    }
     console.log('GETTING ALL POSTS', posts);
     const userPosts = posts.data.posts;
+    
+    const date = (post) => {
+      let date =  new Date(post.date);
+      return `${date.getMonth()}/${date.getDay()}/${date.getFullYear()}`;
+    }
+    
     let constructPosts ='';
 
     userPosts.forEach(function(post) {
@@ -27,7 +38,7 @@ export function getUserPosts() {
                     <p>${post.firstName} ${post.lastName}</p>
                   </div>
                   <div class="col s6 right-align">
-                    <p>${post.date}</p>
+                    <p>${date(post)}</p>
                   </div>
                   <div class="col s12">
                     <p><strong>${post.type}</strong></p>
@@ -40,7 +51,12 @@ export function getUserPosts() {
               <div class="card-action right-align">
                 <a class="${post._id} view-post" href="#view-post">View</a>
                 <a class="${post._id} left-border left-padding light-blue-text edit-post" href="#edit-post"> Edit</a>
-                <span class="left">5 comments</span>
+                `;
+                if(post.comments.length > 0) {
+                  constructPosts += `
+                  <span class="left">${post.comments.length} comments</span>`; 
+                }
+      constructPosts += `
               </div>
             </div>
           </div>

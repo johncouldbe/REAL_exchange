@@ -35,8 +35,39 @@ $(function() {
       $('.new-post-button-font').toggleClass('white-out');
     }
   });
+  
+  const postComment = (arg, state, comment, resolve) => {
+    axios.put(`/posts/comment/${arg}`, {
+      data: {
+        "firstName": state.user.firstName,
+        "lastName": state.user.lastName,
+        "userId": state.user.id,
+        "body": comment,
+        "date": new Date()
+      } 
+    }).then((post) => {
+      console.log('Posted Comment to Post', post);
+      resolve();
+    })
+    .catch(err => console.log(err));
+  }
 
   /* ========= Click Event Handlers ========= */
+  
+  //Comment on Post
+  $('#view-post').on('click', '.js-comment-post-btn', (e) => {
+    e.preventDefault();
+    const postId = $(e.currentTarget).data('id');
+    const comment = $('.js-comment-field').val();
+    
+    new Promise((resolve, reject) => {
+    postComment(postId, state, comment, resolve);
+    })
+    .then(() => {
+      console.log('CREATED SOMEMENENE');
+      createViewPost(postId, state);
+    });
+  })
   
   //Delete Images
   $('#edit-post').on('click', '.delete-images', (e) => {
@@ -52,12 +83,6 @@ $(function() {
       getPost(postId, state, post => { createEditPostPanel(post)});
       getUserPosts();
     });
-    
-    
-    // checkedImages.forEach( imagePublicId => {
-    //   deletePostImages(postId, imagePublicId);
-    // });
-    
   });
   //Upload Photos
   $('#edit-post').on('click', '.upload-btn', function (e){
@@ -93,7 +118,7 @@ $(function() {
   });
 
   //Get all Users Posts
-  $('#js-get-post').click(getUserPosts);
+  $('#js-get-post').click(getUserPosts(state));
   //Get all posts
   $('#js-get-all-posts').click(getAllPosts);
 
@@ -111,7 +136,7 @@ $(function() {
 
     if($(this).hasClass('view-post')){
       let postId = $(this).attr('class').split(' ')[0];
-      createViewPost(postId);
+      createViewPost(postId, state);
     }
 
     if($(this).hasClass('edit-post')){

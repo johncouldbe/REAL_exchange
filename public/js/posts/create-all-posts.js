@@ -3,6 +3,11 @@ export function getAllPosts() {
   .then(function (post) {
     const allPosts = post.data.posts;
     let constructPosts = '';
+    
+    const date = (post) => {
+      let date =  new Date(post.date);
+      return `${date.getMonth()}/${date.getDay()}/${date.getFullYear()}`;
+    }
 
     allPosts.forEach(function(post) {
       constructPosts += `
@@ -26,7 +31,7 @@ export function getAllPosts() {
                     <p>${post.firstName} ${post.lastName}</p>
                   </div>
                   <div class="col s6 right-align">
-                    <p>${post.date}</p>
+                    <p>${date(post)}</p>
                   </div>
                   <div class="col s12">
                     <p><strong>${post.type}</strong></p>

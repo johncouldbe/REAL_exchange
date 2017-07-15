@@ -1,4 +1,4 @@
-export function createViewPost(arg) {
+export function createViewPost(arg, state) {
   axios.get(`/posts/${arg}`)
   .then(function(post) {
     console.log(post);
@@ -48,13 +48,63 @@ export function createViewPost(arg) {
         <div class="row">
           <div class="input-field col s12">
             <i class="material-icons prefix">mode_edit</i>
-            <textarea id="icon_prefix2" class="materialize-textarea"></textarea>
+            <textarea id="icon_prefix2" class="materialize-textarea js-comment-field"></textarea>
             <label for="icon_prefix2">Comment</label>
+          </div>
+          
+          <div class="col s12">
+            <button class="left btn waves-effect waves-light light-blue js-comment-post-btn"
+            type="submit" data-id="${arg}">Submit</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col s12">
+            <div class="divider"></div>
           </div>
         </div>
       </form>
     </div>
     `;
+    
+    if(post.data.post.comments.length > 0) {
+      let str = '';
+      
+      const date = (comment) => {
+        let date =  new Date(comment.date);
+        return `${date.getMonth()}/${date.getDay()}/${date.getFullYear()}`;
+      } 
+      
+      const deleteComment = (comment) => {
+        if(comment.userId === state.user.id){
+          return `<a href="#" data-id="${comment._id}" class="red-text right js-delete-comment">Delete</a>`;
+        } else {
+          return '';
+        }
+      }
+      
+      post.data.post.comments.forEach(comment => {
+        console.log(comment);
+        str += `
+        <div class="row">
+          <div class="col s12">
+            <p><strong>${comment.firstName} ${comment.lastName}<br />
+            ${date(comment)}</strong></p>
+          </div>
+          <div class="col s12">
+            <p>${comment.body}</p>
+            ${deleteComment(comment)}
+          </div>
+          
+          <div class="row">
+            <div class="col s12">
+            <div class="divider"></div>
+            </div>
+          </div>
+        </div>
+        `
+      })
+      viewedPost += str;
+    }
 
     $('#view-post').html(viewedPost);
     setTimeout(function () {

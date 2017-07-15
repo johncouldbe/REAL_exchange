@@ -112,8 +112,39 @@ $(function() {
       $('.new-post-button-font').toggleClass('white-out');
     }
   });
+  
+  const postComment = (arg, state, comment, resolve) => {
+    axios.put(`/posts/comment/${arg}`, {
+      data: {
+        "firstName": state.user.firstName,
+        "lastName": state.user.lastName,
+        "userId": state.user.id,
+        "body": comment,
+        "date": new Date()
+      } 
+    }).then((post) => {
+      console.log('Posted Comment to Post', post);
+      resolve();
+    })
+    .catch(err => console.log(err));
+  }
 
   /* ========= Click Event Handlers ========= */
+  
+  //Comment on Post
+  $('#view-post').on('click', '.js-comment-post-btn', (e) => {
+    e.preventDefault();
+    const postId = $(e.currentTarget).data('id');
+    const comment = $('.js-comment-field').val();
+    
+    new Promise((resolve, reject) => {
+    postComment(postId, state, comment, resolve);
+    })
+    .then(() => {
+      console.log('CREATED SOMEMENENE');
+      __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__["a" /* createViewPost */](postId, state);
+    });
+  })
   
   //Delete Images
   $('#edit-post').on('click', '.delete-images', (e) => {
@@ -129,12 +160,6 @@ $(function() {
       __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["b" /* getPost */](postId, state, post => { __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["a" /* createEditPostPanel */](post)});
       __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]();
     });
-    
-    
-    // checkedImages.forEach( imagePublicId => {
-    //   deletePostImages(postId, imagePublicId);
-    // });
-    
   });
   //Upload Photos
   $('#edit-post').on('click', '.upload-btn', function (e){
@@ -170,7 +195,7 @@ $(function() {
   });
 
   //Get all Users Posts
-  $('#js-get-post').click(__WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]);
+  $('#js-get-post').click(__WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */](state));
   //Get all posts
   $('#js-get-all-posts').click(__WEBPACK_IMPORTED_MODULE_0__posts_create_all_posts__["a" /* getAllPosts */]);
 
@@ -188,7 +213,7 @@ $(function() {
 
     if($(this).hasClass('view-post')){
       let postId = $(this).attr('class').split(' ')[0];
-      __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__["a" /* createViewPost */](postId);
+      __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__["a" /* createViewPost */](postId, state);
     }
 
     if($(this).hasClass('edit-post')){
@@ -232,6 +257,11 @@ function getAllPosts() {
   .then(function (post) {
     const allPosts = post.data.posts;
     let constructPosts = '';
+    
+    const date = (post) => {
+      let date =  new Date(post.date);
+      return `${date.getMonth()}/${date.getDay()}/${date.getFullYear()}`;
+    }
 
     allPosts.forEach(function(post) {
       constructPosts += `
@@ -255,7 +285,7 @@ function getAllPosts() {
                     <p>${post.firstName} ${post.lastName}</p>
                   </div>
                   <div class="col s6 right-align">
-                    <p>${post.date}</p>
+                    <p>${date(post)}</p>
                   </div>
                   <div class="col s12">
                     <p><strong>${post.type}</strong></p>
@@ -288,11 +318,22 @@ function getAllPosts() {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = getUserPosts;
-function getUserPosts() {
+function getUserPosts(state) {
   axios.get('/posts/user')
   .then(function (posts) {
+    state.user = {
+      id: posts.data.posts[0].userId,
+      firstName: posts.data.posts[0].firstName,
+      lastName: posts.data.posts[0].lastName,
+    }
     console.log('GETTING ALL POSTS', posts);
     const userPosts = posts.data.posts;
+    
+    const date = (post) => {
+      let date =  new Date(post.date);
+      return `${date.getMonth()}/${date.getDay()}/${date.getFullYear()}`;
+    }
+    
     let constructPosts ='';
 
     userPosts.forEach(function(post) {
@@ -317,7 +358,7 @@ function getUserPosts() {
                     <p>${post.firstName} ${post.lastName}</p>
                   </div>
                   <div class="col s6 right-align">
-                    <p>${post.date}</p>
+                    <p>${date(post)}</p>
                   </div>
                   <div class="col s12">
                     <p><strong>${post.type}</strong></p>
@@ -330,7 +371,12 @@ function getUserPosts() {
               <div class="card-action right-align">
                 <a class="${post._id} view-post" href="#view-post">View</a>
                 <a class="${post._id} left-border left-padding light-blue-text edit-post" href="#edit-post"> Edit</a>
-                <span class="left">5 comments</span>
+                `;
+                if(post.comments.length > 0) {
+                  constructPosts += `
+                  <span class="left">${post.comments.length} comments</span>`; 
+                }
+      constructPosts += `
               </div>
             </div>
           </div>
@@ -354,7 +400,7 @@ function getUserPosts() {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = createViewPost;
-function createViewPost(arg) {
+function createViewPost(arg, state) {
   axios.get(`/posts/${arg}`)
   .then(function(post) {
     console.log(post);
@@ -404,13 +450,63 @@ function createViewPost(arg) {
         <div class="row">
           <div class="input-field col s12">
             <i class="material-icons prefix">mode_edit</i>
-            <textarea id="icon_prefix2" class="materialize-textarea"></textarea>
+            <textarea id="icon_prefix2" class="materialize-textarea js-comment-field"></textarea>
             <label for="icon_prefix2">Comment</label>
+          </div>
+          
+          <div class="col s12">
+            <button class="left btn waves-effect waves-light light-blue js-comment-post-btn"
+            type="submit" data-id="${arg}">Submit</button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col s12">
+            <div class="divider"></div>
           </div>
         </div>
       </form>
     </div>
     `;
+    
+    if(post.data.post.comments.length > 0) {
+      let str = '';
+      
+      const date = (comment) => {
+        let date =  new Date(comment.date);
+        return `${date.getMonth()}/${date.getDay()}/${date.getFullYear()}`;
+      } 
+      
+      const deleteComment = (comment) => {
+        if(comment.userId === state.user.id){
+          return `<a href="#" data-id="${comment._id}" class="red-text right js-delete-comment">Delete</a>`;
+        } else {
+          return '';
+        }
+      }
+      
+      post.data.post.comments.forEach(comment => {
+        console.log(comment);
+        str += `
+        <div class="row">
+          <div class="col s12">
+            <p><strong>${comment.firstName} ${comment.lastName}<br />
+            ${date(comment)}</strong></p>
+          </div>
+          <div class="col s12">
+            <p>${comment.body}</p>
+            ${deleteComment(comment)}
+          </div>
+          
+          <div class="row">
+            <div class="col s12">
+            <div class="divider"></div>
+            </div>
+          </div>
+        </div>
+        `
+      })
+      viewedPost += str;
+    }
 
     $('#view-post').html(viewedPost);
     setTimeout(function () {

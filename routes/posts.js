@@ -5,6 +5,7 @@ var fs = require('fs');
 const router = express.Router();
 const path = require('path');
 const { Post } = require('../models/post');
+const uuidv4 = require('uuid/v4');
 
 
 //Send all posts
@@ -23,7 +24,7 @@ router.get('/user', isAuthenticated, (req, res) => {
   Post
   .find({userId: id})
   .then(posts => {
-    res.json({posts});
+    res.json({posts, id});
   });
 });
 
@@ -120,9 +121,28 @@ router.put( '/image/delete/:postId', isAuthenticated, (req, res) => {
     });
     
     Promise.all(promises).then(result => res.send(result));
-    
-    
 });
+
+router.put('/comment/:postId', isAuthenticated, (req, res) => {
+  const postId = req.params.postId;
+  Post
+    .update(
+      { _id: postId },
+      { $push: { "comments" : {
+        "_id": uuidv4(),
+        "firstName": req.body.data.firstName,
+        "lastName": req.body.data.lastName,
+        "userId": req.body.data.userId,
+        "body": req.body.data.body,
+        "date": req.body.data.date
+      } }}
+    )
+    .then( (post) => {
+      console.log(post);
+      res.json(post);
+    })
+    .catch( err => console.log(err));
+})
 
 
 

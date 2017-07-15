@@ -6,7 +6,7 @@ const PostSchema = mongoose.Schema({
   lastName: {type: String, default: ""},
   body: {type: String, default: ""},
   subject: {type: String, default: ""},
-  date: {type: String, default: ""},
+  date: { type: Date, default: Date.now },
   type: {type: String, default: ""},
   images: {type: Array, default: []},
   comments: {type: Array, default: []}
