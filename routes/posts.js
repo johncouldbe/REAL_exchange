@@ -144,6 +144,20 @@ router.put('/comment/:postId', isAuthenticated, (req, res) => {
     .catch( err => console.log(err));
 })
 
+router.put('/comment/delete/:postId', (req,res) => {
+  const postId = req.params.postId;
+  
+  Post
+  .update(
+    { _id: postId },
+    { $pull: { "comments": { "_id": req.body.data.commentId } }}
+  )
+  .then( () => {
+    res.send('Deleted comment');
+  })
+  .catch(err => console.log(err));
+});
+
 
 
 function isAuthenticated (req,res,next) {

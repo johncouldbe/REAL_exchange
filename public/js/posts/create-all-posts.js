@@ -18,7 +18,7 @@ export function getAllPosts() {
         if(post.images.length > 0) {
           constructPosts += `
           <div class="card-image">
-          <img src="${post.images[0]}">
+          <img src="${post.images[0].image}">
           </div>
           `;
         }
@@ -42,8 +42,17 @@ export function getAllPosts() {
                 </div>
               </div>
               <div class="card-action">
-                <a class="${post._id} right view-post" href="#view-post" >View</a>
-                <span>5 comments</span>
+                <a class="${post._id} right view-post" href="#view-post" >View</a>`;
+                if(post.comments.length > 0) {
+                  if(post.comments.length == 1){
+                    constructPosts += `
+                    <span class="left">${post.comments.length} comment</span>`; 
+                  } else {
+                    constructPosts += `
+                    <span class="left">${post.comments.length} comments</span>`; 
+                  }
+                }
+      constructPosts += `
               </div>
             </div>
           </div>

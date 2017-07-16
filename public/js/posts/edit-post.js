@@ -1,4 +1,4 @@
-export function editPost(subject, message, category, id, cb) {
+export function editPost(subject, message, category, id, state, cb) {
   axios.put(`/posts/${id}`, {
     data: {
       "subject": subject,
@@ -7,7 +7,7 @@ export function editPost(subject, message, category, id, cb) {
     }
   })
   .then(() => {
-    cb();
+    cb(state);
   })
   .catch(err => console.log(err));
 }

@@ -74,7 +74,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__posts_edit_post__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__images__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__posts_images__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__posts_comments__ = __webpack_require__(8);
+
 
 
 
@@ -112,22 +114,6 @@ $(function() {
       $('.new-post-button-font').toggleClass('white-out');
     }
   });
-  
-  const postComment = (arg, state, comment, resolve) => {
-    axios.put(`/posts/comment/${arg}`, {
-      data: {
-        "firstName": state.user.firstName,
-        "lastName": state.user.lastName,
-        "userId": state.user.id,
-        "body": comment,
-        "date": new Date()
-      } 
-    }).then((post) => {
-      console.log('Posted Comment to Post', post);
-      resolve();
-    })
-    .catch(err => console.log(err));
-  }
 
   /* ========= Click Event Handlers ========= */
   
@@ -138,13 +124,36 @@ $(function() {
     const comment = $('.js-comment-field').val();
     
     new Promise((resolve, reject) => {
-    postComment(postId, state, comment, resolve);
+      __WEBPACK_IMPORTED_MODULE_6__posts_comments__["b" /* postComment */](postId, state, comment, resolve);
     })
     .then(() => {
-      console.log('CREATED SOMEMENENE');
       __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__["a" /* createViewPost */](postId, state);
+      if($('#user-posts-tab').hasClass('active')){
+        __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */](state);
+      } else {
+        __WEBPACK_IMPORTED_MODULE_0__posts_create_all_posts__["a" /* getAllPosts */]();
+      }
     });
-  })
+  });
+  
+  //Delete post Comment
+  $('#view-post').on('click', '.js-delete-comment-btn', (e) => {
+    e.preventDefault();
+    const postId = $(e.currentTarget).data('postId');
+    const commentId = $(e.currentTarget).data('id');
+    
+    new Promise((resolve, reject) => {
+      __WEBPACK_IMPORTED_MODULE_6__posts_comments__["a" /* deleteComment */](postId, commentId, resolve);
+    })
+    .then(() => {
+      __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__["a" /* createViewPost */](postId, state);
+      if($('#user-posts-tab').hasClass('active')){
+        __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */](state);
+      } else {
+        __WEBPACK_IMPORTED_MODULE_0__posts_create_all_posts__["a" /* getAllPosts */]();
+      }
+    });
+  });
   
   //Delete Images
   $('#edit-post').on('click', '.delete-images', (e) => {
@@ -155,27 +164,28 @@ $(function() {
     }).get();
     
     new Promise( (resolve,reject) => {
-      __WEBPACK_IMPORTED_MODULE_5__images__["a" /* deletePostImages */](postId, checkedImages, resolve)
+      __WEBPACK_IMPORTED_MODULE_5__posts_images__["a" /* deletePostImages */](postId, checkedImages, resolve)
     }).then(() => {
       __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["b" /* getPost */](postId, state, post => { __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["a" /* createEditPostPanel */](post)});
-      __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]();
+      __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */](state);
     });
   });
+  
   //Upload Photos
   $('#edit-post').on('click', '.upload-btn', function (e){
     $('.progress-bar').text('0%');
     $('.progress-bar').width('0%');
     const id = $(this).attr('id');
-    __WEBPACK_IMPORTED_MODULE_5__images__["c" /* uploadPostPhoto */](id).then(() => {
+    __WEBPACK_IMPORTED_MODULE_5__posts_images__["c" /* uploadPostPhoto */](id).then(() => {
       __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["b" /* getPost */](id, state, post => { __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["a" /* createEditPostPanel */](post)});
-      __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]();
+      __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */](state);
     })
   });
 
   //Store photos to upload
   $('#edit-post').on('change', '#upload-photo', function(){
     const that = $(this);
-    __WEBPACK_IMPORTED_MODULE_5__images__["b" /* enterPostImages */](that);
+    __WEBPACK_IMPORTED_MODULE_5__posts_images__["b" /* enterPostImages */](that);
   });
 
   //Edit post
@@ -188,14 +198,14 @@ $(function() {
     const id = $('.js-edit-form').attr('id');
 
     if(__WEBPACK_IMPORTED_MODULE_4__posts_edit_post__["b" /* validateEditPost */](editSubject, editMessage, editCategory, errorMsg)) {
-      __WEBPACK_IMPORTED_MODULE_4__posts_edit_post__["a" /* editPost */](editSubject, editMessage, editCategory, id, __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */])
+      __WEBPACK_IMPORTED_MODULE_4__posts_edit_post__["a" /* editPost */](editSubject, editMessage, editCategory, id, state, __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */])
       closeSidePullOut('#edit-post');
     }
     
   });
 
   //Get all Users Posts
-  $('#js-get-post').click(__WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */](state));
+  $('#js-get-post').click(() => { __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */](state) });
   //Get all posts
   $('#js-get-all-posts').click(__WEBPACK_IMPORTED_MODULE_0__posts_create_all_posts__["a" /* getAllPosts */]);
 
@@ -230,7 +240,7 @@ $(function() {
     });
   }
 
-  // KINDA WORKS
+  // KINDA WORKS for Navbar in the way
   // $('#view-post').on('click', 'img.materialboxed', (e) => {
   //   e.stopPropagation();
   //   console.log(e.currentTarget);
@@ -272,7 +282,7 @@ function getAllPosts() {
         if(post.images.length > 0) {
           constructPosts += `
           <div class="card-image">
-          <img src="${post.images[0]}">
+          <img src="${post.images[0].image}">
           </div>
           `;
         }
@@ -296,8 +306,17 @@ function getAllPosts() {
                 </div>
               </div>
               <div class="card-action">
-                <a class="${post._id} right view-post" href="#view-post" >View</a>
-                <span>5 comments</span>
+                <a class="${post._id} right view-post" href="#view-post" >View</a>`;
+                if(post.comments.length > 0) {
+                  if(post.comments.length == 1){
+                    constructPosts += `
+                    <span class="left">${post.comments.length} comment</span>`; 
+                  } else {
+                    constructPosts += `
+                    <span class="left">${post.comments.length} comments</span>`; 
+                  }
+                }
+      constructPosts += `
               </div>
             </div>
           </div>
@@ -478,7 +497,7 @@ function createViewPost(arg, state) {
       
       const deleteComment = (comment) => {
         if(comment.userId === state.user.id){
-          return `<a href="#" data-id="${comment._id}" class="red-text right js-delete-comment">Delete</a>`;
+          return `<a href="#" data-id="${comment._id}" data-post-id="${arg}" class="red-text right js-delete-comment-btn">Delete</a>`;
         } else {
           return '';
         }
@@ -641,7 +660,7 @@ const createEditPostPanel = post => {
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = editPost;
 /* harmony export (immutable) */ __webpack_exports__["b"] = validateEditPost;
-function editPost(subject, message, category, id, cb) {
+function editPost(subject, message, category, id, state, cb) {
   axios.put(`/posts/${id}`, {
     data: {
       "subject": subject,
@@ -650,7 +669,7 @@ function editPost(subject, message, category, id, cb) {
     }
   })
   .then(() => {
-    cb();
+    cb(state);
   })
   .catch(err => console.log(err));
 }
@@ -675,7 +694,8 @@ function validateEditPost(subject, message, category, err) {
 
 
 /***/ }),
-/* 6 */
+/* 6 */,
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -760,6 +780,42 @@ const deletePostImages = (postId, images, resolve) => {
 };
 /* harmony export (immutable) */ __webpack_exports__["a"] = deletePostImages;
 
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const postComment = (arg, state, comment, resolve) => {
+    axios.put(`/posts/comment/${arg}`, {
+      data: {
+        "firstName": state.user.firstName,
+        "lastName": state.user.lastName,
+        "userId": state.user.id,
+        "body": comment,
+        "date": new Date()
+      } 
+    }).then(() => {
+      resolve();
+    })
+    .catch(err => console.log(err));
+  }
+/* harmony export (immutable) */ __webpack_exports__["b"] = postComment;
+
+  
+  const deleteComment = (postId, commentId, resolve) => {
+    axios.put(`/posts/comment/delete/${postId}`, {
+      data: {
+        "commentId": commentId
+      }
+    })
+    .then(() => {
+      resolve();
+    })
+    .catch(err => console.log(err));
+  }
+/* harmony export (immutable) */ __webpack_exports__["a"] = deleteComment;
 
 
 /***/ })
