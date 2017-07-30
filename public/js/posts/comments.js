@@ -24,3 +24,5 @@ export const postComment = (arg, state, comment, resolve) => {
     })
     .catch(err => console.log(err));
   }
+  
+  

@@ -1,9 +1,9 @@
 export const imageDisplay = post => {
     console.log(post);
-    let str = '<form action="#" class="col s12 light-blue lighten-5">';
+    let str = '<form action="#" class="col s12 light-blue lighten-5 images-form" style="position:relative;">';
     for (let i = 0; i < post.data.post.images.length; i++) {
       str +=`
-        <p>
+        <p class="checkbox-container">
           <input type="checkbox" class="image-checkbox" id="${post.data.post.images[i].publicId}" />
           <label class="black-text" for="${post.data.post.images[i].publicId}">
           ${post.data.post.images[i].imageName}</label>
@@ -67,11 +67,11 @@ export const createEditPostPanel = post => {
       <form class="col-s12 js-edit-form" id="${post.data.post._id}">
         <div class="row">
           <div class="input-field col s12">
-            <input id="edit-subject" type="text" value="${post.data.post.subject}">
-            <label class="active" for="subject">Subject</label>
+            <input id="edit-subject" type="text" value="${post.data.post.subject}" data-error="wrong" class="validate" required aria-required="true">
+            <label class="active" for="edit-subject">Subject</label>
           </div>
           <div class="input-field col s12 m6">
-            <select id="edit-category">
+            <select id="edit-category" class="validate" required>
               <option value="" disabled selected>Choose your category</option>
               <option value="1">Wanted</option>
               <option value="2">Available</option>
@@ -80,22 +80,21 @@ export const createEditPostPanel = post => {
             <label>Materialize Select</label>
           </div>
           <div class="input-field col s12">
-            <textarea id="edit-message" class="materialize-textarea">${post.data.post.body}</textarea>
+            <textarea id="edit-message" class="materialize-textarea" class="validate">${post.data.post.body}</textarea>
             <label for="icon_prefix2" class="active">Message</label>
           </div>
         </div>
-      </div>
-      <div class="col s6">
-        <button class="right btn waves-effect waves-light red" type="submit" id="js-delete-post">Delete</button>
-      </div>
-      <div class="col s6">
-        <button class="left btn waves-effect waves-light light-blue" type="submit" id="js-edit-post">Submit</button>
-      </div>
+        <div class="col s6">
+         <button class="right btn waves-effect waves-light red" type="submit" id="js-delete-post">Delete</button>
+        </div>
+        <div class="col s6">
+          <button class="left btn waves-effect waves-light light-blue" type="submit" id="js-edit-post">Submit</button>
+        </div>
       </form>
-      <div class="row">
+      <div class="row"></div>
     </div>
     `;
-    $('#edit-post').html(editPost);
+    $('#edit-post>.js-blur').html(editPost);
 
     $('select').material_select();
   }

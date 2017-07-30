@@ -12,6 +12,7 @@ const uuidv4 = require('uuid/v4');
 router.get('/', isAuthenticated, (req, res) => {
   Post
   .find()
+  .sort('-date')
   .then(posts => {
     res.json({ posts });
   });
@@ -19,16 +20,14 @@ router.get('/', isAuthenticated, (req, res) => {
 
 //Send posts specific to user
 router.get('/user', isAuthenticated, (req, res) => {
-  console.log(req.user);
   const id = req.user._id;
   Post
   .find({userId: id})
+  .sort('-date')
   .then(posts => {
     res.json({posts, id});
   });
 });
-
-
 
 //Send a requested post
 router.get('/:id', isAuthenticated, (req, res) => {
@@ -42,6 +41,22 @@ router.get('/:id', isAuthenticated, (req, res) => {
   .catch(err => res.send(err));
 });
 
+//Create new post
+router.post('/new', isAuthenticated, (req, res) => {
+  Post
+  .create({
+    "userId": req.user._id,
+    "firstName": req.user.firstName,
+    "lastName": req.user.lastName,
+    "body": req.body.data.body,
+    "subject": req.body.data.subject,
+    "type": req.body.data.type
+  })
+  .then((post) => res.send(post._id))
+  .catch(err => console.log(err));
+});
+
+//Update Post
 router.put('/:id', isAuthenticated, (req, res) => {
   const id = req.params.id;
   const body = req.body.data.body;
@@ -57,17 +72,58 @@ router.put('/:id', isAuthenticated, (req, res) => {
   .catch(err => console.log(err));
 });
 
-router.delete('/:id', isAuthenticated, (req, res) => {
+//Delete Post
+router.delete('/:postId', isAuthenticated, (req, res) => {
+  const id = req.params.postId;
+  
+  let pubIds;
+  
   Post
-  .delete(req.params.id);
-  console.log(`Delete post id: ${req.params.id}`);
+    .findOne({ _id: id })
+    .then(post => {
+      pubIds = post.images.map(img => { return img.publicId });
+      if(pubIds.length > 0) {
+        removeImages(post);
+      }
+      else {
+        deletePost();
+      }
+      
+    }).catch(err => console.log(err));
+    
+    const removeImages = (post) => {
+      
+      const promises = pubIds.map( pubId => {
+        return new Promise((resolve, reject) => {
+          Post
+          .update(
+          { _id: id },
+          { $pull: { "images" : { "publicId" : pubId } }})
+         .then( () => {
+            cloudinary.uploader.destroy(pubId, (error, result) => {
+              console.log(result);
+            });
+            resolve();
+          })
+          .catch( err => console.log(err));
+        });
+      });
+      
+      Promise.all(promises).then(() => { console.log("Deleted Images"); deletePost(); });
+    }  
+     const deletePost = () => {
+       Post
+      .findByIdAndRemove(id)
+      .then(() => { console.log(`Deleted post id: ${id}`); res.send(`Deleted post id: ${id}`) });
+     }
 });
 
+//Upload photos to post
 router.post('/image/upload/:postId', isAuthenticated, (req, res) => {
   const id = req.params.postId;
   let fileNames = [];
   // create an incoming form object
-  var form = new formidable.IncomingForm();
+  let form = new formidable.IncomingForm();
   // specify that we want to allow the user to upload multiple files in a single request
   form.multiples = true;
   // store all uploads in the /uploads directory
@@ -84,13 +140,13 @@ router.post('/image/upload/:postId', isAuthenticated, (req, res) => {
   form.on('error', err => console.log('An error has occured: \n' + err));
   // once all the files have been uploaded, send a response to the client
   form.on('end', () => {
-    
     const promises = fileNames.map(file => {
       return new Promise((resolve, reject) => {
         sendToCloud(file, id, resolve);
       })
     })
-
+    
+    
     Promise.all(promises).then(result => {
       res.send(result);  
     })
@@ -100,18 +156,23 @@ router.post('/image/upload/:postId', isAuthenticated, (req, res) => {
   form.parse(req);
 });
 
+//Delete images from post
 router.put( '/image/delete/:postId', isAuthenticated, (req, res) => {
     const id = req.params.postId;
-    const pubIds = req.body.data.publicIds;
+    let allIds;
+      
+    const pubIds = req.body.data.publicIds || allIds;
     
-    const promises = pubIds.map( pubId => {
+    console.log('All the IDS: ', allIds);
+    
+    const promises = pubIds.map( pubIds => {
       return new Promise((resolve, reject) => {
         Post
         .update(
         { _id: id },
-        { $pull: { "images" : { "publicId" : pubId } }})
+        { $pull: { "images" : { "publicId" : pubIds } }})
        .then( () => {
-          cloudinary.uploader.destroy(pubId, (error, result) => {
+          cloudinary.uploader.destroy(pubIds, (error, result) => {
             console.log(result);
           });
           resolve();
@@ -123,6 +184,7 @@ router.put( '/image/delete/:postId', isAuthenticated, (req, res) => {
     Promise.all(promises).then(result => res.send(result));
 });
 
+//Add comment to post
 router.put('/comment/:postId', isAuthenticated, (req, res) => {
   const postId = req.params.postId;
   Post
@@ -144,6 +206,7 @@ router.put('/comment/:postId', isAuthenticated, (req, res) => {
     .catch( err => console.log(err));
 })
 
+//Delete comment from post
 router.put('/comment/delete/:postId', (req,res) => {
   const postId = req.params.postId;
   

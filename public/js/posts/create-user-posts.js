@@ -6,25 +6,20 @@ export function getUserPosts(state) {
       firstName: posts.data.posts[0].firstName,
       lastName: posts.data.posts[0].lastName,
     }
-    console.log('GETTING ALL POSTS', posts);
+    console.log('GETTING ALL USER POSTS', posts);
     const userPosts = posts.data.posts;
-    
-    const date = (post) => {
-      let date =  new Date(post.date);
-      return `${date.getMonth()}/${date.getDay()}/${date.getFullYear()}`;
-    }
     
     let constructPosts ='';
 
     userPosts.forEach(function(post) {
       constructPosts += `
-      <div class="row post-card">
+      <div class="row">
         <div class="col s12">
-          <div class="card horizontal hoverable">
+          <div class="card horizontal grey lighten-5 hoverable">
       `;
         if(post.images.length > 0) {
           constructPosts += `
-          <div class="card-image">
+          <div class="card-image grey lighten-5">
           <img src="${post.images[0].image}">
           </div>
           `;
@@ -32,13 +27,13 @@ export function getUserPosts(state) {
 
       constructPosts += `
             <div class="card-stacked">
-              <div class="card-content">
+              <div class="card-content grey lighten-5">
                 <div class="row">
                   <div class="col s6">
                     <p>${post.firstName} ${post.lastName}</p>
                   </div>
                   <div class="col s6 right-align">
-                    <p>${date(post)}</p>
+                    <p>${moment(post.date).format('M/D/Y | h:mm a')}</p>
                   </div>
                   <div class="col s12">
                     <p><strong>${post.type}</strong></p>

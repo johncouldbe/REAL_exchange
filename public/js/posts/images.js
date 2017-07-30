@@ -1,12 +1,11 @@
-let formData = '';
 
-export const uploadPostPhoto = id => {
+export const uploadPostPhoto = (id, state) => {
   return new Promise(resolve => {
   
     $.ajax({
       url: `/posts/image/upload/${id}`,
       type: 'POST',
-      data: formData,
+      data: state.formData,
       processData: false,
       contentType: false,
       success: function(data){
@@ -41,19 +40,19 @@ export const uploadPostPhoto = id => {
   });
 }
 
-export const enterPostImages = arg => {
+export const enterPostImages = (arg, state) => {
   var files = arg.get(0).files;
   console.log(`Files: ${files}`);
   if (files.length > 0){
     // create a FormData object which will be sent as the data payload in the
     // AJAX request
-    formData = new FormData();
+    state.formData = new FormData();
     // loop through all the selected files and add them to the formData object
     for (var i = 0; i < files.length; i++) {
       var file = files[i];
       console.log(`File loop: ${file}`);
       // add the files to formData object for the data payload
-      formData.append('uploads[]', file, file.name);
+      state.formData.append('uploads[]', file, file.name);
     }
   }
 }

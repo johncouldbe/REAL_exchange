@@ -13,13 +13,14 @@ const UserSchema = mongoose.Schema({
   },
   firstName: {type: String, default: ""},
   lastName: {type: String, default: ""},
+  company: {type: String, default: ""},
   profilePic: {type: String, default: "https://lorempixel.com/400/400/"},
   bio: {type: String, default: "Hello, everyone! I'm new to REAL Exchange. Please send me a message!"},
   phoneNumber: {type: String, default: ""},
   email: {type: String, default: ""},
   website: {type: String, default: ""},
   associations: {type: Array, default: []},
-  friends: {type: Array, default: []},
+  contacts: {type: Array, default: []},
 });
 
 UserSchema.methods.apiRepr = function() {
@@ -28,13 +29,24 @@ UserSchema.methods.apiRepr = function() {
     licenseNumber: this.licenseNumber || '',
     firstName: this.firstName || '',
     lastName: this.lastName || '',
+    company: this.company || '',
     profilePic: this.profilePic || '',
     bio: this.bio || '',
     phoneNumber: this.phoneNumber || '',
     email: this.email || '',
     website: this.website || '',
     associations: this.associations || '',
-    friends: this.friends || ''
+    contacts: this.contacts || ''
+  };
+}
+
+UserSchema.methods.contactInfo = function() {
+  return {
+    _id: this._id,
+    firstName: this.firstName || '',
+    lastName: this.lastName || '',
+    profilePic: this.profilePic || '',
+    company: this.company || ''
   };
 }
 
