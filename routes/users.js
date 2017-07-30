@@ -9,7 +9,7 @@ router.get('/', isAuthenticated, function(req, res) {
   .exec()
   .then(users => {
     res.json({
-      users: users.map(user => user.apiRepr())
+      users: users.map(user => user.contactInfo())
     });
   })
   .catch(err => {

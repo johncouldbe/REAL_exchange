@@ -1,9 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const hbs  = require('express-handlebars');
-const { PORT, DATABASE_URL } = require('./config');
+const { SECRET_KEY, PORT, DATABASE_URL } = require('./config');
 const morgan = require('morgan');
 const mongoose = require('mongoose');
 const session = require('express-session');
@@ -46,7 +47,7 @@ app.use(cookieParser());
 
 // Sessions
 app.use(session({
-  secret: 'johnssecret',
+  secret: SECRET_KEY,
   resave: false,
   saveUninitialized: false,
   // Session Store

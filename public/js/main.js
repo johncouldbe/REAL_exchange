@@ -1,180 +1,24 @@
-// const { myFunc } = require('./helpers');
+import { getAllPosts } from './posts/create-all-posts';
+import { getUserPosts } from './posts/create-user-posts';
+import { createViewPost } from './posts/create-view-post-panel';
+import { getPost, createEditPostPanel, imageDisplay } from './posts/create-edit-post-panel';
+import { createNewPost } from './posts/new-post';
+import { editPost, validateEditPost } from './posts/edit-post';
+import { uploadPostPhoto, enterPostImages, deletePostImages } from './posts/images';
+import { postComment, deleteComment } from './posts/comments';
+import { blur, unBlur } from './helpers';
+import { getAllContacts } from './contacts/create-all-contacts';
+
+/* global $ axios*/
+
 $(function() {
-  const state = {};
 
-  function getAllPosts() {
-    axios.get('/posts')
-    .then(function (post) {
-      const allPosts = post.data.posts;
-      let constructPosts = '';
+  const state = {
+    formData: ''
+  };
 
-      allPosts.forEach(function(post) {
-        constructPosts += `
-        <div class="row">
-          <div class="col s12">
-            <div class="card horizontal hoverable">
-              <div class="card-image">
-                <img src="http://lorempixel.com/100/190/nature/">
-              </div>
-              <div class="card-stacked">
-                <div class="card-content">
-                  <div class="row">
-                    <div class="col s6">
-                      <p>${post.firstName} ${post.lastName}</p>
-                    </div>
-                    <div class="col s6 right-align">
-                      <p>${post.date}</p>
-                    </div>
-                    <div class="col s12">
-                      <p><strong>${post.type}</strong></p>
-                    </div>
-                  </div>
-                  <div class="col s12">
-                    <p><strong>${post.subject}</strong></h5>
-                  </div>
-                </div>
-                <div class="card-action">
-                  <a class="right view-post" href="#view-post" id="${post._id}">View</a>
-                  <span>5 comments</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        `;
-      });
-
-      $('#js-all-posts').html(constructPosts);
-
-    });
-  }
-
-  function getUserPosts () {
-    axios.get('/posts/user')
-    .then(function (posts) {
-      console.log(posts);
-      const myPosts = posts.data.posts;
-      let constructPosts ='';
-
-      myPosts.forEach(function(post) {
-        constructPosts += `
-        <div class="row">
-          <div class="col s12">
-            <div class="card horizontal hoverable">
-              <div class="card-image">
-                <img src="http://lorempixel.com/100/190/nature/">
-              </div>
-              <div class="card-stacked">
-                <div class="card-content">
-                  <div class="row">
-                    <div class="col s6">
-                      <p>${post.firstName} ${post.lastName}</p>
-                    </div>
-                    <div class="col s6 right-align">
-                      <p>${post.date}</p>
-                    </div>
-                    <div class="col s12">
-                      <p><strong>${post.type}</strong></p>
-                    </div>
-                  </div>
-                  <div class="col s12">
-                    <p><strong>${post.subject}</strong></h5>
-                  </div>
-                </div>
-                <div class="card-action right-align">
-                  <a class="view-post" href="#view-post" id="${post._id}">View</a>
-                  <a class="left-border left-padding light-blue-text" href="#edit-post"> Edit</a>
-                  <span class="left">5 comments</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        `;
-      });
-      $('#js-my-post').append(constructPosts);
-
-      $('#my-posts-tab').click();
-    })
-    .catch(err => {
-      console.log(err);
-    });
-  }
-
-  function createEditPost(arg) {
-    axios.get(`/posts/${arg}`)
-    .then(function(post) {
-      let editPost = `
-      <div class="row">
-        <div class="col s12">
-        <a href="#view-post" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right-black.svg" /></a>
-        </div>
-      </div>
-
-      
-      `
-    })
-  }
-
-  function createViewPost(arg) {
-    axios.get(`/posts/${arg}`)
-    .then(function(post) {
-    console.log(post);
-      let viewedPost = '';
-
-      viewedPost = `
-      <div class="row">
-        <div class="col s12">
-        <a href="#view-post" class="js-push-back"><img class="pull-out-back-icon"  src="/assets/images/arrow-right-black.svg" /></a>
-        </div>
-      </div>
-
-      <div class="carousel">
-        <a class="carousel-item" href="#one!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/1"></a>
-        <a class="carousel-item" href="#two!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/2"></a>
-        <a class="carousel-item" href="#three!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/3"></a>
-        <a class="carousel-item" href="#four!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/4"></a>
-        <a class="carousel-item" href="#five!"><img class="materialboxed" src="http://lorempixel.com/250/250/nature/5"></a>
-      </div>
-      <div class="row">
-        <div class="col s12">
-          <div class="center dont-break-on-overflow">
-
-            <h4>${post.data.post.firstName} ${post.data.post.lastName}</h4>
-            <h5>${post.data.post.subject}</h5>
-            <p>${post.data.post.body}</p>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col s12">
-          <div class="divider"></div>
-          <h5>Comments</h5>
-        </div>
-      </div>
-      <div class="row">
-        <form class="col s12">
-          <div class="row">
-            <div class="input-field col s12">
-              <i class="material-icons prefix">mode_edit</i>
-              <textarea id="icon_prefix2" class="materialize-textarea"></textarea>
-              <label for="icon_prefix2">Comment</label>
-            </div>
-          </div>
-        </form>
-      </div>
-      `;
-
-      $('#view-post').html(viewedPost);
-      setTimeout(function () { $('.carousel').carousel(); $('.materialboxed').materialbox(); }, 400)
-
-    })
-    .catch(err => {
-      console.log(err);
-    });
-  }
-
-  function openFromSide(arg) {
+  //Open panel
+  let openFromSide = (arg) => {
     if($(window).width() < 601){
       $(arg).animate({
         width:"100vw"
@@ -184,38 +28,206 @@ $(function() {
         width:"50vw"
       });
     }
+    $('body').addClass('no-scroll');
   }
-
-  function closeSidePullOut(arg) {
+  
+  //Close Panel
+  let closeSidePullOut = (arg) => {
     $(arg).animate({
       width:"0"
     });
+    $('body').removeClass('no-scroll');
   }
 
-  //Event Handlers
+  //Association Dropdown
   $(".dropdown-button").dropdown();
+  
+  //New Post Category Initialized
+  $('select').material_select();
 
-  $('#js-get-post').click(getUserPosts);
-
-  $('#js-get-all-posts').click(getAllPosts);
-
-  //View Settings, View-Post, and Edit-Post panels
-  $("main").on('click', '.js-settings, .view-post', '.edit-post' function(e) {
-    e.preventDefault();
-    let reference = $(this).attr('href');
-
-    if($(this).hasClass('view-post')){
-      let postId = $(this).attr('id');
-      createViewPost(postId);
+  //New Post Button Animation
+  $('.new-post-button').hover(() => {
+    if($(window).width() > 600){
+      $('.new-post-button-container').toggleClass('elongated');
+      $('.new-post-button').toggleClass('elongated-borders');
+      $('.new-post-button-font').toggleClass('white-out');
     }
-
-    if($(this).hasClass('edit-post')){
-      let postId = $(this).attr('id');
-      createEditPost(postId);
-    }
-
-    openFromSide(reference);
   });
+  
+  //After a comment reload posts
+  const updatePostsFromComment = (state) => {
+    if($('#user-posts-tab').hasClass('active')){
+      getUserPosts(state);
+    } else {
+        getAllPosts();
+      }
+  }
+  
+  //Store photos to upload
+  $('#edit-post, #new-post').on('change', '#upload-photo', function(){
+    const that = $(this);
+    enterPostImages(that, state);
+  });
+  
+  /* ========= Click Event Handlers ========= */
+  
+  // //remove invalid
+  // $('#edit-post, #new-post').on('click', 'new-category', e => {
+  //   console.log(e.currentTarget);
+  //   $(e.currentTarget).removeClass('invalid');
+  // });
+  
+  //Get all Contacts
+  $('#all-contacts-tab').click(() => {
+    getAllContacts();
+  })
+  
+  //Submit new post
+  $('#new-post').on('click', '#submit-post', e => {
+    e.preventDefault();
+    const form = $('.js-new-form');
+    
+    if(! form[0].checkValidity()) {
+      const fields = ['#new-subject', 'textarea#new-message', '#new-category'];
+      
+      fields.forEach( field => {
+        if(! $(field)[0].checkValidity()) {
+          if(field == '#new-category'){
+            $(field).closest('.select-wrapper').find('input[type=text]').addClass('invalid');
+          } else {
+            $(field).addClass('invalid');
+          }
+        }
+      });
+        
+     // If the form is invalid, submit it. The form won't actually submit;
+     // this will just cause the browser to display the native HTML5 error messages.
+      form.querySelector('input[type="submit"]').click();
+    } else {
+      blur();
+      const newPost = { 
+        subject: $('#new-subject').val(),
+        body: $('textarea#new-message').val(),
+        type: $('#new-category').find(':selected').text()
+      }
+      new Promise((resolve, reject) => {
+        createNewPost(newPost, state, resolve)
+      }).then(() => {
+        closeSidePullOut('#new-post');
+        //reset form
+        form[0].reset();
+        getUserPosts(state);
+        unBlur();
+      })
+    }
+  });
+  
+  //Delete post
+  $('#edit-post').on('click', '#js-delete-post', (e) => {
+    e.preventDefault();
+    const id = $('.js-edit-form').attr('id');
+    if (confirm("Are you sure you want to delete this post?") == true) {
+      blur();
+      axios.delete(`/posts/${id}`)
+      .then(() => {
+        getUserPosts(state);
+        closeSidePullOut('#edit-post');
+        unBlur();
+      })
+      .catch(err => console.log(err));
+    } 
+  })
+  
+  
+  //Comment on post
+  $('#view-post').on('click', '.js-comment-post-btn', (e) => {
+    e.preventDefault();
+    blur();
+    const postId = $(e.currentTarget).data('id');
+    const comment = $('.js-comment-field').val();
+    
+    new Promise((resolve, reject) => {
+      postComment(postId, state, comment, resolve);
+    })
+    .then(() => {
+      createViewPost(postId, state);
+      updatePostsFromComment(state);
+      unBlur();
+    });
+  });
+  
+  //Delete post Comment
+  $('#view-post').on('click', '.js-delete-comment-btn', (e) => {
+    e.preventDefault();
+    const postId = $(e.currentTarget).data('postId');
+    const commentId = $(e.currentTarget).data('id');
+    
+    if (confirm("Are you sure you want to delete this comment?") == true) {
+      blur();
+      new Promise((resolve, reject) => {
+        deleteComment(postId, commentId, resolve);
+      })
+      .then(() => {
+        createViewPost(postId, state);
+        updatePostsFromComment(state);
+        unBlur();
+      });
+    }
+  });
+  
+  //Delete Images
+  $('#edit-post').on('click', '.delete-images', (e) => {
+    e.preventDefault();
+    blur();
+    const postId = $(e.currentTarget).data('id');
+
+    
+    const checkedImages = $('.image-checkbox:checked').map(function() {
+    return $(this).attr('id');
+    }).get();
+    
+    new Promise( (resolve,reject) => {
+      deletePostImages(postId, checkedImages, resolve)
+    }).then(() => {
+      getPost(postId, state, post => { createEditPostPanel(post)});
+      getUserPosts(state);
+      unBlur();
+    });
+  });
+  
+  //Upload Photos
+  $('#edit-post').on('click', '.upload-btn', function (e){
+    $('.progress-bar').text('0%');
+    $('.progress-bar').width('0%');
+    blur();
+    const id = $(this).attr('id');
+    
+    uploadPostPhoto(id, state).then(() => {
+      getPost(id, state, post => { createEditPostPanel(post)});
+      getUserPosts(state);
+      unBlur();
+    })
+  });
+
+  //Edit post
+  $('#edit-post').on('click', '#js-edit-post', function(e) {
+    e.preventDefault();
+    const editSubject = $('#edit-subject').val();
+    const editMessage = $('textarea#edit-message').val();
+    const editCategory = $('#edit-category').find(':selected').text();
+    const errorMsg = 'Error:';
+    const id = $('.js-edit-form').attr('id');
+
+    if(validateEditPost(editSubject, editMessage, editCategory, errorMsg)) {
+      editPost(editSubject, editMessage, editCategory, id, state, getUserPosts)
+      closeSidePullOut('#edit-post');
+    }
+  });
+
+  //Get all Users Posts
+  $('#js-get-post').click(() => { getUserPosts(state) });
+  //Get all posts
+  $('#js-get-all-posts').click(getAllPosts);
 
   //Close Panel
   $(".side-pull-out").on('click', '.js-push-back', function(e) {
@@ -224,32 +236,36 @@ $(function() {
     closeSidePullOut(reference);
   });
 
-  $('.new-post-button').hover(function() {
-    if($(window).width() > 600){
-      $('.new-post-button-container').toggleClass('elongated');
-      $('.new-post-button').toggleClass('elongated-borders');
-      $('.new-post-button-font').toggleClass('white-out');
+  //Open View Settings, View-Post, and Edit-Post panels
+  $("main").on('click', '.js-settings, .view-post, .edit-post, .js-new-post, .js-contact-card', function(e) {
+    e.preventDefault();
+    let reference = $(this).attr('href');
+
+    if($(this).hasClass('view-post')){
+      let postId = $(this).attr('class').split(' ')[0];
+      createViewPost(postId, state);
     }
+
+    if($(this).hasClass('edit-post')){
+      let postId = $(this).attr('class').split(' ')[0];
+      getPost(postId, state, post => { createEditPostPanel(post)});
+    }
+    
+    openFromSide(reference);
+    
   });
 
-  if($('img .materialboxed .initialized').hasClass('active')){
-    $('.navbar-fixed').hide();
-  }
-
-// $('.side-pull-out').on('click', 'img', function() {
-//     $('.navbar-fixed').toggleClass('hidden');
-// })
-
-// $('body').click(function() {
-//   let count = 1;
-//   $('body').click(function() {
-//     if($('.navbar-fixed').css('display') == 'none'){
-//     $('.navbar-fixed').show();
-//     }
-//   });
-// });
+  // KINDA WORKS for Navbar in the way
+  // $('#view-post').on('click', 'img.materialboxed', (e) => {
+  //   e.stopPropagation();
+  //   console.log(e.currentTarget);
+  //   console.log($(this));
+  //   setTimeout( () => {
+  //     if($(e.currentTarget).hasClass('initialized')){
+  //       $('.navbar-fixed').height('0px');
+  //     }
+  //   }, 100);
+  // });
 
   //End
-
-  //window.dispatchEvent(new Event('resize'));
 });

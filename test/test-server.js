@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 
+// pull in user mode
+
 const should = chai.should();
 
 const { app, runServer, closeServer } = require('../server');
@@ -10,8 +12,12 @@ const { app, runServer, closeServer } = require('../server');
 chai.use(chaiHttp);
 describe('Server', function(){
 
+  let user;
+
   before(function() {
     runServer();
+    
+    // get a user
   });
 
   after(function() {
