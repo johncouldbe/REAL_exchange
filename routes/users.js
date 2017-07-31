@@ -18,6 +18,33 @@ router.get('/', isAuthenticated, function(req, res) {
   })
 });
 
+router.get('/current', isAuthenticated, (req, res) => {
+  const id = req.user._id;
+  User
+  .findById(id)
+  .exec()
+  .then(user => {
+    res.json({user});
+  });
+})
+
+router.get('/current/contacts', isAuthenticated, (req, res) => {
+  const contacts = req.user.contacts;
+  console.log(contacts);
+  User
+  .find({
+    '_id': { $in: [
+      mongoose.Types.ObjectId('4ed3ede8844f0f351100000c'),
+      mongoose.Types.ObjectId('4ed3f117a844e0471100000d'), 
+      mongoose.Types.ObjectId('4ed3f18132f50c491100000e')
+    ]}
+  })
+  .then(contacts => {
+    console.log('=====', user);
+    res.json({user});
+  });
+});
+
 //Send specific user
 router.get('/:id', isAuthenticated, function(req, res) {
   id = req.params.id;

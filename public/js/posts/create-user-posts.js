@@ -1,11 +1,6 @@
-export function getUserPosts(state) {
+export function getUserPosts() {
   axios.get('/posts/user')
   .then(function (posts) {
-    state.user = {
-      id: posts.data.posts[0].userId,
-      firstName: posts.data.posts[0].firstName,
-      lastName: posts.data.posts[0].lastName,
-    }
     console.log('GETTING ALL USER POSTS', posts);
     const userPosts = posts.data.posts;
     

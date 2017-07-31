@@ -8,6 +8,8 @@ import { uploadPostPhoto, enterPostImages, deletePostImages } from './posts/imag
 import { postComment, deleteComment } from './posts/comments';
 import { blur, unBlur } from './helpers';
 import { getAllContacts } from './contacts/create-all-contacts';
+import { getContactInfo, createViewContact, getContactPosts, createContactPosts } from './contacts/create-view-contacts';
+import { getUserContacts } from './contacts/create-user-contacts';
 
 /* global $ axios*/
 
@@ -16,6 +18,18 @@ $(function() {
   const state = {
     formData: ''
   };
+  
+  axios.get(`/users/current`)
+  .then( user => {
+    console.log(user);
+    state.user = user.data.user;
+  })
+  .catch( err => { console.log(err) })
+  
+  axios.get('users/current/contacts')
+  .then(contacts => {
+    console.log(contacts);
+  })
 
   //Open panel
   let openFromSide = (arg) => {
@@ -55,9 +69,9 @@ $(function() {
   });
   
   //After a comment reload posts
-  const updatePostsFromComment = (state) => {
+  const updatePostsFromComment = () => {
     if($('#user-posts-tab').hasClass('active')){
-      getUserPosts(state);
+      getUserPosts();
     } else {
         getAllPosts();
       }
@@ -80,7 +94,32 @@ $(function() {
   //Get all Contacts
   $('#all-contacts-tab').click(() => {
     getAllContacts();
+  });
+  
+  //View Contact Details
+  $('body').on('click', '.js-contact-card', (e) => {
+    const id = $(e.currentTarget).data('id');
+    console.log(id);
+    new Promise((resolve, reject) => {
+      getContactInfo(id, resolve);
+    })
+    .then(() => {
+      getContactPosts(id);
+    })
+    .catch(err => console.log(err))
+  });
+  
+  $('#js-get-user-contacts').click(() => {
+    getUserContacts();
   })
+  
+  // //View contact post
+  // $('#view-contact').on('click', '.js-contact-post', (e) => {
+  //   e.preventDefault();
+  //   const id = $(e.currentTarget).data('id');
+  //   console.log('good');
+  //   $('nav-content>ul.tabs').tabs('select_tab', 'random-id');
+  // });
   
   //Submit new post
   $('#new-post').on('click', '#submit-post', e => {
@@ -111,12 +150,12 @@ $(function() {
         type: $('#new-category').find(':selected').text()
       }
       new Promise((resolve, reject) => {
-        createNewPost(newPost, state, resolve)
+        createNewPost(newPost, state, resolve);
       }).then(() => {
         closeSidePullOut('#new-post');
         //reset form
         form[0].reset();
-        getUserPosts(state);
+        getUserPosts();
         unBlur();
       })
     }
@@ -130,7 +169,7 @@ $(function() {
       blur();
       axios.delete(`/posts/${id}`)
       .then(() => {
-        getUserPosts(state);
+        getUserPosts();
         closeSidePullOut('#edit-post');
         unBlur();
       })
@@ -190,7 +229,7 @@ $(function() {
       deletePostImages(postId, checkedImages, resolve)
     }).then(() => {
       getPost(postId, state, post => { createEditPostPanel(post)});
-      getUserPosts(state);
+      getUserPosts();
       unBlur();
     });
   });
@@ -204,7 +243,7 @@ $(function() {
     
     uploadPostPhoto(id, state).then(() => {
       getPost(id, state, post => { createEditPostPanel(post)});
-      getUserPosts(state);
+      getUserPosts();
       unBlur();
     })
   });

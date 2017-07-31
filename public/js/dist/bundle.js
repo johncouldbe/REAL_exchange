@@ -119,6 +119,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__posts_comments__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__helpers__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__contacts_create_view_contacts__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__contacts_create_user_contacts__ = __webpack_require__(12);
+
+
 
 
 
@@ -137,6 +141,18 @@ $(function() {
   const state = {
     formData: ''
   };
+  
+  axios.get(`/users/current`)
+  .then( user => {
+    console.log(user);
+    state.user = user.data.user;
+  })
+  .catch( err => { console.log(err) })
+  
+  axios.get('users/current/contacts')
+  .then(contacts => {
+    console.log(contacts);
+  })
 
   //Open panel
   let openFromSide = (arg) => {
@@ -176,9 +192,9 @@ $(function() {
   });
   
   //After a comment reload posts
-  const updatePostsFromComment = (state) => {
+  const updatePostsFromComment = () => {
     if($('#user-posts-tab').hasClass('active')){
-      __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */](state);
+      __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]();
     } else {
         __WEBPACK_IMPORTED_MODULE_0__posts_create_all_posts__["a" /* getAllPosts */]();
       }
@@ -201,7 +217,32 @@ $(function() {
   //Get all Contacts
   $('#all-contacts-tab').click(() => {
     __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["a" /* getAllContacts */]();
+  });
+  
+  //View Contact Details
+  $('body').on('click', '.js-contact-card', (e) => {
+    const id = $(e.currentTarget).data('id');
+    console.log(id);
+    new Promise((resolve, reject) => {
+      __WEBPACK_IMPORTED_MODULE_10__contacts_create_view_contacts__["a" /* getContactInfo */](id, resolve);
+    })
+    .then(() => {
+      __WEBPACK_IMPORTED_MODULE_10__contacts_create_view_contacts__["b" /* getContactPosts */](id);
+    })
+    .catch(err => console.log(err))
+  });
+  
+  $('#js-get-user-contacts').click(() => {
+    __WEBPACK_IMPORTED_MODULE_11__contacts_create_user_contacts__["a" /* getUserContacts */]();
   })
+  
+  // //View contact post
+  // $('#view-contact').on('click', '.js-contact-post', (e) => {
+  //   e.preventDefault();
+  //   const id = $(e.currentTarget).data('id');
+  //   console.log('good');
+  //   $('nav-content>ul.tabs').tabs('select_tab', 'random-id');
+  // });
   
   //Submit new post
   $('#new-post').on('click', '#submit-post', e => {
@@ -232,12 +273,12 @@ $(function() {
         type: $('#new-category').find(':selected').text()
       }
       new Promise((resolve, reject) => {
-        __WEBPACK_IMPORTED_MODULE_4__posts_new_post__["a" /* createNewPost */](newPost, state, resolve)
+        __WEBPACK_IMPORTED_MODULE_4__posts_new_post__["a" /* createNewPost */](newPost, state, resolve);
       }).then(() => {
         closeSidePullOut('#new-post');
         //reset form
         form[0].reset();
-        __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */](state);
+        __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]();
         __WEBPACK_IMPORTED_MODULE_8__helpers__["c" /* unBlur */]();
       })
     }
@@ -251,7 +292,7 @@ $(function() {
       __WEBPACK_IMPORTED_MODULE_8__helpers__["a" /* blur */]();
       axios.delete(`/posts/${id}`)
       .then(() => {
-        __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */](state);
+        __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]();
         closeSidePullOut('#edit-post');
         __WEBPACK_IMPORTED_MODULE_8__helpers__["c" /* unBlur */]();
       })
@@ -311,7 +352,7 @@ $(function() {
       __WEBPACK_IMPORTED_MODULE_6__posts_images__["a" /* deletePostImages */](postId, checkedImages, resolve)
     }).then(() => {
       __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["b" /* getPost */](postId, state, post => { __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["a" /* createEditPostPanel */](post)});
-      __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */](state);
+      __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]();
       __WEBPACK_IMPORTED_MODULE_8__helpers__["c" /* unBlur */]();
     });
   });
@@ -325,7 +366,7 @@ $(function() {
     
     __WEBPACK_IMPORTED_MODULE_6__posts_images__["c" /* uploadPostPhoto */](id, state).then(() => {
       __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["b" /* getPost */](id, state, post => { __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["a" /* createEditPostPanel */](post)});
-      __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */](state);
+      __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]();
       __WEBPACK_IMPORTED_MODULE_8__helpers__["c" /* unBlur */]();
     })
   });
@@ -464,14 +505,9 @@ function getAllPosts() {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = getUserPosts;
-function getUserPosts(state) {
+function getUserPosts() {
   axios.get('/posts/user')
   .then(function (posts) {
-    state.user = {
-      id: posts.data.posts[0].userId,
-      firstName: posts.data.posts[0].firstName,
-      lastName: posts.data.posts[0].lastName,
-    }
     console.log('GETTING ALL USER POSTS', posts);
     const userPosts = posts.data.posts;
     
@@ -994,29 +1030,157 @@ const createAllContacts = (users) => {
     let contactList = '';
     
     users.data.users.forEach((user) => {
-        contactList += `<div class="row">
-        <div class="col s12 m6 l4">
-          <a target="_blank" href="#view-contact" class="js-contact-card" data-id="${user._}">
-            <div class="card-panel grey lighten-5 z-depth-1 height-115 hovered">
-              <i class="small material-icons icon-blue hovered right">add</i>
-              <div class="row valign-wrapper">
-                <div class="col s3">
-                  <img src="https://lorempixel.com/400/400/" alt="" class="circle responsive-img">
-                </div>
-                <div class="col s9">
-                  <h5 class="black-text">${user.firstName} ${user.lastName}</h5>
-                  <h6 class="black-text truncate">${user.company}</h6>
+        contactList += `
+          <div class="col s12 m6 l4">
+            <a href="#view-contact" class="js-contact-card" data-id="${user._id}">
+              <div class="card-panel grey lighten-5 z-depth-1 height-115 hovered">
+                <i class="small material-icons icon-blue hovered right">add</i>
+                <div class="row valign-wrapper">
+                  <div class="col s3">
+                    <img src="https://lorempixel.com/400/400/" alt="" class="circle responsive-img">
+                  </div>
+                  <div class="col s9">
+                    <h5 class="black-text">${user.firstName} ${user.lastName}</h5>
+                    <h6 class="black-text truncate">${user.company}</h6>
+                  </div>
                 </div>
               </div>
-            </div>
-          </a>
-        </div>`;
+            </a>
+          </div>`;
     });
     
     $('#all-contacts').html(beginning + contactList + end);
       
 }
 /* unused harmony export createAllContacts */
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const getContactInfo = (id, resolve) => {
+    axios.get(`/users/${id}`)
+    .then((user) => {
+        console.log(user);
+        createViewContact(user);
+        resolve();
+    })
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = getContactInfo;
+
+
+const createViewContact = (_user) => {
+    const user = _user.data.user;
+    
+    const beginning = `
+    <div class="row">
+      <div class="col s12">
+        <a href="#view-contact" class="js-push-back"><img class="pull-out-back-icon"
+        src="/assets/images/arrow-right-black.svg" /></a>
+      </div>
+    </div>`;
+    
+    const contactInfo = `
+    <div class="row">
+        <div class="col s12 dont-break-on-overflow">
+            <h4 class="center-align">${user.firstName} ${user.lastName}</h4>
+            <h5 class="center-align">${user.company}</h5>
+            <div class="col s6 offset-s3">
+              <img src="https://lorempixel.com/400/400/" class="circle responsive-img" />
+            </div>
+            <div class="col s12">
+                <p class="flow-text center-align">${user.bio}</p>
+            </div>
+        </div>
+    </div>
+        
+    <div class="row">
+        <div class="col s12">
+            <div class="divider"></div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col s12">
+                <p class="flow-text"><strong>Phone: </strong>${user.phoneNumber}</p>
+                <p class="flow-text"><strong>Email: </strong>${user.email}</p>
+                <p class="flow-text word-break"><strong>Website: </strong>${user.website}</p>
+        </div>
+    </div>`;
+    
+    $('#view-contact').html(beginning + contactInfo);
+}
+/* unused harmony export createViewContact */
+
+
+const getContactPosts = (user) => {
+    axios.get('posts/user')
+    .then(posts => {
+        console.log(posts);
+        createContactPosts(posts);
+    })
+    .catch(err => { console.log(err) })
+}
+/* harmony export (immutable) */ __webpack_exports__["b"] = getContactPosts;
+
+
+const createContactPosts = (_posts) => {
+    const posts = _posts.data.posts;
+    
+    const beginning = `
+        <div class="row">
+            <div class="col s12">
+                <div class="divider"></div>
+            </div>
+        </div>
+        <div class="row">
+          <div class="col s12">
+            <h5 class="center-align">${posts[0].firstName}'s Posts</h5>
+          </div>
+        `;
+    
+    const end = `</div>`;
+    
+    let showPosts = ``;
+    
+    posts.forEach(post => {
+      showPosts += `
+          <div class="col s12">
+            <a href="#view-contact" class="js-contact-post" data-id="${post._id}">
+              <div class="card-panel grey lighten-5 z-depth-1 hovered hoverable">
+                <div class="row valign-wrapper">
+                  <div class="col s3">
+                    <img src="${post.images.length > 0 ? post.images[0].image : '' }" alt="" class="responsive-img">
+                  </div>
+                  <div class="col s9">
+                    <h5 class="black-text">${post.subject}</h5>
+                    <h6 class="black-text">${moment(post.date).format('M/D/Y | h:mm a')}</h6>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>`;
+    });
+    
+    $('#view-contact').append(beginning + showPosts + end);
+    
+}
+/* unused harmony export createContactPosts */
+
+
+    
+
+/***/ }),
+/* 12 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const getUserContacts = () => {
+  
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = getUserContacts;
 
 
 /***/ })
