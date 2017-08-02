@@ -120,8 +120,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__helpers__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__contacts_create_view_contacts__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11__contacts_create_user_contacts__ = __webpack_require__(12);
-
 
 
 
@@ -139,20 +137,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 $(function() {
 
   const state = {
-    formData: ''
+    formData: '',
+    user: {}
   };
-  
+
   axios.get(`/users/current`)
   .then( user => {
     console.log(user);
     state.user = user.data.user;
   })
   .catch( err => { console.log(err) })
-  
-  axios.get('users/current/contacts')
-  .then(contacts => {
-    console.log(contacts);
-  })
 
   //Open panel
   let openFromSide = (arg) => {
@@ -167,7 +161,7 @@ $(function() {
     }
     $('body').addClass('no-scroll');
   }
-  
+
   //Close Panel
   let closeSidePullOut = (arg) => {
     $(arg).animate({
@@ -178,7 +172,7 @@ $(function() {
 
   //Association Dropdown
   $(".dropdown-button").dropdown();
-  
+
   //New Post Category Initialized
   $('select').material_select();
 
@@ -190,7 +184,7 @@ $(function() {
       $('.new-post-button-font').toggleClass('white-out');
     }
   });
-  
+
   //After a comment reload posts
   const updatePostsFromComment = () => {
     if($('#user-posts-tab').hasClass('active')){
@@ -199,30 +193,43 @@ $(function() {
         __WEBPACK_IMPORTED_MODULE_0__posts_create_all_posts__["a" /* getAllPosts */]();
       }
   }
-  
+
   //Store photos to upload
   $('#edit-post, #new-post').on('change', '#upload-photo', function(){
     const that = $(this);
     __WEBPACK_IMPORTED_MODULE_6__posts_images__["b" /* enterPostImages */](that, state);
   });
-  
+
   /* ========= Click Event Handlers ========= */
-  
+
   // //remove invalid
   // $('#edit-post, #new-post').on('click', 'new-category', e => {
   //   console.log(e.currentTarget);
   //   $(e.currentTarget).removeClass('invalid');
   // });
-  
+
+  const addContact = (id) => {
+    axios.put(`/users/add/${id}`)
+    .then(user => { console.log(user) })
+    .catch(err => console.log(err));
+  }
+
   //Get all Contacts
   $('#all-contacts-tab').click(() => {
-    __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["a" /* getAllContacts */]();
+    __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["a" /* getAllContacts */](state);
   });
-  
+
+  //Add contact
+  $('body').on('click', '.js-add-contact', (e) => {
+    e.stopPropagation();
+    const id = $(e.currentTarget).closest('.js-contact-card').data('id');
+    addContact(id);
+  });
+
   //View Contact Details
   $('body').on('click', '.js-contact-card', (e) => {
+    e.preventDefault();
     const id = $(e.currentTarget).data('id');
-    console.log(id);
     new Promise((resolve, reject) => {
       __WEBPACK_IMPORTED_MODULE_10__contacts_create_view_contacts__["a" /* getContactInfo */](id, resolve);
     })
@@ -231,11 +238,11 @@ $(function() {
     })
     .catch(err => console.log(err))
   });
-  
+
   $('#js-get-user-contacts').click(() => {
-    __WEBPACK_IMPORTED_MODULE_11__contacts_create_user_contacts__["a" /* getUserContacts */]();
-  })
-  
+    __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["b" /* getUserContacts */](state);
+  });
+
   // //View contact post
   // $('#view-contact').on('click', '.js-contact-post', (e) => {
   //   e.preventDefault();
@@ -243,15 +250,15 @@ $(function() {
   //   console.log('good');
   //   $('nav-content>ul.tabs').tabs('select_tab', 'random-id');
   // });
-  
+
   //Submit new post
   $('#new-post').on('click', '#submit-post', e => {
     e.preventDefault();
     const form = $('.js-new-form');
-    
+
     if(! form[0].checkValidity()) {
       const fields = ['#new-subject', 'textarea#new-message', '#new-category'];
-      
+
       fields.forEach( field => {
         if(! $(field)[0].checkValidity()) {
           if(field == '#new-category'){
@@ -261,13 +268,13 @@ $(function() {
           }
         }
       });
-        
+
      // If the form is invalid, submit it. The form won't actually submit;
      // this will just cause the browser to display the native HTML5 error messages.
       form.querySelector('input[type="submit"]').click();
     } else {
       __WEBPACK_IMPORTED_MODULE_8__helpers__["a" /* blur */]();
-      const newPost = { 
+      const newPost = {
         subject: $('#new-subject').val(),
         body: $('textarea#new-message').val(),
         type: $('#new-category').find(':selected').text()
@@ -283,7 +290,7 @@ $(function() {
       })
     }
   });
-  
+
   //Delete post
   $('#edit-post').on('click', '#js-delete-post', (e) => {
     e.preventDefault();
@@ -297,17 +304,17 @@ $(function() {
         __WEBPACK_IMPORTED_MODULE_8__helpers__["c" /* unBlur */]();
       })
       .catch(err => console.log(err));
-    } 
+    }
   })
-  
-  
+
+
   //Comment on post
   $('#view-post').on('click', '.js-comment-post-btn', (e) => {
     e.preventDefault();
     __WEBPACK_IMPORTED_MODULE_8__helpers__["a" /* blur */]();
     const postId = $(e.currentTarget).data('id');
     const comment = $('.js-comment-field').val();
-    
+
     new Promise((resolve, reject) => {
       __WEBPACK_IMPORTED_MODULE_7__posts_comments__["b" /* postComment */](postId, state, comment, resolve);
     })
@@ -317,13 +324,13 @@ $(function() {
       __WEBPACK_IMPORTED_MODULE_8__helpers__["c" /* unBlur */]();
     });
   });
-  
+
   //Delete post Comment
   $('#view-post').on('click', '.js-delete-comment-btn', (e) => {
     e.preventDefault();
     const postId = $(e.currentTarget).data('postId');
     const commentId = $(e.currentTarget).data('id');
-    
+
     if (confirm("Are you sure you want to delete this comment?") == true) {
       __WEBPACK_IMPORTED_MODULE_8__helpers__["a" /* blur */]();
       new Promise((resolve, reject) => {
@@ -336,18 +343,18 @@ $(function() {
       });
     }
   });
-  
+
   //Delete Images
   $('#edit-post').on('click', '.delete-images', (e) => {
     e.preventDefault();
     __WEBPACK_IMPORTED_MODULE_8__helpers__["a" /* blur */]();
     const postId = $(e.currentTarget).data('id');
 
-    
+
     const checkedImages = $('.image-checkbox:checked').map(function() {
     return $(this).attr('id');
     }).get();
-    
+
     new Promise( (resolve,reject) => {
       __WEBPACK_IMPORTED_MODULE_6__posts_images__["a" /* deletePostImages */](postId, checkedImages, resolve)
     }).then(() => {
@@ -356,14 +363,14 @@ $(function() {
       __WEBPACK_IMPORTED_MODULE_8__helpers__["c" /* unBlur */]();
     });
   });
-  
+
   //Upload Photos
   $('#edit-post').on('click', '.upload-btn', function (e){
     $('.progress-bar').text('0%');
     $('.progress-bar').width('0%');
     __WEBPACK_IMPORTED_MODULE_8__helpers__["a" /* blur */]();
     const id = $(this).attr('id');
-    
+
     __WEBPACK_IMPORTED_MODULE_6__posts_images__["c" /* uploadPostPhoto */](id, state).then(() => {
       __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["b" /* getPost */](id, state, post => { __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["a" /* createEditPostPanel */](post)});
       __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]();
@@ -401,7 +408,7 @@ $(function() {
   //Open View Settings, View-Post, and Edit-Post panels
   $("main").on('click', '.js-settings, .view-post, .edit-post, .js-new-post, .js-contact-card', function(e) {
     e.preventDefault();
-    let reference = $(this).attr('href');
+    let reference = $(this).attr('href') || $(this).data('href');
 
     if($(this).hasClass('view-post')){
       let postId = $(this).attr('class').split(' ')[0];
@@ -412,9 +419,13 @@ $(function() {
       let postId = $(this).attr('class').split(' ')[0];
       __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["b" /* getPost */](postId, state, post => { __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["a" /* createEditPostPanel */](post)});
     }
-    
+
+    if ($(e.target).hasClass('js-add-contact')) {
+        return;
+    }
+
     openFromSide(reference);
-    
+
   });
 
   // KINDA WORKS for Navbar in the way
@@ -1014,27 +1025,48 @@ const postComment = (arg, state, comment, resolve) => {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-const getAllContacts = () => {
+
+const getAllContacts = (state) => {
   axios.get('/users')
-  .then((users) => { 
+  .then((users) => {
       console.log(users);
-      createAllContacts(users)})
+      createAllContacts(users, '#all-contacts', state)})
   .catch(err => { console.log(err) })
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = getAllContacts;
 
 
-const createAllContacts = (users) => {
+const getUserContacts = (state) => {
+  console.log('WORKING');
+  axios.get('users/current/contacts')
+  .then(contacts => {
+    createAllContacts(contacts, '#user-contacts',state)
+  })
+}
+/* harmony export (immutable) */ __webpack_exports__["b"] = getUserContacts;
+
+
+const createAllContacts = (users, domNode, state) => {
     const beginning = '<div class="row">';
     const end = '</div>';
     let contactList = '';
-    
+
+    console.log("USERS", users);
+    console.log("STATE", state);
+
     users.data.users.forEach((user) => {
+        const clickHandler = domNode == '#all-contacts' ? 'js-add-contact' : 'js-minus-contact';
+        const notInUsrContact = !state.user.contacts.map(user => user.userId).includes(user._id);
+        console.log("USER ID: ",user._id);
+        console.log("STATE CONTACTS", state.user.contacts);
+        console.log(notInUsrContact);
+        const icon = notInUsrContact  ? 'add' : 'remove';
+
         contactList += `
           <div class="col s12 m6 l4">
-            <a href="#view-contact" class="js-contact-card" data-id="${user._id}">
+            <div data-href="#view-contact" class="js-contact-card" data-id="${user._id}">
               <div class="card-panel grey lighten-5 z-depth-1 height-115 hovered">
-                <i class="small material-icons icon-blue hovered right">add</i>
+                <i class="small material-icons icon-blue hovered right ${clickHandler}" >${icon}</i>
                 <div class="row valign-wrapper">
                   <div class="col s3">
                     <img src="https://lorempixel.com/400/400/" alt="" class="circle responsive-img">
@@ -1045,14 +1077,15 @@ const createAllContacts = (users) => {
                   </div>
                 </div>
               </div>
-            </a>
+            </div>
           </div>`;
     });
-    
-    $('#all-contacts').html(beginning + contactList + end);
-      
+
+    $(domNode).html(beginning + contactList + end);
+
 }
 /* unused harmony export createAllContacts */
+
 
 
 /***/ }),
@@ -1171,17 +1204,6 @@ const createContactPosts = (_posts) => {
 
 
     
-
-/***/ }),
-/* 12 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-const getUserContacts = () => {
-  
-}
-/* harmony export (immutable) */ __webpack_exports__["a"] = getUserContacts;
-
 
 /***/ })
 /******/ ]);

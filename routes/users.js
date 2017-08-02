@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { User } = require('../models/user');
-
+const mongoose = require('mongoose');
 //Send all users
 router.get('/', isAuthenticated, function(req, res) {
   User
@@ -28,20 +28,30 @@ router.get('/current', isAuthenticated, (req, res) => {
   });
 })
 
-router.get('/current/contacts', isAuthenticated, (req, res) => {
-  const contacts = req.user.contacts;
-  console.log(contacts);
+router.put('/add/:id', (req, res) => {
+  const userId = req.params.id;
+  const id = req.user._id;
   User
+  .findByIdAndUpdate(id,
+    { $push: { "contacts" : { "userId" : userId }}},
+    {new: true}
+  )
+  .then(user =>  res.json(user) )
+  .catch(err => console.log(err))
+});
+
+router.get('/current/contacts', isAuthenticated, (req, res) => {
+
+  const contacts = req.user.contacts.map(contact => {
+    return mongoose.Types.ObjectId(`${contact.userId}`)
+  });
+  User
+
   .find({
-    '_id': { $in: [
-      mongoose.Types.ObjectId('4ed3ede8844f0f351100000c'),
-      mongoose.Types.ObjectId('4ed3f117a844e0471100000d'), 
-      mongoose.Types.ObjectId('4ed3f18132f50c491100000e')
-    ]}
+    '_id': { $in: contacts}
   })
-  .then(contacts => {
-    console.log('=====', user);
-    res.json({user});
+  .then(users => {
+    res.json({users});
   });
 });
 

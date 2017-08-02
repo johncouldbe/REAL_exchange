@@ -7,29 +7,24 @@ import { editPost, validateEditPost } from './posts/edit-post';
 import { uploadPostPhoto, enterPostImages, deletePostImages } from './posts/images';
 import { postComment, deleteComment } from './posts/comments';
 import { blur, unBlur } from './helpers';
-import { getAllContacts } from './contacts/create-all-contacts';
+import { getAllContacts, getUserContacts } from './contacts/create-all-contacts';
 import { getContactInfo, createViewContact, getContactPosts, createContactPosts } from './contacts/create-view-contacts';
-import { getUserContacts } from './contacts/create-user-contacts';
 
 /* global $ axios*/
 
 $(function() {
 
   const state = {
-    formData: ''
+    formData: '',
+    user: {}
   };
-  
+
   axios.get(`/users/current`)
   .then( user => {
     console.log(user);
     state.user = user.data.user;
   })
   .catch( err => { console.log(err) })
-  
-  axios.get('users/current/contacts')
-  .then(contacts => {
-    console.log(contacts);
-  })
 
   //Open panel
   let openFromSide = (arg) => {
@@ -44,7 +39,7 @@ $(function() {
     }
     $('body').addClass('no-scroll');
   }
-  
+
   //Close Panel
   let closeSidePullOut = (arg) => {
     $(arg).animate({
@@ -55,7 +50,7 @@ $(function() {
 
   //Association Dropdown
   $(".dropdown-button").dropdown();
-  
+
   //New Post Category Initialized
   $('select').material_select();
 
@@ -67,7 +62,7 @@ $(function() {
       $('.new-post-button-font').toggleClass('white-out');
     }
   });
-  
+
   //After a comment reload posts
   const updatePostsFromComment = () => {
     if($('#user-posts-tab').hasClass('active')){
@@ -76,30 +71,43 @@ $(function() {
         getAllPosts();
       }
   }
-  
+
   //Store photos to upload
   $('#edit-post, #new-post').on('change', '#upload-photo', function(){
     const that = $(this);
     enterPostImages(that, state);
   });
-  
+
   /* ========= Click Event Handlers ========= */
-  
+
   // //remove invalid
   // $('#edit-post, #new-post').on('click', 'new-category', e => {
   //   console.log(e.currentTarget);
   //   $(e.currentTarget).removeClass('invalid');
   // });
-  
+
+  const addContact = (id) => {
+    axios.put(`/users/add/${id}`)
+    .then(user => { console.log(user) })
+    .catch(err => console.log(err));
+  }
+
   //Get all Contacts
   $('#all-contacts-tab').click(() => {
-    getAllContacts();
+    getAllContacts(state);
   });
-  
+
+  //Add contact
+  $('body').on('click', '.js-add-contact', (e) => {
+    e.stopPropagation();
+    const id = $(e.currentTarget).closest('.js-contact-card').data('id');
+    addContact(id);
+  });
+
   //View Contact Details
   $('body').on('click', '.js-contact-card', (e) => {
+    e.preventDefault();
     const id = $(e.currentTarget).data('id');
-    console.log(id);
     new Promise((resolve, reject) => {
       getContactInfo(id, resolve);
     })
@@ -108,11 +116,11 @@ $(function() {
     })
     .catch(err => console.log(err))
   });
-  
+
   $('#js-get-user-contacts').click(() => {
-    getUserContacts();
-  })
-  
+    getUserContacts(state);
+  });
+
   // //View contact post
   // $('#view-contact').on('click', '.js-contact-post', (e) => {
   //   e.preventDefault();
@@ -120,15 +128,15 @@ $(function() {
   //   console.log('good');
   //   $('nav-content>ul.tabs').tabs('select_tab', 'random-id');
   // });
-  
+
   //Submit new post
   $('#new-post').on('click', '#submit-post', e => {
     e.preventDefault();
     const form = $('.js-new-form');
-    
+
     if(! form[0].checkValidity()) {
       const fields = ['#new-subject', 'textarea#new-message', '#new-category'];
-      
+
       fields.forEach( field => {
         if(! $(field)[0].checkValidity()) {
           if(field == '#new-category'){
@@ -138,13 +146,13 @@ $(function() {
           }
         }
       });
-        
+
      // If the form is invalid, submit it. The form won't actually submit;
      // this will just cause the browser to display the native HTML5 error messages.
       form.querySelector('input[type="submit"]').click();
     } else {
       blur();
-      const newPost = { 
+      const newPost = {
         subject: $('#new-subject').val(),
         body: $('textarea#new-message').val(),
         type: $('#new-category').find(':selected').text()
@@ -160,7 +168,7 @@ $(function() {
       })
     }
   });
-  
+
   //Delete post
   $('#edit-post').on('click', '#js-delete-post', (e) => {
     e.preventDefault();
@@ -174,17 +182,17 @@ $(function() {
         unBlur();
       })
       .catch(err => console.log(err));
-    } 
+    }
   })
-  
-  
+
+
   //Comment on post
   $('#view-post').on('click', '.js-comment-post-btn', (e) => {
     e.preventDefault();
     blur();
     const postId = $(e.currentTarget).data('id');
     const comment = $('.js-comment-field').val();
-    
+
     new Promise((resolve, reject) => {
       postComment(postId, state, comment, resolve);
     })
@@ -194,13 +202,13 @@ $(function() {
       unBlur();
     });
   });
-  
+
   //Delete post Comment
   $('#view-post').on('click', '.js-delete-comment-btn', (e) => {
     e.preventDefault();
     const postId = $(e.currentTarget).data('postId');
     const commentId = $(e.currentTarget).data('id');
-    
+
     if (confirm("Are you sure you want to delete this comment?") == true) {
       blur();
       new Promise((resolve, reject) => {
@@ -213,18 +221,18 @@ $(function() {
       });
     }
   });
-  
+
   //Delete Images
   $('#edit-post').on('click', '.delete-images', (e) => {
     e.preventDefault();
     blur();
     const postId = $(e.currentTarget).data('id');
 
-    
+
     const checkedImages = $('.image-checkbox:checked').map(function() {
     return $(this).attr('id');
     }).get();
-    
+
     new Promise( (resolve,reject) => {
       deletePostImages(postId, checkedImages, resolve)
     }).then(() => {
@@ -233,14 +241,14 @@ $(function() {
       unBlur();
     });
   });
-  
+
   //Upload Photos
   $('#edit-post').on('click', '.upload-btn', function (e){
     $('.progress-bar').text('0%');
     $('.progress-bar').width('0%');
     blur();
     const id = $(this).attr('id');
-    
+
     uploadPostPhoto(id, state).then(() => {
       getPost(id, state, post => { createEditPostPanel(post)});
       getUserPosts();
@@ -278,7 +286,7 @@ $(function() {
   //Open View Settings, View-Post, and Edit-Post panels
   $("main").on('click', '.js-settings, .view-post, .edit-post, .js-new-post, .js-contact-card', function(e) {
     e.preventDefault();
-    let reference = $(this).attr('href');
+    let reference = $(this).attr('href') || $(this).data('href');
 
     if($(this).hasClass('view-post')){
       let postId = $(this).attr('class').split(' ')[0];
@@ -289,9 +297,13 @@ $(function() {
       let postId = $(this).attr('class').split(' ')[0];
       getPost(postId, state, post => { createEditPostPanel(post)});
     }
-    
+
+    if ($(e.target).hasClass('js-add-contact')) {
+        return;
+    }
+
     openFromSide(reference);
-    
+
   });
 
   // KINDA WORKS for Navbar in the way
