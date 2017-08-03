@@ -68,9 +68,12 @@ $(function() {
     axios.put(`/users/remove/${id}`)
     .then(() => {
       getUser(state);
-      if($(e.currentTarget).closest('#user-contacts')) {
+      console.log("Target",$(e.currentTarget).closest('#user-contacts').length);
+      if($(e.currentTarget).closest('#user-contacts').length) {
+        console.log('True');
         getUserContacts(state);
       } else {
+        console.log('False');
         getAllContacts(state);
       }
     })

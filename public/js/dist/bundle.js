@@ -227,9 +227,12 @@ $(function() {
     axios.put(`/users/remove/${id}`)
     .then(() => {
       __WEBPACK_IMPORTED_MODULE_8__helpers__["d" /* getUser */](state);
-      if($(e.currentTarget).closest('#user-contacts')) {
+      console.log("Target",$(e.currentTarget).closest('#user-contacts').length);
+      if($(e.currentTarget).closest('#user-contacts').length) {
+        console.log('True');
         __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["b" /* getUserContacts */](state);
       } else {
+        console.log('False');
         __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["a" /* getAllContacts */](state);
       }
     })
