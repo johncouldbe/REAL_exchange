@@ -40,13 +40,29 @@ router.put('/add/:id', (req, res) => {
   .catch(err => console.log(err))
 });
 
+router.put('/remove/:id', (req, res) => {
+  const userId = req.params.id;
+  const id = req.user._id;
+  User
+  .findByIdAndUpdate(id,
+    { $pull: { "contacts" : { "userId" : userId }}},
+    {new: true}
+  )
+  .then(user =>  res.json(user) )
+  .catch(err => console.log(err))
+});
+
 router.get('/current/contacts', isAuthenticated, (req, res) => {
+
+  console.log("REQ,CONTACTS",req.user.contacts);
 
   const contacts = req.user.contacts.map(contact => {
     return mongoose.Types.ObjectId(`${contact.userId}`)
   });
-  User
 
+  console.log("CONTACTS", contacts)
+
+  User
   .find({
     '_id': { $in: contacts}
   })

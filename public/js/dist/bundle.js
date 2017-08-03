@@ -68,40 +68,77 @@
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-const commentCount = (post) => {
-   if(post.comments.length > 0) {
-        const plural = post.comments.length == 1 ? '' : 's';
-        return `<span class="left">${post.comments.length} comment${plural}</span>`; 
-    } else {
-        return '';
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["b"] = commentCount;
-
-
-const loader = `
-    <div class="loader" id="loader-4">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>`;
-/* unused harmony export loader */
-
- 
 const blur = () => {
-    $('.js-blur').addClass('blur') 
+    $('.js-blur').addClass('blur')
     $('.loader-container').removeClass('hidden');
 };
 /* harmony export (immutable) */ __webpack_exports__["a"] = blur;
 
- 
+
+const commentCount = (post) => {
+   if(post.comments.length > 0) {
+        const plural = post.comments.length == 1 ? '' : 's';
+        return `<span class="left">${post.comments.length} comment${plural}</span>`;
+    } else {
+        return '';
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["c"] = commentCount;
+
+
+//Close Panel
+const closeSidePullOut = (arg) => {
+  $(arg).animate({
+    width:"0"
+  });
+  $('body').removeClass('no-scroll');
+}
+/* harmony export (immutable) */ __webpack_exports__["b"] = closeSidePullOut;
+
+
+const getUser = (state) => {
+  axios.get(`/users/current`)
+  .then( user => {
+    console.log(user);
+    state.user = user.data.user;
+  })
+  .catch( err => { console.log(err) })
+}
+/* harmony export (immutable) */ __webpack_exports__["d"] = getUser;
+
+
+//Open panel
+const openFromSide = (arg) => {
+  if($(window).width() < 601){
+    $(arg).animate({
+      width:"100vw"
+    });
+  } else {
+    $(arg).animate({
+      width:"50vw"
+    });
+  }
+  $('body').addClass('no-scroll');
+}
+/* harmony export (immutable) */ __webpack_exports__["f"] = openFromSide;
+
+
+const materializeInitialize = () => {
+  //Association Dropdown
+  $(".dropdown-button").dropdown();
+  //New Post Category Initialized
+  $('select').material_select();
+}
+/* harmony export (immutable) */ __webpack_exports__["e"] = materializeInitialize;
+
+
 const unBlur = () => {
-    $('.js-blur').removeClass('blur') 
+    $('.js-blur').removeClass('blur')
     $('.loader-container').addClass('hidden');
 };
-/* harmony export (immutable) */ __webpack_exports__["c"] = unBlur;
+/* harmony export (immutable) */ __webpack_exports__["g"] = unBlur;
 
- 
+
 
 /***/ }),
 /* 1 */
@@ -141,40 +178,9 @@ $(function() {
     user: {}
   };
 
-  axios.get(`/users/current`)
-  .then( user => {
-    console.log(user);
-    state.user = user.data.user;
-  })
-  .catch( err => { console.log(err) })
+  __WEBPACK_IMPORTED_MODULE_8__helpers__["d" /* getUser */](state);
 
-  //Open panel
-  let openFromSide = (arg) => {
-    if($(window).width() < 601){
-      $(arg).animate({
-        width:"100vw"
-      });
-    } else {
-      $(arg).animate({
-        width:"50vw"
-      });
-    }
-    $('body').addClass('no-scroll');
-  }
-
-  //Close Panel
-  let closeSidePullOut = (arg) => {
-    $(arg).animate({
-      width:"0"
-    });
-    $('body').removeClass('no-scroll');
-  }
-
-  //Association Dropdown
-  $(".dropdown-button").dropdown();
-
-  //New Post Category Initialized
-  $('select').material_select();
+  __WEBPACK_IMPORTED_MODULE_8__helpers__["e" /* materializeInitialize */]();
 
   //New Post Button Animation
   $('.new-post-button').hover(() => {
@@ -208,9 +214,25 @@ $(function() {
   //   $(e.currentTarget).removeClass('invalid');
   // });
 
-  const addContact = (id) => {
+  const addContact = (id, e) => {
     axios.put(`/users/add/${id}`)
-    .then(user => { console.log(user) })
+    .then(() => {
+      __WEBPACK_IMPORTED_MODULE_8__helpers__["d" /* getUser */](state);
+      __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["a" /* getAllContacts */](state);
+    })
+    .catch(err => console.log(err));
+  }
+
+  const removeContact = (id, e) => {
+    axios.put(`/users/remove/${id}`)
+    .then(() => {
+      __WEBPACK_IMPORTED_MODULE_8__helpers__["d" /* getUser */](state);
+      if($(e.currentTarget).closest('#user-contacts')) {
+        __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["b" /* getUserContacts */](state);
+      } else {
+        __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["a" /* getAllContacts */](state);
+      }
+    })
     .catch(err => console.log(err));
   }
 
@@ -223,7 +245,14 @@ $(function() {
   $('body').on('click', '.js-add-contact', (e) => {
     e.stopPropagation();
     const id = $(e.currentTarget).closest('.js-contact-card').data('id');
-    addContact(id);
+    addContact(id, e);
+  });
+
+  //Remove contact
+  $('body').on('click', '.js-remove-contact', (e) => {
+    e.stopPropagation();
+    const id = $(e.currentTarget).closest('.js-contact-card').data('id');
+    removeContact(id, e);
   });
 
   //View Contact Details
@@ -241,6 +270,7 @@ $(function() {
 
   $('#js-get-user-contacts').click(() => {
     __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["b" /* getUserContacts */](state);
+    $('ul.second-tabs').tabs('select_tab', 'user-contacts');
   });
 
   // //View contact post
@@ -282,11 +312,11 @@ $(function() {
       new Promise((resolve, reject) => {
         __WEBPACK_IMPORTED_MODULE_4__posts_new_post__["a" /* createNewPost */](newPost, state, resolve);
       }).then(() => {
-        closeSidePullOut('#new-post');
+        __WEBPACK_IMPORTED_MODULE_8__helpers__["b" /* closeSidePullOut */]('#new-post');
         //reset form
         form[0].reset();
         __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]();
-        __WEBPACK_IMPORTED_MODULE_8__helpers__["c" /* unBlur */]();
+        __WEBPACK_IMPORTED_MODULE_8__helpers__["g" /* unBlur */]();
       })
     }
   });
@@ -300,8 +330,8 @@ $(function() {
       axios.delete(`/posts/${id}`)
       .then(() => {
         __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]();
-        closeSidePullOut('#edit-post');
-        __WEBPACK_IMPORTED_MODULE_8__helpers__["c" /* unBlur */]();
+        __WEBPACK_IMPORTED_MODULE_8__helpers__["b" /* closeSidePullOut */]('#edit-post');
+        __WEBPACK_IMPORTED_MODULE_8__helpers__["g" /* unBlur */]();
       })
       .catch(err => console.log(err));
     }
@@ -321,7 +351,7 @@ $(function() {
     .then(() => {
       __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__["a" /* createViewPost */](postId, state);
       updatePostsFromComment(state);
-      __WEBPACK_IMPORTED_MODULE_8__helpers__["c" /* unBlur */]();
+      __WEBPACK_IMPORTED_MODULE_8__helpers__["g" /* unBlur */]();
     });
   });
 
@@ -339,7 +369,7 @@ $(function() {
       .then(() => {
         __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__["a" /* createViewPost */](postId, state);
         updatePostsFromComment(state);
-        __WEBPACK_IMPORTED_MODULE_8__helpers__["c" /* unBlur */]();
+        __WEBPACK_IMPORTED_MODULE_8__helpers__["g" /* unBlur */]();
       });
     }
   });
@@ -360,7 +390,7 @@ $(function() {
     }).then(() => {
       __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["b" /* getPost */](postId, state, post => { __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["a" /* createEditPostPanel */](post)});
       __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]();
-      __WEBPACK_IMPORTED_MODULE_8__helpers__["c" /* unBlur */]();
+      __WEBPACK_IMPORTED_MODULE_8__helpers__["g" /* unBlur */]();
     });
   });
 
@@ -374,7 +404,7 @@ $(function() {
     __WEBPACK_IMPORTED_MODULE_6__posts_images__["c" /* uploadPostPhoto */](id, state).then(() => {
       __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["b" /* getPost */](id, state, post => { __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["a" /* createEditPostPanel */](post)});
       __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]();
-      __WEBPACK_IMPORTED_MODULE_8__helpers__["c" /* unBlur */]();
+      __WEBPACK_IMPORTED_MODULE_8__helpers__["g" /* unBlur */]();
     })
   });
 
@@ -389,7 +419,7 @@ $(function() {
 
     if(__WEBPACK_IMPORTED_MODULE_5__posts_edit_post__["b" /* validateEditPost */](editSubject, editMessage, editCategory, errorMsg)) {
       __WEBPACK_IMPORTED_MODULE_5__posts_edit_post__["a" /* editPost */](editSubject, editMessage, editCategory, id, state, __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */])
-      closeSidePullOut('#edit-post');
+      __WEBPACK_IMPORTED_MODULE_8__helpers__["b" /* closeSidePullOut */]('#edit-post');
     }
   });
 
@@ -402,13 +432,14 @@ $(function() {
   $(".side-pull-out").on('click', '.js-push-back', function(e) {
     e.preventDefault();
     let reference = $(this).attr('href');
-    closeSidePullOut(reference);
+    __WEBPACK_IMPORTED_MODULE_8__helpers__["b" /* closeSidePullOut */](reference);
   });
 
   //Open View Settings, View-Post, and Edit-Post panels
   $("main").on('click', '.js-settings, .view-post, .edit-post, .js-new-post, .js-contact-card', function(e) {
     e.preventDefault();
     let reference = $(this).attr('href') || $(this).data('href');
+    let target = $(e.target);
 
     if($(this).hasClass('view-post')){
       let postId = $(this).attr('class').split(' ')[0];
@@ -420,11 +451,11 @@ $(function() {
       __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["b" /* getPost */](postId, state, post => { __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["a" /* createEditPostPanel */](post)});
     }
 
-    if ($(e.target).hasClass('js-add-contact')) {
+    if (target.hasClass('js-add-contact') || target.hasClass('js-remove-contact') ) {
         return;
     }
 
-    openFromSide(reference);
+    __WEBPACK_IMPORTED_MODULE_8__helpers__["f" /* openFromSide */](reference);
 
   });
 
@@ -493,7 +524,7 @@ function getAllPosts() {
               </div>
               <div class="card-action">
                 <a class="${post._id} right view-post" href="#view-post" >View</a>
-                ${__WEBPACK_IMPORTED_MODULE_0__helpers__["b" /* commentCount */](post)}`;
+                ${__WEBPACK_IMPORTED_MODULE_0__helpers__["c" /* commentCount */](post)}`;
                
       constructPosts += `
               </div>
@@ -1029,7 +1060,7 @@ const postComment = (arg, state, comment, resolve) => {
 const getAllContacts = (state) => {
   axios.get('/users')
   .then((users) => {
-      console.log(users);
+      console.log("USERS",users);
       createAllContacts(users, '#all-contacts', state)})
   .catch(err => { console.log(err) })
 }
@@ -1037,36 +1068,32 @@ const getAllContacts = (state) => {
 
 
 const getUserContacts = (state) => {
-  console.log('WORKING');
   axios.get('users/current/contacts')
   .then(contacts => {
-    createAllContacts(contacts, '#user-contacts',state)
+    createAllContacts(contacts, '#user-contacts',state);
   })
 }
 /* harmony export (immutable) */ __webpack_exports__["b"] = getUserContacts;
 
+
+//
 
 const createAllContacts = (users, domNode, state) => {
     const beginning = '<div class="row">';
     const end = '</div>';
     let contactList = '';
 
-    console.log("USERS", users);
-    console.log("STATE", state);
-
     users.data.users.forEach((user) => {
-        const clickHandler = domNode == '#all-contacts' ? 'js-add-contact' : 'js-minus-contact';
         const notInUsrContact = !state.user.contacts.map(user => user.userId).includes(user._id);
-        console.log("USER ID: ",user._id);
-        console.log("STATE CONTACTS", state.user.contacts);
-        console.log(notInUsrContact);
+        const clickHandler = notInUsrContact  ? 'js-add-contact' : 'js-remove-contact';
         const icon = notInUsrContact  ? 'add' : 'remove';
+        const iconColor = notInUsrContact  ? 'icon-blue' : 'icon-red';
 
         contactList += `
           <div class="col s12 m6 l4">
             <div data-href="#view-contact" class="js-contact-card" data-id="${user._id}">
               <div class="card-panel grey lighten-5 z-depth-1 height-115 hovered">
-                <i class="small material-icons icon-blue hovered right ${clickHandler}" >${icon}</i>
+                <i class="small material-icons ${iconColor} hovered right ${clickHandler}" >${icon}</i>
                 <div class="row valign-wrapper">
                   <div class="col s3">
                     <img src="https://lorempixel.com/400/400/" alt="" class="circle responsive-img">
@@ -1081,7 +1108,17 @@ const createAllContacts = (users, domNode, state) => {
           </div>`;
     });
 
+    if(!users.data.users.length > 0) {
+      contactList += `<h2 class="grey-text">You don't have any contacts yet...</h2>`
+    }
+
     $(domNode).html(beginning + contactList + end);
+
+
+    // //
+    // if(domNode == '#user-contacts') {
+    //   $('#user-contacts-tab').click();
+    // }
 
 }
 /* unused harmony export createAllContacts */

@@ -6,7 +6,7 @@ import { createNewPost } from './posts/new-post';
 import { editPost, validateEditPost } from './posts/edit-post';
 import { uploadPostPhoto, enterPostImages, deletePostImages } from './posts/images';
 import { postComment, deleteComment } from './posts/comments';
-import { blur, unBlur } from './helpers';
+import { blur, closeSidePullOut, getUser, materializeInitialize, openFromSide, unBlur } from './helpers';
 import { getAllContacts, getUserContacts } from './contacts/create-all-contacts';
 import { getContactInfo, createViewContact, getContactPosts, createContactPosts } from './contacts/create-view-contacts';
 
@@ -19,40 +19,9 @@ $(function() {
     user: {}
   };
 
-  axios.get(`/users/current`)
-  .then( user => {
-    console.log(user);
-    state.user = user.data.user;
-  })
-  .catch( err => { console.log(err) })
+  getUser(state);
 
-  //Open panel
-  let openFromSide = (arg) => {
-    if($(window).width() < 601){
-      $(arg).animate({
-        width:"100vw"
-      });
-    } else {
-      $(arg).animate({
-        width:"50vw"
-      });
-    }
-    $('body').addClass('no-scroll');
-  }
-
-  //Close Panel
-  let closeSidePullOut = (arg) => {
-    $(arg).animate({
-      width:"0"
-    });
-    $('body').removeClass('no-scroll');
-  }
-
-  //Association Dropdown
-  $(".dropdown-button").dropdown();
-
-  //New Post Category Initialized
-  $('select').material_select();
+  materializeInitialize();
 
   //New Post Button Animation
   $('.new-post-button').hover(() => {
@@ -86,9 +55,25 @@ $(function() {
   //   $(e.currentTarget).removeClass('invalid');
   // });
 
-  const addContact = (id) => {
+  const addContact = (id, e) => {
     axios.put(`/users/add/${id}`)
-    .then(user => { console.log(user) })
+    .then(() => {
+      getUser(state);
+      getAllContacts(state);
+    })
+    .catch(err => console.log(err));
+  }
+
+  const removeContact = (id, e) => {
+    axios.put(`/users/remove/${id}`)
+    .then(() => {
+      getUser(state);
+      if($(e.currentTarget).closest('#user-contacts')) {
+        getUserContacts(state);
+      } else {
+        getAllContacts(state);
+      }
+    })
     .catch(err => console.log(err));
   }
 
@@ -101,7 +86,14 @@ $(function() {
   $('body').on('click', '.js-add-contact', (e) => {
     e.stopPropagation();
     const id = $(e.currentTarget).closest('.js-contact-card').data('id');
-    addContact(id);
+    addContact(id, e);
+  });
+
+  //Remove contact
+  $('body').on('click', '.js-remove-contact', (e) => {
+    e.stopPropagation();
+    const id = $(e.currentTarget).closest('.js-contact-card').data('id');
+    removeContact(id, e);
   });
 
   //View Contact Details
@@ -119,6 +111,7 @@ $(function() {
 
   $('#js-get-user-contacts').click(() => {
     getUserContacts(state);
+    $('ul.second-tabs').tabs('select_tab', 'user-contacts');
   });
 
   // //View contact post
@@ -287,6 +280,7 @@ $(function() {
   $("main").on('click', '.js-settings, .view-post, .edit-post, .js-new-post, .js-contact-card', function(e) {
     e.preventDefault();
     let reference = $(this).attr('href') || $(this).data('href');
+    let target = $(e.target);
 
     if($(this).hasClass('view-post')){
       let postId = $(this).attr('class').split(' ')[0];
@@ -298,7 +292,7 @@ $(function() {
       getPost(postId, state, post => { createEditPostPanel(post)});
     }
 
-    if ($(e.target).hasClass('js-add-contact')) {
+    if (target.hasClass('js-add-contact') || target.hasClass('js-remove-contact') ) {
         return;
     }
 

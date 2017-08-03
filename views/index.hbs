@@ -131,21 +131,21 @@
   <div id="contacts" class="col s12">
     <div class="row">
       <div class="col s12">
-        <ul class="tabs transparent">
-          <li class="tab col s3"><a id="user-contacts-tab" href="#user-contacts">My Contacts</a></li>
+        <ul class="tabs transparent second-tabs">
+          <li class="tab col s3" id="user-contacts-tab"><a  href="#user-contacts">My Contacts</a></li>
           <li class="tab col s3" id="all-contacts-tab"><a href="#all-contacts">All Contacts</a></li>
         </ul>
       </div>
     </div>
-    
+
     <div id="user-contacts" >
-       <!-- Contacts in users contact list nwill load here -->
+       <!-- Contacts in users contact list will load here -->
     </div>
-    
+
     <div id="all-contacts">
       <!-- All contacts will load here -->
     </div>
-    
+
     <!-- Side Pull Out View Contact -->
     <div class="side-pull-out full-height absolute-right white z-depth-2" id="view-contact"></div>
   </div>
@@ -172,7 +172,7 @@
       </div>
       <div class="post" id="js-user-posts"></div>
     </div>
-    
+
     <!--====== All Posts =======-->
     <div id="all-posts">
       <div class="post" id="js-all-posts"></div>
@@ -187,7 +187,7 @@
           <span></span>
         </div>
       </div>
-      
+
       <div class="js-blur"></div>
     </div>
 
@@ -200,14 +200,14 @@
           <span></span>
         </div>
       </div>
-      
+
       <div class="js-blur">
         <div class="row">
           <div class="col s12">
             <a href="#new-post" class="js-push-back"><img class="pull-out-back-icon" src="/assets/images/arrow-right-black.svg" /></a>
           </div>
         </div>
-  
+
         <div class="row center">
           <h5>Images</h5>
           <div class="image-list"></div>
@@ -223,7 +223,7 @@
             </div>
           </form>
         </div>
-  
+
         <div class="row center">
           <h5>Post</h5>
           <form class="col-s12 js-new-form" id="${post.data.post._id}">

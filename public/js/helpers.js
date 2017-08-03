@@ -1,26 +1,56 @@
+export const blur = () => {
+    $('.js-blur').addClass('blur')
+    $('.loader-container').removeClass('hidden');
+};
+
 export const commentCount = (post) => {
    if(post.comments.length > 0) {
         const plural = post.comments.length == 1 ? '' : 's';
-        return `<span class="left">${post.comments.length} comment${plural}</span>`; 
+        return `<span class="left">${post.comments.length} comment${plural}</span>`;
     } else {
         return '';
     }
 }
 
-export const loader = `
-    <div class="loader" id="loader-4">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>`;
- 
-export const blur = () => {
-    $('.js-blur').addClass('blur') 
-    $('.loader-container').removeClass('hidden');
-};
- 
+//Close Panel
+export const closeSidePullOut = (arg) => {
+  $(arg).animate({
+    width:"0"
+  });
+  $('body').removeClass('no-scroll');
+}
+
+export const getUser = (state) => {
+  axios.get(`/users/current`)
+  .then( user => {
+    console.log(user);
+    state.user = user.data.user;
+  })
+  .catch( err => { console.log(err) })
+}
+
+//Open panel
+export const openFromSide = (arg) => {
+  if($(window).width() < 601){
+    $(arg).animate({
+      width:"100vw"
+    });
+  } else {
+    $(arg).animate({
+      width:"50vw"
+    });
+  }
+  $('body').addClass('no-scroll');
+}
+
+export const materializeInitialize = () => {
+  //Association Dropdown
+  $(".dropdown-button").dropdown();
+  //New Post Category Initialized
+  $('select').material_select();
+}
+
 export const unBlur = () => {
-    $('.js-blur').removeClass('blur') 
+    $('.js-blur').removeClass('blur')
     $('.loader-container').addClass('hidden');
 };
- 
