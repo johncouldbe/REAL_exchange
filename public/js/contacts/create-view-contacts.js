@@ -49,30 +49,32 @@ export const createViewContact = (_user) => {
     $('#view-contact').html(beginning + contactInfo);
 }
 
-export const getContactPosts = (user) => {
-    axios.get('posts/user')
-    .then(posts => {
-        console.log(posts);
-        createContactPosts(posts);
-    })
-    .catch(err => { console.log(err) })
+export const getContactPosts = (id) => {
+  axios.get(`posts/user/${id}`)
+  .then(posts => {
+      console.log(posts);
+      createContactPosts(posts);
+  })
+  .catch(err => { console.log(err) })
 }
 
 export const createContactPosts = (_posts) => {
-    const posts = _posts.data.posts;
+  const posts = _posts.data.posts;
+  console.log(posts);
     
+  if(posts.length) {
     const beginning = `
-        <div class="row">
-            <div class="col s12">
-                <div class="divider"></div>
-            </div>
-        </div>
-        <div class="row">
+      <div class="row">
           <div class="col s12">
-            <h5 class="center-align">${posts[0].firstName}'s Posts</h5>
+              <div class="divider"></div>
           </div>
-        `;
-    
+      </div>
+      <div class="row">
+        <div class="col s12">
+          <h5 class="center-align">${posts[0].firstName}'s Posts</h5>
+        </div>
+      `;
+  
     const end = `</div>`;
     
     let showPosts = ``;
@@ -80,7 +82,7 @@ export const createContactPosts = (_posts) => {
     posts.forEach(post => {
       showPosts += `
           <div class="col s12">
-            <a href="#view-contact" class="js-contact-post" data-id="${post._id}">
+            <a href="#view-contact" class="js-contact-post view-post" data-id="${post._id}">
               <div class="card-panel grey lighten-5 z-depth-1 hovered hoverable">
                 <div class="row valign-wrapper">
                   <div class="col s3">
@@ -97,7 +99,7 @@ export const createContactPosts = (_posts) => {
     });
     
     $('#view-contact').append(beginning + showPosts + end);
-    
+  } 
 }
 
     

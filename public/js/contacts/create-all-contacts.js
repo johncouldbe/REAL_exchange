@@ -2,7 +2,6 @@
 export const getAllContacts = (state) => {
   axios.get('/users')
   .then((users) => {
-      console.log("USERS",users);
       createAllContacts(users, '#all-contacts', state)})
   .catch(err => { console.log(err) })
 }
@@ -20,8 +19,15 @@ export const createAllContacts = (users, domNode, state) => {
     const beginning = '<div class="row">';
     const end = '</div>';
     let contactList = '';
-
-    users.data.users.forEach((user) => {
+    
+    if(!users.data.users.length > 0) {
+      contactList += `
+      <div class="col s12">
+        <h2 class="grey-text">You don't have any contacts yet...</h2>
+      </div`
+    }
+    else {
+      users.data.users.forEach((user) => {
         const notInUsrContact = !state.user.contacts.map(user => user.userId).includes(user._id);
         const clickHandler = notInUsrContact  ? 'js-add-contact' : 'js-remove-contact';
         const icon = notInUsrContact  ? 'add' : 'remove';
@@ -44,18 +50,9 @@ export const createAllContacts = (users, domNode, state) => {
               </div>
             </div>
           </div>`;
-    });
-
-    if(!users.data.users.length > 0) {
-      contactList += `<h2 class="grey-text">You don't have any contacts yet...</h2>`
+      });
     }
 
     $(domNode).html(beginning + contactList + end);
-
-
-    // //
-    // if(domNode == '#user-contacts') {
-    //   $('#user-contacts-tab').click();
-    // }
 
 }

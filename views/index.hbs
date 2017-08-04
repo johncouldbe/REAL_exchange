@@ -24,7 +24,7 @@
           <div class="center dont-break-on-overflow">
             <ul>
               <li><a href="#edit-info" class="js-settings">Edit Public Info</a></li>
-              <li><a href="#" class="js-settings">Manage Associations/Boards</a></li>
+              <!--<li><a href="#" class="js-settings">Manage Associations/Boards</a></li>-->
               <li><a href="#leave-feedback" class="js-settings">Leave Feedback</a></li>
               <li><a href="#about-us" class="js-settings">About REAL Exchange</a></li>
             </ul>
@@ -34,35 +34,44 @@
     </div>
     <!--  Settings Edit Info -->
     <div class="side-pull-out full-height blue darken-4 white-text absolute-right" id="edit-info">
-      <a href="#edit-info" class="js-push-back"><img class="pull-out-back-icon" src="/assets/images/arrow-right.svg" /></a>
-      <div class="row">
-        <form class="col s12">
-          <div class="settings-menu-options dont-break-on-overflow">
-            <div class="row">
-              <div class="input-field col s12 m8 offset-m2">
-                <textarea id="settings-bio" class="materialize-textarea">{{user.bio}}</textarea>
-                <label for="textarea1">Bio</label>
+      <div class="loader-container hidden">
+        <div class="loader">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+      <div class="js-blur">
+        <a href="#edit-info" class="js-push-back"><img class="pull-out-back-icon" src="/assets/images/arrow-right.svg" /></a>
+        <div class="row">
+          <form class="col s12">
+            <div class="settings-menu-options dont-break-on-overflow">
+              <div class="row">
+                <div class="input-field col s12 m8 offset-m2">
+                  <textarea id="settings-bio" class="materialize-textarea">{{user.bio}}</textarea>
+                  <label for="textarea1">Bio</label>
+                </div>
+                <div class="input-field col s12 m8 offset-m2">
+                  <input value="{{user.phoneNumber}}" id="settings-phone-number" type="tel" class="validate">
+                  <label for="telephone">Phone Number</label>
+                </div>
+                <div class="input-field col s12 m8 offset-m2">
+                  <input value="{{user.email}}" id="settings-email" type="email" class="validate">
+                  <label for="email">Email</label>
+                </div>
+                <div class="input-field col s12 m8 offset-m2">
+                  <input value="{{user.website}}" id="settings-website" type="text" class="validate">
+                  <label for="website">Website</label>
+                </div>
               </div>
-              <div class="input-field col s12 m8 offset-m2">
-                <input value="{{user.phoneNumber}}" id="settings-phone-number" type="tel" class="validate">
-                <label for="telephone">Phone Number</label>
-              </div>
-              <div class="input-field col s12 m8 offset-m2">
-                <input value="{{user.email}}" id="settings-email" type="email" class="validate">
-                <label for="email">Email</label>
-              </div>
-              <div class="input-field col s12 m8 offset-m2">
-                <input value="{{user.website}}" id="settings-website" type="text" class="validate">
-                <label for="website">Website</label>
+              <div class="col s12 center">
+                <button class="btn waves-effect waves-light amber" id="submit-credentials" type="submit" name="action">Submit
+                <i class="material-icons right">send</i>
+              </button>
               </div>
             </div>
-            <div class="col s12 center">
-              <button class="btn waves-effect waves-light amber" type="submit" name="action">Submit
-              <i class="material-icons right">send</i>
-            </button>
-            </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
     <!--  Settings Leave Feedback -->
@@ -110,17 +119,17 @@
         <div class="col s4 offset-s4 m2 offset-m5 l4 offset-l4">
           <img src="https://lorempixel.com/400/400/" class="circle responsive-img" />
         </div>
-        <div class="col s12 center-align">
+        <!--<div class="col s12 center-align">
           <h6 class="flow-text hovered"><a>Change Picture</a></h6>
-        </div>
+        </div> -->
       </div>
 
       <div class="col s12 l6 left-border">
         <div class="center-align user-info-displayed">
-          <p class="flow-text">{{user.bio}}</p>
-          <p class="flow-text">{{user.phoneNumber}}</p>
-          <p class="flow-text">{{user.email}}</p>
-          <p class="flow-text word-break">{{user.website}}</p>
+          <p class="flow-text" id="greeting-bio">{{user.bio}}</p>
+          <p class="flow-text" id="greeting-phone-number">{{user.phoneNumber}}</p>
+          <p class="flow-text" ><a href="mailto:{{user.email}}" target="_blank" id="greeting-email">{{user.email}}</a></p>
+          <p class="flow-text word-break" ><a href="{{user.website}}" target="_blank" id="greeting-website">{{user.website}}</a></p>
         </div>
       </div>
     </div>
@@ -132,7 +141,7 @@
     <div class="row">
       <div class="col s12">
         <ul class="tabs transparent second-tabs">
-          <li class="tab col s3" id="user-contacts-tab"><a  href="#user-contacts">My Contacts</a></li>
+          <li class="tab col s3" ><a id="user-contacts-tab" class="js-get-user-contacts" href="#user-contacts">My Contacts</a></li>
           <li class="tab col s3" id="all-contacts-tab"><a href="#all-contacts">All Contacts</a></li>
         </ul>
       </div>
@@ -235,7 +244,7 @@
             </div>
             <div class="row">
               <div class="input-field col s12 m6">
-                <select id="new-category" class="validate" required aria-required="true"">
+                <select id="new-category" class="validate" required aria-required="true">
                   <option value="" disabled selected>Choose your category</option>
                   <option value="1">Wanted</option>
                   <option value="2">Available</option>

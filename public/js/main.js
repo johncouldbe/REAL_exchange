@@ -46,6 +46,40 @@ $(function() {
     const that = $(this);
     enterPostImages(that, state);
   });
+  
+  const addContact = (id, e) => {
+    axios.put(`/users/add/${id}`)
+    .then(() => {
+      new Promise((resolve, reject) => { 
+        getUser(state, resolve);
+      })
+      .then(() => {
+        getAllContacts(state)
+      })
+      .catch(err => console.log(err));
+    })
+    .catch(err => console.log(err));
+  }
+
+  const removeContact = (id, e) => {
+    axios.put(`/users/remove/${id}`)
+    .then(() => {
+      
+      new Promise((resolve, reject) => { 
+        getUser(state, resolve);
+      })
+      .then(() => {
+        if($(e.currentTarget).closest('#user-contacts').length) {
+          getUserContacts(state);
+        } else {
+        getAllContacts(state);
+        }
+      })
+      .catch(err => console.log(err));
+      
+    })
+    .catch(err => console.log(err));
+  }
 
   /* ========= Click Event Handlers ========= */
 
@@ -54,31 +88,41 @@ $(function() {
   //   console.log(e.currentTarget);
   //   $(e.currentTarget).removeClass('invalid');
   // });
-
-  const addContact = (id, e) => {
-    axios.put(`/users/add/${id}`)
-    .then(() => {
-      getUser(state);
-      getAllContacts(state);
-    })
-    .catch(err => console.log(err));
-  }
-
-  const removeContact = (id, e) => {
-    axios.put(`/users/remove/${id}`)
-    .then(() => {
-      getUser(state);
-      console.log("Target",$(e.currentTarget).closest('#user-contacts').length);
-      if($(e.currentTarget).closest('#user-contacts').length) {
-        console.log('True');
-        getUserContacts(state);
-      } else {
-        console.log('False');
-        getAllContacts(state);
+  
+  //Change users credentials
+  $('#submit-credentials').click((e) => {
+    e.preventDefault();
+    blur();
+    
+    const credentials = {
+        "bio": $('#settings-bio').val(),
+        "phoneNumber": $('#settings-phone-number').val(),
+        "email": $('#settings-email').val(),
+        "website": $('#settings-website').val(),
+    }
+    
+    axios.put(`users/current/update`, {
+      data: {
+        credentials
       }
     })
-    .catch(err => console.log(err));
-  }
+    .then((user) => {
+      getUser(state);
+      refreshUserScreen(credentials);
+      closeSidePullOut('#edit-info');
+      unBlur();
+    })
+    .catch(err => console.log(err))
+    
+    const refreshUserScreen = (credentials) => {
+      $('#greeting-bio').text(`${credentials.bio}`);
+      $('#greeting-phone-number').text(`${credentials.phoneNumber}`);
+      $('#greeting-email').text(`${credentials.email}`);
+      $('#greeting-email').attr('href', `mailto:${credentials.email}`);
+      $('#greeting-website').text(`${credentials.website}`);
+      $('#greeting-website').attr('href', `${credentials.website}`);
+    }    
+  });
 
   //Get all Contacts
   $('#all-contacts-tab').click(() => {
@@ -112,9 +156,12 @@ $(function() {
     .catch(err => console.log(err))
   });
 
-  $('#js-get-user-contacts').click(() => {
+  $('body').on('click', '.js-get-user-contacts', e => {
     getUserContacts(state);
-    $('ul.second-tabs').tabs('select_tab', 'user-contacts');
+    
+    if(!$(e.currentTarget).is('#user-contacts-tab')) {
+      $('#user-contacts-tab').click();
+    }
   });
 
   // //View contact post

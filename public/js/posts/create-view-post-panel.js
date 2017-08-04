@@ -72,7 +72,7 @@ export function createViewPost(arg, state) {
       let str = '';
       
       const deleteComment = (comment) => {
-        if(comment.userId === state.user.id){
+        if(comment.userId === state.user._id){
           return `<a href="#" data-id="${comment._id}" data-post-id="${arg}" class="red-text right js-delete-comment-btn">Delete</a>`;
         } else {
           return '';

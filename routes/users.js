@@ -28,6 +28,19 @@ router.get('/current', isAuthenticated, (req, res) => {
   });
 })
 
+router.put('/current/update', isAuthenticated, (req, res) => {
+  const id = req.user._id;
+  const update = req.body.data.credentials
+  User
+  .updateOne(
+    { '_id': id },
+    {$set: {"bio": update.bio, "phoneNumber": update.phoneNumber, "email": update.email, "website": update.website }}
+  )
+  .then(user => {
+    res.json({user});
+  });
+})
+
 router.put('/add/:id', (req, res) => {
   const userId = req.params.id;
   const id = req.user._id;
@@ -54,13 +67,9 @@ router.put('/remove/:id', (req, res) => {
 
 router.get('/current/contacts', isAuthenticated, (req, res) => {
 
-  console.log("REQ,CONTACTS",req.user.contacts);
-
   const contacts = req.user.contacts.map(contact => {
     return mongoose.Types.ObjectId(`${contact.userId}`)
   });
-
-  console.log("CONTACTS", contacts)
 
   User
   .find({

@@ -5,10 +5,10 @@ export const blur = () => {
 
 export const commentCount = (post) => {
    if(post.comments.length > 0) {
-        const plural = post.comments.length == 1 ? '' : 's';
-        return `<span class="left">${post.comments.length} comment${plural}</span>`;
+      const plural = post.comments.length == 1 ? '' : 's';
+      return `<span class="left">${post.comments.length} comment${plural}</span>`;
     } else {
-        return '';
+      return '';
     }
 }
 
@@ -20,11 +20,14 @@ export const closeSidePullOut = (arg) => {
   $('body').removeClass('no-scroll');
 }
 
-export const getUser = (state) => {
+export const getUser = (state, resolve) => {
   axios.get(`/users/current`)
   .then( user => {
-    console.log(user);
     state.user = user.data.user;
+    
+    if(resolve) {
+      resolve();
+    }
   })
   .catch( err => { console.log(err) })
 }

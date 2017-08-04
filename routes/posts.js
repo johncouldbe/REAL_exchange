@@ -29,6 +29,17 @@ router.get('/user', isAuthenticated, (req, res) => {
   });
 });
 
+//Send posts specific to user
+router.get('/user/:id', isAuthenticated, (req, res) => {
+  const id = req.params.id;
+  Post
+  .find({userId: id})
+  .sort('-date')
+  .then(posts => {
+    res.json({posts, id});
+  });
+});
+
 //Send a requested post
 router.get('/:id', isAuthenticated, (req, res) => {
   const id = req.params.id;
@@ -188,22 +199,22 @@ router.put( '/image/delete/:postId', isAuthenticated, (req, res) => {
 router.put('/comment/:postId', isAuthenticated, (req, res) => {
   const postId = req.params.postId;
   Post
-    .update(
-      { _id: postId },
-      { $push: { "comments" : {
-        "_id": uuidv4(),
-        "firstName": req.body.data.firstName,
-        "lastName": req.body.data.lastName,
-        "userId": req.body.data.userId,
-        "body": req.body.data.body,
-        "date": req.body.data.date
-      } }}
-    )
-    .then( (post) => {
-      console.log(post);
-      res.json(post);
-    })
-    .catch( err => console.log(err));
+  .update(
+    { _id: postId },
+    { $push: { "comments" : {
+      "_id": uuidv4(),
+      "firstName": req.body.data.firstName,
+      "lastName": req.body.data.lastName,
+      "userId": req.body.data.userId,
+      "body": req.body.data.body,
+      "date": req.body.data.date
+    } }}
+  )
+  .then( (post) => {
+    console.log(post);
+    res.json(post);
+  })
+  .catch( err => console.log(err));
 })
 
 //Delete comment from post
