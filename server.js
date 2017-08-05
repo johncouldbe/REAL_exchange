@@ -69,6 +69,17 @@ app.use((req, res, next) => {
   next();
 });
 
+// 
+// if(process.env.NODE_ENV === 'test') {
+//   app.use('*', (req, res, next) => {
+//
+//     req.isAuthenticated = function() {
+//       return true;
+//     };
+//     next();
+//   });
+// }
+
 // Routes
 app.use('/', indexRouter);
 app.use('/login', loginRouter);

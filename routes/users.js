@@ -2,6 +2,14 @@ const express = require('express');
 const router = express.Router();
 const { User } = require('../models/user');
 const mongoose = require('mongoose');
+
+//logout
+router.get('/logout', (req, res) => {
+  req.logout();
+  req.session.destroy();
+  res.send(200);
+});
+
 //Send all users
 router.get('/', isAuthenticated, function(req, res) {
   User
@@ -27,6 +35,21 @@ router.get('/current', isAuthenticated, (req, res) => {
     res.json({user});
   });
 })
+
+router.get('/current/contacts', isAuthenticated, (req, res) => {
+
+  const contacts = req.user.contacts.map(contact => {
+    return mongoose.Types.ObjectId(`${contact.userId}`)
+  });
+
+  User
+  .find({
+    '_id': { $in: contacts}
+  })
+  .then(users => {
+    res.json({users});
+  });
+});
 
 router.put('/current/update', isAuthenticated, (req, res) => {
   const id = req.user._id;
@@ -63,21 +86,6 @@ router.put('/remove/:id', (req, res) => {
   )
   .then(user =>  res.json(user) )
   .catch(err => console.log(err))
-});
-
-router.get('/current/contacts', isAuthenticated, (req, res) => {
-
-  const contacts = req.user.contacts.map(contact => {
-    return mongoose.Types.ObjectId(`${contact.userId}`)
-  });
-
-  User
-  .find({
-    '_id': { $in: contacts}
-  })
-  .then(users => {
-    res.json({users});
-  });
 });
 
 //Send specific user

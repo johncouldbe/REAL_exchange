@@ -1,15 +1,15 @@
 
 export const getAllContacts = (state) => {
-  axios.get('/users')
+  axios.get('/users/')
   .then((users) => {
       createAllContacts(users, '#all-contacts', state)})
   .catch(err => { console.log(err) })
 }
 
 export const getUserContacts = (state) => {
-  axios.get('users/current/contacts')
+  axios.get('/users/current/contacts')
   .then(contacts => {
-    createAllContacts(contacts, '#user-contacts',state);
+    createAllContacts(contacts, '#user-contacts', state);
   })
 }
 
@@ -19,7 +19,7 @@ export const createAllContacts = (users, domNode, state) => {
     const beginning = '<div class="row">';
     const end = '</div>';
     let contactList = '';
-    
+
     if(!users.data.users.length > 0) {
       contactList += `
       <div class="col s12">

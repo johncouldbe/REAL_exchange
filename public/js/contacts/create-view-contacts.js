@@ -1,23 +1,27 @@
-export const getContactInfo = (id, resolve) => {
+export const getContactInfo = (id, domNode, state, resolve) => {
     axios.get(`/users/${id}`)
     .then((user) => {
-        console.log(user);
-        createViewContact(user);
+        createViewContact(user, domNode, state);
         resolve();
     })
 }
 
-export const createViewContact = (_user) => {
+export const createViewContact = (_user, domNode, state) => {
     const user = _user.data.user;
-    
+
+    const notInUsrContact = !state.user.contacts.map(user => user.userId).includes(user._id);
+    const clickHandler = notInUsrContact  ? 'js-add-contact' : 'js-remove-contact';
+    const text = notInUsrContact  ? 'Add Contact' : 'Remove Contact';
+    const color = notInUsrContact  ? 'light-blue' : 'red';
+
     const beginning = `
     <div class="row">
       <div class="col s12">
-        <a href="#view-contact" class="js-push-back"><img class="pull-out-back-icon"
+        <a href="${domNode}" class="js-push-back"><img class="pull-out-back-icon"
         src="/assets/images/arrow-right-black.svg" /></a>
       </div>
     </div>`;
-    
+
     const contactInfo = `
     <div class="row">
         <div class="col s12 dont-break-on-overflow">
@@ -29,15 +33,19 @@ export const createViewContact = (_user) => {
             <div class="col s12">
                 <p class="flow-text center-align">${user.bio}</p>
             </div>
+            <div class="col s12 center">
+              <button class="btn waves-effect waves-light ${clickHandler} ${color}" data-id="${user._id}"
+              type="submit">${text}</button>
+            </div>
         </div>
     </div>
-        
+
     <div class="row">
         <div class="col s12">
             <div class="divider"></div>
         </div>
     </div>
-    
+
     <div class="row">
         <div class="col s12">
                 <p class="flow-text"><strong>Phone: </strong>${user.phoneNumber}</p>
@@ -45,23 +53,21 @@ export const createViewContact = (_user) => {
                 <p class="flow-text word-break"><strong>Website: </strong>${user.website}</p>
         </div>
     </div>`;
-    
-    $('#view-contact').html(beginning + contactInfo);
+
+    $(`${domNode}`).html(beginning + contactInfo);
 }
 
-export const getContactPosts = (id) => {
+export const getContactPosts = (id, domNode) => {
   axios.get(`posts/user/${id}`)
   .then(posts => {
-      console.log(posts);
-      createContactPosts(posts);
+      createContactPosts(posts, domNode);
   })
   .catch(err => { console.log(err) })
 }
 
-export const createContactPosts = (_posts) => {
+export const createContactPosts = (_posts,domNode) => {
   const posts = _posts.data.posts;
-  console.log(posts);
-    
+
   if(posts.length) {
     const beginning = `
       <div class="row">
@@ -74,15 +80,15 @@ export const createContactPosts = (_posts) => {
           <h5 class="center-align">${posts[0].firstName}'s Posts</h5>
         </div>
       `;
-  
+
     const end = `</div>`;
-    
+
     let showPosts = ``;
-    
+
     posts.forEach(post => {
       showPosts += `
           <div class="col s12">
-            <a href="#view-contact" class="js-contact-post view-post" data-id="${post._id}">
+            <a href="#view-contact-post" class="${post._id} js-contact-post view-post">
               <div class="card-panel grey lighten-5 z-depth-1 hovered hoverable">
                 <div class="row valign-wrapper">
                   <div class="col s3">
@@ -97,9 +103,7 @@ export const createContactPosts = (_posts) => {
             </a>
           </div>`;
     });
-    
-    $('#view-contact').append(beginning + showPosts + end);
-  } 
-}
 
-    
+    $(`${domNode}`).append(beginning + showPosts + end);
+  }
+}

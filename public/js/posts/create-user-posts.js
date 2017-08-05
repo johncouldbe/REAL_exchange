@@ -2,9 +2,9 @@ export function getUserPosts() {
   axios.get('/posts/user')
   .then(function (posts) {
     const userPosts = posts.data.posts;
-    
+
     let constructPosts ='';
-    
+
     if(!userPosts.length) {
       constructPosts += `
         <div class="row">
@@ -27,13 +27,13 @@ export function getUserPosts() {
             </div>
             `;
           }
-  
+
         constructPosts += `
               <div class="card-stacked">
                 <div class="card-content grey lighten-5">
                   <div class="row">
                     <div class="col s6">
-                      <p>${post.firstName} ${post.lastName}</p>
+                      <p><a href="#view-post-contact" data-href="#view-post-contact" data-id="${post.userId}" class="js-contact-card">${post.firstName} ${post.lastName}</a></p>
                     </div>
                     <div class="col s6 right-align">
                       <p>${moment(post.date).format('M/D/Y | h:mm a')}</p>
@@ -52,7 +52,7 @@ export function getUserPosts() {
                   `;
                   if(post.comments.length > 0) {
                     constructPosts += `
-                    <span class="left">${post.comments.length} comments</span>`; 
+                    <span class="left">${post.comments.length} comments</span>`;
                   }
         constructPosts += `
                 </div>
@@ -63,8 +63,8 @@ export function getUserPosts() {
         `;
       });
     }
-    
-    
+
+
     $('#js-user-posts').html(constructPosts);
 
     $('#user-posts-tab').click();

@@ -208,37 +208,38 @@ $(function() {
     const that = $(this);
     __WEBPACK_IMPORTED_MODULE_6__posts_images__["b" /* enterPostImages */](that, state);
   });
-  
-  const addContact = (id, e) => {
+
+  const addContact = (id, resolve) => {
     axios.put(`/users/add/${id}`)
     .then(() => {
-      new Promise((resolve, reject) => { 
+      new Promise((resolve, reject) => {
         __WEBPACK_IMPORTED_MODULE_8__helpers__["d" /* getUser */](state, resolve);
       })
       .then(() => {
-        __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["a" /* getAllContacts */](state)
+        __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["a" /* getAllContacts */](state);
+        resolve();
       })
       .catch(err => console.log(err));
     })
     .catch(err => console.log(err));
   }
 
-  const removeContact = (id, e) => {
+  const removeContact = (id, e, resolve) => {
     axios.put(`/users/remove/${id}`)
     .then(() => {
-      
-      new Promise((resolve, reject) => { 
+      new Promise((resolve, reject) => {
         __WEBPACK_IMPORTED_MODULE_8__helpers__["d" /* getUser */](state, resolve);
       })
       .then(() => {
-        if($(e.currentTarget).closest('#user-contacts').length) {
+        if($(e).closest('#user-contacts').length) {
           __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["b" /* getUserContacts */](state);
         } else {
-        __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["a" /* getAllContacts */](state);
+          __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["a" /* getAllContacts */](state);
         }
+        resolve();
       })
       .catch(err => console.log(err));
-      
+
     })
     .catch(err => console.log(err));
   }
@@ -250,19 +251,19 @@ $(function() {
   //   console.log(e.currentTarget);
   //   $(e.currentTarget).removeClass('invalid');
   // });
-  
+
   //Change users credentials
   $('#submit-credentials').click((e) => {
     e.preventDefault();
     __WEBPACK_IMPORTED_MODULE_8__helpers__["a" /* blur */]();
-    
+
     const credentials = {
         "bio": $('#settings-bio').val(),
         "phoneNumber": $('#settings-phone-number').val(),
         "email": $('#settings-email').val(),
         "website": $('#settings-website').val(),
     }
-    
+
     axios.put(`users/current/update`, {
       data: {
         credentials
@@ -275,7 +276,7 @@ $(function() {
       __WEBPACK_IMPORTED_MODULE_8__helpers__["g" /* unBlur */]();
     })
     .catch(err => console.log(err))
-    
+
     const refreshUserScreen = (credentials) => {
       $('#greeting-bio').text(`${credentials.bio}`);
       $('#greeting-phone-number').text(`${credentials.phoneNumber}`);
@@ -283,7 +284,17 @@ $(function() {
       $('#greeting-email').attr('href', `mailto:${credentials.email}`);
       $('#greeting-website').text(`${credentials.website}`);
       $('#greeting-website').attr('href', `${credentials.website}`);
-    }    
+    }
+  });
+
+  //logout
+  $('#logout').click((e) => {
+    e.preventDefault();
+    axios.get('/users/logout')
+    .then(() => {
+      console.log('LOGOUT');
+      window.location.replace('/login');
+    })
   });
 
   //Get all Contacts
@@ -294,33 +305,61 @@ $(function() {
   //Add contact
   $('body').on('click', '.js-add-contact', (e) => {
     e.stopPropagation();
-    const id = $(e.currentTarget).closest('.js-contact-card').data('id');
-    addContact(id, e);
+    const target = e.currentTarget;
+    let id = $(target).closest('.js-contact-card').data('id');
+    if(!id) {
+      id = $(target).data('id');
+    }
+    new Promise((resolve, reject) => {
+      addContact(id, resolve);
+    })
+    .then(() => {
+      if ( $(target).is( ":button" ) ) {
+        $(target).addClass('js-remove-contact red').removeClass('js-add-contact light-blue');
+        $(target).text('Remove Contact');
+      }
+    });
   });
 
   //Remove contact
   $('body').on('click', '.js-remove-contact', (e) => {
     e.stopPropagation();
-    const id = $(e.currentTarget).closest('.js-contact-card').data('id');
-    removeContact(id, e);
+    const target = e.currentTarget;
+    let id = $(target).closest('.js-contact-card').data('id');
+    if(!id) {
+      id = $(target).data('id');
+    }
+
+    new Promise((resolve, reject) => {
+      removeContact(id, target, resolve);
+    })
+    .then(() => {
+      if ( $(target).is( ":button" ) ) {
+        $(target).addClass('js-add-contact light-blue').removeClass('js-remove-contact red');
+        $(target).text('Add Contact');
+      }
+    });
+
   });
 
   //View Contact Details
-  $('body').on('click', '.js-contact-card', (e) => {
+  $('body').on('click', '.js-contact-card, .js-add-contact', (e) => {
     e.preventDefault();
     const id = $(e.currentTarget).data('id');
+    const domNode = $(e.currentTarget).data('href');
+
     new Promise((resolve, reject) => {
-      __WEBPACK_IMPORTED_MODULE_10__contacts_create_view_contacts__["a" /* getContactInfo */](id, resolve);
+      __WEBPACK_IMPORTED_MODULE_10__contacts_create_view_contacts__["a" /* getContactInfo */](id, domNode, state, resolve);
     })
     .then(() => {
-      __WEBPACK_IMPORTED_MODULE_10__contacts_create_view_contacts__["b" /* getContactPosts */](id);
+      __WEBPACK_IMPORTED_MODULE_10__contacts_create_view_contacts__["b" /* getContactPosts */](id, domNode);
     })
     .catch(err => console.log(err))
   });
 
   $('body').on('click', '.js-get-user-contacts', e => {
     __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["b" /* getUserContacts */](state);
-    
+
     if(!$(e.currentTarget).is('#user-contacts-tab')) {
       $('#user-contacts-tab').click();
     }
@@ -392,27 +431,29 @@ $(function() {
 
 
   //Comment on post
-  $('#view-post').on('click', '.js-comment-post-btn', (e) => {
+  $('#view-post, #view-contact-post').on('click', '.js-comment-post-btn', (e) => {
     e.preventDefault();
     __WEBPACK_IMPORTED_MODULE_8__helpers__["a" /* blur */]();
     const postId = $(e.currentTarget).data('id');
     const comment = $('.js-comment-field').val();
+    const domNode = $(e.currentTarget).data('target');
 
     new Promise((resolve, reject) => {
       __WEBPACK_IMPORTED_MODULE_7__posts_comments__["b" /* postComment */](postId, state, comment, resolve);
     })
     .then(() => {
-      __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__["a" /* createViewPost */](postId, state);
+      __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__["a" /* createViewPost */](postId, state, domNode);
       updatePostsFromComment(state);
       __WEBPACK_IMPORTED_MODULE_8__helpers__["g" /* unBlur */]();
     });
   });
 
   //Delete post Comment
-  $('#view-post').on('click', '.js-delete-comment-btn', (e) => {
+  $('#view-post, #view-contact-post').on('click', '.js-delete-comment-btn', (e) => {
     e.preventDefault();
     const postId = $(e.currentTarget).data('postId');
     const commentId = $(e.currentTarget).data('id');
+    const domNode = $(e.currentTarget).attr('href');
 
     if (confirm("Are you sure you want to delete this comment?") == true) {
       __WEBPACK_IMPORTED_MODULE_8__helpers__["a" /* blur */]();
@@ -420,7 +461,7 @@ $(function() {
         __WEBPACK_IMPORTED_MODULE_7__posts_comments__["a" /* deleteComment */](postId, commentId, resolve);
       })
       .then(() => {
-        __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__["a" /* createViewPost */](postId, state);
+        __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__["a" /* createViewPost */](postId, state, domNode);
         updatePostsFromComment(state);
         __WEBPACK_IMPORTED_MODULE_8__helpers__["g" /* unBlur */]();
       });
@@ -495,8 +536,9 @@ $(function() {
     let target = $(e.target);
 
     if($(this).hasClass('view-post')){
-      let postId = $(this).attr('class').split(' ')[0];
-      __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__["a" /* createViewPost */](postId, state);
+      const domNode = $(this).attr('href');
+      const postId = $(this).attr('class').split(' ')[0];
+      __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__["a" /* createViewPost */](postId, state, domNode);
     }
 
     if($(this).hasClass('edit-post')){
@@ -562,7 +604,7 @@ function getAllPosts() {
               <div class="card-content grey lighten-5">
                 <div class="row">
                   <div class="col s6">
-                    <p>${post.firstName} ${post.lastName}</p>
+                    <p><a href="#view-post-contact" data-href="#view-post-contact" data-id="${post.userId}" class="js-contact-card">${post.firstName} ${post.lastName}</a></p>
                   </div>
                   <div class="col s6 right-align">
                     <p>${moment(post.date).format('M/D/Y | h:mm a')}</p>
@@ -578,7 +620,7 @@ function getAllPosts() {
               <div class="card-action">
                 <a class="${post._id} right view-post" href="#view-post" >View</a>
                 ${__WEBPACK_IMPORTED_MODULE_0__helpers__["c" /* commentCount */](post)}`;
-               
+
       constructPosts += `
               </div>
             </div>
@@ -604,9 +646,9 @@ function getUserPosts() {
   axios.get('/posts/user')
   .then(function (posts) {
     const userPosts = posts.data.posts;
-    
+
     let constructPosts ='';
-    
+
     if(!userPosts.length) {
       constructPosts += `
         <div class="row">
@@ -629,13 +671,13 @@ function getUserPosts() {
             </div>
             `;
           }
-  
+
         constructPosts += `
               <div class="card-stacked">
                 <div class="card-content grey lighten-5">
                   <div class="row">
                     <div class="col s6">
-                      <p>${post.firstName} ${post.lastName}</p>
+                      <p><a href="#view-post-contact" data-href="#view-post-contact" data-id="${post.userId}" class="js-contact-card">${post.firstName} ${post.lastName}</a></p>
                     </div>
                     <div class="col s6 right-align">
                       <p>${moment(post.date).format('M/D/Y | h:mm a')}</p>
@@ -654,7 +696,7 @@ function getUserPosts() {
                   `;
                   if(post.comments.length > 0) {
                     constructPosts += `
-                    <span class="left">${post.comments.length} comments</span>`; 
+                    <span class="left">${post.comments.length} comments</span>`;
                   }
         constructPosts += `
                 </div>
@@ -665,8 +707,8 @@ function getUserPosts() {
         `;
       });
     }
-    
-    
+
+
     $('#js-user-posts').html(constructPosts);
 
     $('#user-posts-tab').click();
@@ -683,28 +725,28 @@ function getUserPosts() {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = createViewPost;
-function createViewPost(arg, state) {
+function createViewPost(arg, state, domNode) {
   axios.get(`/posts/${arg}`)
-  .then(function(post) {
-    console.log(post);
+  .then(_post => {
+    const post = _post.data.post;
     let viewedPost = '';
 
     viewedPost = `
     <div class="row">
       <div class="col s12">
-        <a href="#view-post" class="js-push-back"><img class="pull-out-back-icon"
+        <a href="${domNode}" class="js-push-back"><img class="pull-out-back-icon"
         src="/assets/images/arrow-right-black.svg" /></a>
       </div>
     </div>`;
 
     //Carousel
-    if(post.data.post.images.length > 0) {
+    if(post.images.length > 0) {
       viewedPost += `<div class="carousel">`;
 
-      for(let i=0; i < post.data.post.images.length; i++) {
+      for(let i=0; i < post.images.length; i++) {
         viewedPost += `
         <a class="carousel-item" href="#${i}">
-          <img class="materialboxed slider-img" src="${post.data.post.images[i].image}" >
+          <img class="materialboxed slider-img" src="${post.images[i].image}" >
         </a>`;
       }
 
@@ -715,20 +757,20 @@ function createViewPost(arg, state) {
     <div class="row">
       <div class="col s12">
         <div class="center dont-break-on-overflow">
-          <h4>${post.data.post.firstName} ${post.data.post.lastName}</h4>
-          <h5>${post.data.post.subject}</h5>
-          <p>${post.data.post.body}</p>
+          <h4><a href="#view-post-contact" data-href="#view-post-contact" data-id="${post.userId}" class="js-contact-card">${post.firstName} ${post.lastName}</a></h4>
+          <h5>${post.subject}</h5>
+          <p>${post.body}</p>
         </div>
       </div>
     </div>
-    
+
     <div class="row">
       <div class="col s12">
         <div class="divider"></div>
         <h5>Comments</h5>
       </div>
     </div>
-    
+
     <div class="row">
       <form class="col s12">
         <div class="row">
@@ -737,13 +779,13 @@ function createViewPost(arg, state) {
             <textarea id="icon_prefix2" class="materialize-textarea js-comment-field"></textarea>
             <label for="icon_prefix2">Comment</label>
           </div>
-          
+
           <div class="col s12">
             <button class="left btn waves-effect waves-light light-blue js-comment-post-btn"
-            type="submit" data-id="${arg}">Submit</button>
+            type="submit" data-id="${arg}" data-target="${domNode}">Submit</button>
           </div>
         </div>
-        
+
         <div class="row">
           <div class="col s12">
             <div class="divider"></div>
@@ -752,20 +794,19 @@ function createViewPost(arg, state) {
       </form>
     </div>
     `;
-    
-    if(post.data.post.comments.length > 0) {
+
+    if(post.comments.length > 0) {
       let str = '';
-      
+
       const deleteComment = (comment) => {
         if(comment.userId === state.user._id){
-          return `<a href="#" data-id="${comment._id}" data-post-id="${arg}" class="red-text right js-delete-comment-btn">Delete</a>`;
+          return `<a href="${domNode}" data-id="${comment._id}" data-post-id="${arg}" class="red-text right js-delete-comment-btn">Delete</a>`;
         } else {
           return '';
         }
       }
-      
-      post.data.post.comments.forEach(comment => {
-        console.log(comment);
+
+      post.comments.forEach(comment => {
         str += `
         <div class="row">
           <div class="col s12">
@@ -777,7 +818,7 @@ function createViewPost(arg, state) {
             ${deleteComment(comment)}
           </div>
         </div>
-        
+
         <div class="row">
           <div class="col s12">
             <div class="divider"></div>
@@ -788,7 +829,7 @@ function createViewPost(arg, state) {
       viewedPost += str;
     }
 
-    $('#view-post>.js-blur').html(viewedPost);
+    $(`${domNode}>.js-blur`).html(viewedPost);
     setTimeout(function () {
       $('.carousel').carousel();
       $('.materialboxed').materialbox();
@@ -1122,7 +1163,7 @@ const postComment = (arg, state, comment, resolve) => {
 "use strict";
 
 const getAllContacts = (state) => {
-  axios.get('/users')
+  axios.get('/users/')
   .then((users) => {
       createAllContacts(users, '#all-contacts', state)})
   .catch(err => { console.log(err) })
@@ -1131,9 +1172,9 @@ const getAllContacts = (state) => {
 
 
 const getUserContacts = (state) => {
-  axios.get('users/current/contacts')
+  axios.get('/users/current/contacts')
   .then(contacts => {
-    createAllContacts(contacts, '#user-contacts',state);
+    createAllContacts(contacts, '#user-contacts', state);
   })
 }
 /* harmony export (immutable) */ __webpack_exports__["b"] = getUserContacts;
@@ -1145,7 +1186,7 @@ const createAllContacts = (users, domNode, state) => {
     const beginning = '<div class="row">';
     const end = '</div>';
     let contactList = '';
-    
+
     if(!users.data.users.length > 0) {
       contactList += `
       <div class="col s12">
@@ -1191,28 +1232,32 @@ const createAllContacts = (users, domNode, state) => {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-const getContactInfo = (id, resolve) => {
+const getContactInfo = (id, domNode, state, resolve) => {
     axios.get(`/users/${id}`)
     .then((user) => {
-        console.log(user);
-        createViewContact(user);
+        createViewContact(user, domNode, state);
         resolve();
     })
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = getContactInfo;
 
 
-const createViewContact = (_user) => {
+const createViewContact = (_user, domNode, state) => {
     const user = _user.data.user;
-    
+
+    const notInUsrContact = !state.user.contacts.map(user => user.userId).includes(user._id);
+    const clickHandler = notInUsrContact  ? 'js-add-contact' : 'js-remove-contact';
+    const text = notInUsrContact  ? 'Add Contact' : 'Remove Contact';
+    const color = notInUsrContact  ? 'light-blue' : 'red';
+
     const beginning = `
     <div class="row">
       <div class="col s12">
-        <a href="#view-contact" class="js-push-back"><img class="pull-out-back-icon"
+        <a href="${domNode}" class="js-push-back"><img class="pull-out-back-icon"
         src="/assets/images/arrow-right-black.svg" /></a>
       </div>
     </div>`;
-    
+
     const contactInfo = `
     <div class="row">
         <div class="col s12 dont-break-on-overflow">
@@ -1224,15 +1269,19 @@ const createViewContact = (_user) => {
             <div class="col s12">
                 <p class="flow-text center-align">${user.bio}</p>
             </div>
+            <div class="col s12 center">
+              <button class="btn waves-effect waves-light ${clickHandler} ${color}" data-id="${user._id}"
+              type="submit">${text}</button>
+            </div>
         </div>
     </div>
-        
+
     <div class="row">
         <div class="col s12">
             <div class="divider"></div>
         </div>
     </div>
-    
+
     <div class="row">
         <div class="col s12">
                 <p class="flow-text"><strong>Phone: </strong>${user.phoneNumber}</p>
@@ -1240,27 +1289,25 @@ const createViewContact = (_user) => {
                 <p class="flow-text word-break"><strong>Website: </strong>${user.website}</p>
         </div>
     </div>`;
-    
-    $('#view-contact').html(beginning + contactInfo);
+
+    $(`${domNode}`).html(beginning + contactInfo);
 }
 /* unused harmony export createViewContact */
 
 
-const getContactPosts = (id) => {
+const getContactPosts = (id, domNode) => {
   axios.get(`posts/user/${id}`)
   .then(posts => {
-      console.log(posts);
-      createContactPosts(posts);
+      createContactPosts(posts, domNode);
   })
   .catch(err => { console.log(err) })
 }
 /* harmony export (immutable) */ __webpack_exports__["b"] = getContactPosts;
 
 
-const createContactPosts = (_posts) => {
+const createContactPosts = (_posts,domNode) => {
   const posts = _posts.data.posts;
-  console.log(posts);
-    
+
   if(posts.length) {
     const beginning = `
       <div class="row">
@@ -1273,15 +1320,15 @@ const createContactPosts = (_posts) => {
           <h5 class="center-align">${posts[0].firstName}'s Posts</h5>
         </div>
       `;
-  
+
     const end = `</div>`;
-    
+
     let showPosts = ``;
-    
+
     posts.forEach(post => {
       showPosts += `
           <div class="col s12">
-            <a href="#view-contact" class="js-contact-post view-post" data-id="${post._id}">
+            <a href="#view-contact-post" class="${post._id} js-contact-post view-post">
               <div class="card-panel grey lighten-5 z-depth-1 hovered hoverable">
                 <div class="row valign-wrapper">
                   <div class="col s3">
@@ -1296,14 +1343,13 @@ const createContactPosts = (_posts) => {
             </a>
           </div>`;
     });
-    
-    $('#view-contact').append(beginning + showPosts + end);
-  } 
+
+    $(`${domNode}`).append(beginning + showPosts + end);
+  }
 }
 /* unused harmony export createContactPosts */
 
 
-    
 
 /***/ })
 /******/ ]);

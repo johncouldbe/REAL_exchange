@@ -46,37 +46,38 @@ $(function() {
     const that = $(this);
     enterPostImages(that, state);
   });
-  
-  const addContact = (id, e) => {
+
+  const addContact = (id, resolve) => {
     axios.put(`/users/add/${id}`)
     .then(() => {
-      new Promise((resolve, reject) => { 
+      new Promise((resolve, reject) => {
         getUser(state, resolve);
       })
       .then(() => {
-        getAllContacts(state)
+        getAllContacts(state);
+        resolve();
       })
       .catch(err => console.log(err));
     })
     .catch(err => console.log(err));
   }
 
-  const removeContact = (id, e) => {
+  const removeContact = (id, e, resolve) => {
     axios.put(`/users/remove/${id}`)
     .then(() => {
-      
-      new Promise((resolve, reject) => { 
+      new Promise((resolve, reject) => {
         getUser(state, resolve);
       })
       .then(() => {
-        if($(e.currentTarget).closest('#user-contacts').length) {
+        if($(e).closest('#user-contacts').length) {
           getUserContacts(state);
         } else {
-        getAllContacts(state);
+          getAllContacts(state);
         }
+        resolve();
       })
       .catch(err => console.log(err));
-      
+
     })
     .catch(err => console.log(err));
   }
@@ -88,19 +89,19 @@ $(function() {
   //   console.log(e.currentTarget);
   //   $(e.currentTarget).removeClass('invalid');
   // });
-  
+
   //Change users credentials
   $('#submit-credentials').click((e) => {
     e.preventDefault();
     blur();
-    
+
     const credentials = {
         "bio": $('#settings-bio').val(),
         "phoneNumber": $('#settings-phone-number').val(),
         "email": $('#settings-email').val(),
         "website": $('#settings-website').val(),
     }
-    
+
     axios.put(`users/current/update`, {
       data: {
         credentials
@@ -113,7 +114,7 @@ $(function() {
       unBlur();
     })
     .catch(err => console.log(err))
-    
+
     const refreshUserScreen = (credentials) => {
       $('#greeting-bio').text(`${credentials.bio}`);
       $('#greeting-phone-number').text(`${credentials.phoneNumber}`);
@@ -121,7 +122,17 @@ $(function() {
       $('#greeting-email').attr('href', `mailto:${credentials.email}`);
       $('#greeting-website').text(`${credentials.website}`);
       $('#greeting-website').attr('href', `${credentials.website}`);
-    }    
+    }
+  });
+
+  //logout
+  $('#logout').click((e) => {
+    e.preventDefault();
+    axios.get('/users/logout')
+    .then(() => {
+      console.log('LOGOUT');
+      window.location.replace('/login');
+    })
   });
 
   //Get all Contacts
@@ -132,33 +143,61 @@ $(function() {
   //Add contact
   $('body').on('click', '.js-add-contact', (e) => {
     e.stopPropagation();
-    const id = $(e.currentTarget).closest('.js-contact-card').data('id');
-    addContact(id, e);
+    const target = e.currentTarget;
+    let id = $(target).closest('.js-contact-card').data('id');
+    if(!id) {
+      id = $(target).data('id');
+    }
+    new Promise((resolve, reject) => {
+      addContact(id, resolve);
+    })
+    .then(() => {
+      if ( $(target).is( ":button" ) ) {
+        $(target).addClass('js-remove-contact red').removeClass('js-add-contact light-blue');
+        $(target).text('Remove Contact');
+      }
+    });
   });
 
   //Remove contact
   $('body').on('click', '.js-remove-contact', (e) => {
     e.stopPropagation();
-    const id = $(e.currentTarget).closest('.js-contact-card').data('id');
-    removeContact(id, e);
+    const target = e.currentTarget;
+    let id = $(target).closest('.js-contact-card').data('id');
+    if(!id) {
+      id = $(target).data('id');
+    }
+
+    new Promise((resolve, reject) => {
+      removeContact(id, target, resolve);
+    })
+    .then(() => {
+      if ( $(target).is( ":button" ) ) {
+        $(target).addClass('js-add-contact light-blue').removeClass('js-remove-contact red');
+        $(target).text('Add Contact');
+      }
+    });
+
   });
 
   //View Contact Details
-  $('body').on('click', '.js-contact-card', (e) => {
+  $('body').on('click', '.js-contact-card, .js-add-contact', (e) => {
     e.preventDefault();
     const id = $(e.currentTarget).data('id');
+    const domNode = $(e.currentTarget).data('href');
+
     new Promise((resolve, reject) => {
-      getContactInfo(id, resolve);
+      getContactInfo(id, domNode, state, resolve);
     })
     .then(() => {
-      getContactPosts(id);
+      getContactPosts(id, domNode);
     })
     .catch(err => console.log(err))
   });
 
   $('body').on('click', '.js-get-user-contacts', e => {
     getUserContacts(state);
-    
+
     if(!$(e.currentTarget).is('#user-contacts-tab')) {
       $('#user-contacts-tab').click();
     }
@@ -230,27 +269,29 @@ $(function() {
 
 
   //Comment on post
-  $('#view-post').on('click', '.js-comment-post-btn', (e) => {
+  $('#view-post, #view-contact-post').on('click', '.js-comment-post-btn', (e) => {
     e.preventDefault();
     blur();
     const postId = $(e.currentTarget).data('id');
     const comment = $('.js-comment-field').val();
+    const domNode = $(e.currentTarget).data('target');
 
     new Promise((resolve, reject) => {
       postComment(postId, state, comment, resolve);
     })
     .then(() => {
-      createViewPost(postId, state);
+      createViewPost(postId, state, domNode);
       updatePostsFromComment(state);
       unBlur();
     });
   });
 
   //Delete post Comment
-  $('#view-post').on('click', '.js-delete-comment-btn', (e) => {
+  $('#view-post, #view-contact-post').on('click', '.js-delete-comment-btn', (e) => {
     e.preventDefault();
     const postId = $(e.currentTarget).data('postId');
     const commentId = $(e.currentTarget).data('id');
+    const domNode = $(e.currentTarget).attr('href');
 
     if (confirm("Are you sure you want to delete this comment?") == true) {
       blur();
@@ -258,7 +299,7 @@ $(function() {
         deleteComment(postId, commentId, resolve);
       })
       .then(() => {
-        createViewPost(postId, state);
+        createViewPost(postId, state, domNode);
         updatePostsFromComment(state);
         unBlur();
       });
@@ -333,8 +374,9 @@ $(function() {
     let target = $(e.target);
 
     if($(this).hasClass('view-post')){
-      let postId = $(this).attr('class').split(' ')[0];
-      createViewPost(postId, state);
+      const domNode = $(this).attr('href');
+      const postId = $(this).attr('class').split(' ')[0];
+      createViewPost(postId, state, domNode);
     }
 
     if($(this).hasClass('edit-post')){

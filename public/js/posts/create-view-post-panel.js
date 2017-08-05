@@ -1,25 +1,25 @@
-export function createViewPost(arg, state) {
+export function createViewPost(arg, state, domNode) {
   axios.get(`/posts/${arg}`)
-  .then(function(post) {
-    console.log(post);
+  .then(_post => {
+    const post = _post.data.post;
     let viewedPost = '';
 
     viewedPost = `
     <div class="row">
       <div class="col s12">
-        <a href="#view-post" class="js-push-back"><img class="pull-out-back-icon"
+        <a href="${domNode}" class="js-push-back"><img class="pull-out-back-icon"
         src="/assets/images/arrow-right-black.svg" /></a>
       </div>
     </div>`;
 
     //Carousel
-    if(post.data.post.images.length > 0) {
+    if(post.images.length > 0) {
       viewedPost += `<div class="carousel">`;
 
-      for(let i=0; i < post.data.post.images.length; i++) {
+      for(let i=0; i < post.images.length; i++) {
         viewedPost += `
         <a class="carousel-item" href="#${i}">
-          <img class="materialboxed slider-img" src="${post.data.post.images[i].image}" >
+          <img class="materialboxed slider-img" src="${post.images[i].image}" >
         </a>`;
       }
 
@@ -30,20 +30,20 @@ export function createViewPost(arg, state) {
     <div class="row">
       <div class="col s12">
         <div class="center dont-break-on-overflow">
-          <h4>${post.data.post.firstName} ${post.data.post.lastName}</h4>
-          <h5>${post.data.post.subject}</h5>
-          <p>${post.data.post.body}</p>
+          <h4><a href="#view-post-contact" data-href="#view-post-contact" data-id="${post.userId}" class="js-contact-card">${post.firstName} ${post.lastName}</a></h4>
+          <h5>${post.subject}</h5>
+          <p>${post.body}</p>
         </div>
       </div>
     </div>
-    
+
     <div class="row">
       <div class="col s12">
         <div class="divider"></div>
         <h5>Comments</h5>
       </div>
     </div>
-    
+
     <div class="row">
       <form class="col s12">
         <div class="row">
@@ -52,13 +52,13 @@ export function createViewPost(arg, state) {
             <textarea id="icon_prefix2" class="materialize-textarea js-comment-field"></textarea>
             <label for="icon_prefix2">Comment</label>
           </div>
-          
+
           <div class="col s12">
             <button class="left btn waves-effect waves-light light-blue js-comment-post-btn"
-            type="submit" data-id="${arg}">Submit</button>
+            type="submit" data-id="${arg}" data-target="${domNode}">Submit</button>
           </div>
         </div>
-        
+
         <div class="row">
           <div class="col s12">
             <div class="divider"></div>
@@ -67,20 +67,19 @@ export function createViewPost(arg, state) {
       </form>
     </div>
     `;
-    
-    if(post.data.post.comments.length > 0) {
+
+    if(post.comments.length > 0) {
       let str = '';
-      
+
       const deleteComment = (comment) => {
         if(comment.userId === state.user._id){
-          return `<a href="#" data-id="${comment._id}" data-post-id="${arg}" class="red-text right js-delete-comment-btn">Delete</a>`;
+          return `<a href="${domNode}" data-id="${comment._id}" data-post-id="${arg}" class="red-text right js-delete-comment-btn">Delete</a>`;
         } else {
           return '';
         }
       }
-      
-      post.data.post.comments.forEach(comment => {
-        console.log(comment);
+
+      post.comments.forEach(comment => {
         str += `
         <div class="row">
           <div class="col s12">
@@ -92,7 +91,7 @@ export function createViewPost(arg, state) {
             ${deleteComment(comment)}
           </div>
         </div>
-        
+
         <div class="row">
           <div class="col s12">
             <div class="divider"></div>
@@ -103,7 +102,7 @@ export function createViewPost(arg, state) {
       viewedPost += str;
     }
 
-    $('#view-post>.js-blur').html(viewedPost);
+    $(`${domNode}>.js-blur`).html(viewedPost);
     setTimeout(function () {
       $('.carousel').carousel();
       $('.materialboxed').materialbox();
