@@ -1,6 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const { User } = require('../models/user');
+const mongoose = require('mongoose');
+
+//logout
+router.get('/logout', (req, res) => {
+  req.logout();
+  req.session.destroy();
+  res.send(200);
+});
 
 //Send all users
 router.get('/', isAuthenticated, function(req, res) {
@@ -16,6 +24,68 @@ router.get('/', isAuthenticated, function(req, res) {
     console.log(err);
     res.status(500).json({message: 'Internal server error'});
   })
+});
+
+router.get('/current', isAuthenticated, (req, res) => {
+  const id = req.user._id;
+  User
+  .findById(id)
+  .exec()
+  .then(user => {
+    res.json({user});
+  });
+})
+
+router.get('/current/contacts', isAuthenticated, (req, res) => {
+
+  const contacts = req.user.contacts.map(contact => {
+    return mongoose.Types.ObjectId(`${contact.userId}`)
+  });
+
+  User
+  .find({
+    '_id': { $in: contacts}
+  })
+  .then(users => {
+    res.json({users});
+  });
+});
+
+router.put('/current/update', isAuthenticated, (req, res) => {
+  const id = req.user._id;
+  const update = req.body.data.credentials
+  User
+  .updateOne(
+    { '_id': id },
+    {$set: {"bio": update.bio, "phoneNumber": update.phoneNumber, "email": update.email, "website": update.website }}
+  )
+  .then(user => {
+    res.json({user});
+  });
+})
+
+router.put('/add/:id', (req, res) => {
+  const userId = req.params.id;
+  const id = req.user._id;
+  User
+  .findByIdAndUpdate(id,
+    { $push: { "contacts" : { "userId" : userId }}},
+    {new: true}
+  )
+  .then(user =>  res.json(user) )
+  .catch(err => console.log(err))
+});
+
+router.put('/remove/:id', (req, res) => {
+  const userId = req.params.id;
+  const id = req.user._id;
+  User
+  .findByIdAndUpdate(id,
+    { $pull: { "contacts" : { "userId" : userId }}},
+    {new: true}
+  )
+  .then(user =>  res.json(user) )
+  .catch(err => console.log(err))
 });
 
 //Send specific user

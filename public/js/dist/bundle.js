@@ -68,40 +68,80 @@
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-const commentCount = (post) => {
-   if(post.comments.length > 0) {
-        const plural = post.comments.length == 1 ? '' : 's';
-        return `<span class="left">${post.comments.length} comment${plural}</span>`; 
-    } else {
-        return '';
-    }
-}
-/* harmony export (immutable) */ __webpack_exports__["b"] = commentCount;
-
-
-const loader = `
-    <div class="loader" id="loader-4">
-      <span></span>
-      <span></span>
-      <span></span>
-    </div>`;
-/* unused harmony export loader */
-
- 
 const blur = () => {
-    $('.js-blur').addClass('blur') 
+    $('.js-blur').addClass('blur')
     $('.loader-container').removeClass('hidden');
 };
 /* harmony export (immutable) */ __webpack_exports__["a"] = blur;
 
- 
+
+const commentCount = (post) => {
+   if(post.comments.length > 0) {
+      const plural = post.comments.length == 1 ? '' : 's';
+      return `<span class="left">${post.comments.length} comment${plural}</span>`;
+    } else {
+      return '';
+    }
+}
+/* harmony export (immutable) */ __webpack_exports__["c"] = commentCount;
+
+
+//Close Panel
+const closeSidePullOut = (arg) => {
+  $(arg).animate({
+    width:"0"
+  });
+  $('body').removeClass('no-scroll');
+}
+/* harmony export (immutable) */ __webpack_exports__["b"] = closeSidePullOut;
+
+
+const getUser = (state, resolve) => {
+  axios.get(`/users/current`)
+  .then( user => {
+    state.user = user.data.user;
+    
+    if(resolve) {
+      resolve();
+    }
+  })
+  .catch( err => { console.log(err) })
+}
+/* harmony export (immutable) */ __webpack_exports__["d"] = getUser;
+
+
+//Open panel
+const openFromSide = (arg) => {
+  if($(window).width() < 601){
+    $(arg).animate({
+      width:"100vw"
+    });
+  } else {
+    $(arg).animate({
+      width:"50vw"
+    });
+  }
+  $('body').addClass('no-scroll');
+}
+/* harmony export (immutable) */ __webpack_exports__["f"] = openFromSide;
+
+
+const materializeInitialize = () => {
+  //Association Dropdown
+  $(".dropdown-button").dropdown();
+  //New Post Category Initialized
+  $('select').material_select();
+}
+/* harmony export (immutable) */ __webpack_exports__["e"] = materializeInitialize;
+
+
 const unBlur = () => {
-    $('.js-blur').removeClass('blur') 
+    $('.js-blur').removeClass('blur')
     $('.loader-container').addClass('hidden');
 };
-/* harmony export (immutable) */ __webpack_exports__["c"] = unBlur;
+/* harmony export (immutable) */ __webpack_exports__["g"] = unBlur;
 
- 
+
 
 /***/ }),
 /* 1 */
@@ -119,6 +159,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__posts_comments__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__helpers__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__contacts_create_view_contacts__ = __webpack_require__(11);
+
 
 
 
@@ -135,36 +177,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 $(function() {
 
   const state = {
-    formData: ''
+    formData: '',
+    user: {}
   };
 
-  //Open panel
-  let openFromSide = (arg) => {
-    if($(window).width() < 601){
-      $(arg).animate({
-        width:"100vw"
-      });
-    } else {
-      $(arg).animate({
-        width:"50vw"
-      });
-    }
-    $('body').addClass('no-scroll');
-  }
-  
-  //Close Panel
-  let closeSidePullOut = (arg) => {
-    $(arg).animate({
-      width:"0"
-    });
-    $('body').removeClass('no-scroll');
-  }
+  __WEBPACK_IMPORTED_MODULE_8__helpers__["d" /* getUser */](state);
 
-  //Association Dropdown
-  $(".dropdown-button").dropdown();
-  
-  //New Post Category Initialized
-  $('select').material_select();
+  __WEBPACK_IMPORTED_MODULE_8__helpers__["e" /* materializeInitialize */]();
 
   //New Post Button Animation
   $('.new-post-button').hover(() => {
@@ -174,43 +193,194 @@ $(function() {
       $('.new-post-button-font').toggleClass('white-out');
     }
   });
-  
+
   //After a comment reload posts
-  const updatePostsFromComment = (state) => {
+  const updatePostsFromComment = () => {
     if($('#user-posts-tab').hasClass('active')){
-      __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */](state);
+      __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]();
     } else {
         __WEBPACK_IMPORTED_MODULE_0__posts_create_all_posts__["a" /* getAllPosts */]();
       }
   }
-  
+
   //Store photos to upload
   $('#edit-post, #new-post').on('change', '#upload-photo', function(){
     const that = $(this);
     __WEBPACK_IMPORTED_MODULE_6__posts_images__["b" /* enterPostImages */](that, state);
   });
-  
+
+  const addContact = (id, resolve) => {
+    axios.put(`/users/add/${id}`)
+    .then(() => {
+      new Promise((resolve, reject) => {
+        __WEBPACK_IMPORTED_MODULE_8__helpers__["d" /* getUser */](state, resolve);
+      })
+      .then(() => {
+        __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["a" /* getAllContacts */](state);
+        resolve();
+      })
+      .catch(err => console.log(err));
+    })
+    .catch(err => console.log(err));
+  }
+
+  const removeContact = (id, e, resolve) => {
+    axios.put(`/users/remove/${id}`)
+    .then(() => {
+      new Promise((resolve, reject) => {
+        __WEBPACK_IMPORTED_MODULE_8__helpers__["d" /* getUser */](state, resolve);
+      })
+      .then(() => {
+        if($(e).closest('#user-contacts').length) {
+          __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["b" /* getUserContacts */](state);
+        } else {
+          __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["a" /* getAllContacts */](state);
+        }
+        resolve();
+      })
+      .catch(err => console.log(err));
+
+    })
+    .catch(err => console.log(err));
+  }
+
   /* ========= Click Event Handlers ========= */
-  
+
   // //remove invalid
   // $('#edit-post, #new-post').on('click', 'new-category', e => {
   //   console.log(e.currentTarget);
   //   $(e.currentTarget).removeClass('invalid');
   // });
-  
+
+  //Change users credentials
+  $('#submit-credentials').click((e) => {
+    e.preventDefault();
+    __WEBPACK_IMPORTED_MODULE_8__helpers__["a" /* blur */]();
+
+    const credentials = {
+        "bio": $('#settings-bio').val(),
+        "phoneNumber": $('#settings-phone-number').val(),
+        "email": $('#settings-email').val(),
+        "website": $('#settings-website').val(),
+    }
+
+    axios.put(`users/current/update`, {
+      data: {
+        credentials
+      }
+    })
+    .then((user) => {
+      __WEBPACK_IMPORTED_MODULE_8__helpers__["d" /* getUser */](state);
+      refreshUserScreen(credentials);
+      __WEBPACK_IMPORTED_MODULE_8__helpers__["b" /* closeSidePullOut */]('#edit-info');
+      __WEBPACK_IMPORTED_MODULE_8__helpers__["g" /* unBlur */]();
+    })
+    .catch(err => console.log(err))
+
+    const refreshUserScreen = (credentials) => {
+      $('#greeting-bio').text(`${credentials.bio}`);
+      $('#greeting-phone-number').text(`${credentials.phoneNumber}`);
+      $('#greeting-email').text(`${credentials.email}`);
+      $('#greeting-email').attr('href', `mailto:${credentials.email}`);
+      $('#greeting-website').text(`${credentials.website}`);
+      $('#greeting-website').attr('href', `${credentials.website}`);
+    }
+  });
+
+  //logout
+  $('#logout').click((e) => {
+    e.preventDefault();
+    axios.get('/users/logout')
+    .then(() => {
+      console.log('LOGOUT');
+      window.location.replace('/login');
+    })
+  });
+
   //Get all Contacts
   $('#all-contacts-tab').click(() => {
-    __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["a" /* getAllContacts */]();
-  })
-  
+    __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["a" /* getAllContacts */](state);
+  });
+
+  //Add contact
+  $('body').on('click', '.js-add-contact', (e) => {
+    e.stopPropagation();
+    const target = e.currentTarget;
+    let id = $(target).closest('.js-contact-card').data('id');
+    if(!id) {
+      id = $(target).data('id');
+    }
+    new Promise((resolve, reject) => {
+      addContact(id, resolve);
+    })
+    .then(() => {
+      if ( $(target).is( ":button" ) ) {
+        $(target).addClass('js-remove-contact red').removeClass('js-add-contact light-blue');
+        $(target).text('Remove Contact');
+      }
+    });
+  });
+
+  //Remove contact
+  $('body').on('click', '.js-remove-contact', (e) => {
+    e.stopPropagation();
+    const target = e.currentTarget;
+    let id = $(target).closest('.js-contact-card').data('id');
+    if(!id) {
+      id = $(target).data('id');
+    }
+
+    new Promise((resolve, reject) => {
+      removeContact(id, target, resolve);
+    })
+    .then(() => {
+      if ( $(target).is( ":button" ) ) {
+        $(target).addClass('js-add-contact light-blue').removeClass('js-remove-contact red');
+        $(target).text('Add Contact');
+      }
+    });
+
+  });
+
+  //View Contact Details
+  $('body').on('click', '.js-contact-card, .js-add-contact', (e) => {
+    e.preventDefault();
+    const id = $(e.currentTarget).data('id');
+    const domNode = $(e.currentTarget).data('href');
+
+    new Promise((resolve, reject) => {
+      __WEBPACK_IMPORTED_MODULE_10__contacts_create_view_contacts__["a" /* getContactInfo */](id, domNode, state, resolve);
+    })
+    .then(() => {
+      __WEBPACK_IMPORTED_MODULE_10__contacts_create_view_contacts__["b" /* getContactPosts */](id, domNode);
+    })
+    .catch(err => console.log(err))
+  });
+
+  $('body').on('click', '.js-get-user-contacts', e => {
+    __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["b" /* getUserContacts */](state);
+
+    if(!$(e.currentTarget).is('#user-contacts-tab')) {
+      $('#user-contacts-tab').click();
+    }
+  });
+
+  // //View contact post
+  // $('#view-contact').on('click', '.js-contact-post', (e) => {
+  //   e.preventDefault();
+  //   const id = $(e.currentTarget).data('id');
+  //   console.log('good');
+  //   $('nav-content>ul.tabs').tabs('select_tab', 'random-id');
+  // });
+
   //Submit new post
   $('#new-post').on('click', '#submit-post', e => {
     e.preventDefault();
     const form = $('.js-new-form');
-    
+
     if(! form[0].checkValidity()) {
       const fields = ['#new-subject', 'textarea#new-message', '#new-category'];
-      
+
       fields.forEach( field => {
         if(! $(field)[0].checkValidity()) {
           if(field == '#new-category'){
@@ -220,29 +390,29 @@ $(function() {
           }
         }
       });
-        
+
      // If the form is invalid, submit it. The form won't actually submit;
      // this will just cause the browser to display the native HTML5 error messages.
       form.querySelector('input[type="submit"]').click();
     } else {
       __WEBPACK_IMPORTED_MODULE_8__helpers__["a" /* blur */]();
-      const newPost = { 
+      const newPost = {
         subject: $('#new-subject').val(),
         body: $('textarea#new-message').val(),
         type: $('#new-category').find(':selected').text()
       }
       new Promise((resolve, reject) => {
-        __WEBPACK_IMPORTED_MODULE_4__posts_new_post__["a" /* createNewPost */](newPost, state, resolve)
+        __WEBPACK_IMPORTED_MODULE_4__posts_new_post__["a" /* createNewPost */](newPost, state, resolve);
       }).then(() => {
-        closeSidePullOut('#new-post');
+        __WEBPACK_IMPORTED_MODULE_8__helpers__["b" /* closeSidePullOut */]('#new-post');
         //reset form
         form[0].reset();
-        __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */](state);
-        __WEBPACK_IMPORTED_MODULE_8__helpers__["c" /* unBlur */]();
+        __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]();
+        __WEBPACK_IMPORTED_MODULE_8__helpers__["g" /* unBlur */]();
       })
     }
   });
-  
+
   //Delete post
   $('#edit-post').on('click', '#js-delete-post', (e) => {
     e.preventDefault();
@@ -251,82 +421,84 @@ $(function() {
       __WEBPACK_IMPORTED_MODULE_8__helpers__["a" /* blur */]();
       axios.delete(`/posts/${id}`)
       .then(() => {
-        __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */](state);
-        closeSidePullOut('#edit-post');
-        __WEBPACK_IMPORTED_MODULE_8__helpers__["c" /* unBlur */]();
+        __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]();
+        __WEBPACK_IMPORTED_MODULE_8__helpers__["b" /* closeSidePullOut */]('#edit-post');
+        __WEBPACK_IMPORTED_MODULE_8__helpers__["g" /* unBlur */]();
       })
       .catch(err => console.log(err));
-    } 
+    }
   })
-  
-  
+
+
   //Comment on post
-  $('#view-post').on('click', '.js-comment-post-btn', (e) => {
+  $('#view-post, #view-contact-post').on('click', '.js-comment-post-btn', (e) => {
     e.preventDefault();
     __WEBPACK_IMPORTED_MODULE_8__helpers__["a" /* blur */]();
     const postId = $(e.currentTarget).data('id');
     const comment = $('.js-comment-field').val();
-    
+    const domNode = $(e.currentTarget).data('target');
+
     new Promise((resolve, reject) => {
       __WEBPACK_IMPORTED_MODULE_7__posts_comments__["b" /* postComment */](postId, state, comment, resolve);
     })
     .then(() => {
-      __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__["a" /* createViewPost */](postId, state);
+      __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__["a" /* createViewPost */](postId, state, domNode);
       updatePostsFromComment(state);
-      __WEBPACK_IMPORTED_MODULE_8__helpers__["c" /* unBlur */]();
+      __WEBPACK_IMPORTED_MODULE_8__helpers__["g" /* unBlur */]();
     });
   });
-  
+
   //Delete post Comment
-  $('#view-post').on('click', '.js-delete-comment-btn', (e) => {
+  $('#view-post, #view-contact-post').on('click', '.js-delete-comment-btn', (e) => {
     e.preventDefault();
     const postId = $(e.currentTarget).data('postId');
     const commentId = $(e.currentTarget).data('id');
-    
+    const domNode = $(e.currentTarget).attr('href');
+
     if (confirm("Are you sure you want to delete this comment?") == true) {
       __WEBPACK_IMPORTED_MODULE_8__helpers__["a" /* blur */]();
       new Promise((resolve, reject) => {
         __WEBPACK_IMPORTED_MODULE_7__posts_comments__["a" /* deleteComment */](postId, commentId, resolve);
       })
       .then(() => {
-        __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__["a" /* createViewPost */](postId, state);
+        __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__["a" /* createViewPost */](postId, state, domNode);
         updatePostsFromComment(state);
-        __WEBPACK_IMPORTED_MODULE_8__helpers__["c" /* unBlur */]();
+        __WEBPACK_IMPORTED_MODULE_8__helpers__["g" /* unBlur */]();
       });
     }
   });
-  
+
   //Delete Images
   $('#edit-post').on('click', '.delete-images', (e) => {
     e.preventDefault();
     __WEBPACK_IMPORTED_MODULE_8__helpers__["a" /* blur */]();
     const postId = $(e.currentTarget).data('id');
 
-    
+
     const checkedImages = $('.image-checkbox:checked').map(function() {
     return $(this).attr('id');
     }).get();
-    
+
     new Promise( (resolve,reject) => {
       __WEBPACK_IMPORTED_MODULE_6__posts_images__["a" /* deletePostImages */](postId, checkedImages, resolve)
     }).then(() => {
       __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["b" /* getPost */](postId, state, post => { __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["a" /* createEditPostPanel */](post)});
-      __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */](state);
-      __WEBPACK_IMPORTED_MODULE_8__helpers__["c" /* unBlur */]();
+      __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]();
+      __WEBPACK_IMPORTED_MODULE_8__helpers__["g" /* unBlur */]();
     });
   });
-  
+
   //Upload Photos
   $('#edit-post').on('click', '.upload-btn', function (e){
     $('.progress-bar').text('0%');
     $('.progress-bar').width('0%');
     __WEBPACK_IMPORTED_MODULE_8__helpers__["a" /* blur */]();
     const id = $(this).attr('id');
-    
+
     __WEBPACK_IMPORTED_MODULE_6__posts_images__["c" /* uploadPostPhoto */](id, state).then(() => {
       __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["b" /* getPost */](id, state, post => { __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["a" /* createEditPostPanel */](post)});
-      __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */](state);
-      __WEBPACK_IMPORTED_MODULE_8__helpers__["c" /* unBlur */]();
+      __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */]();
+      __WEBPACK_IMPORTED_MODULE_8__helpers__["g" /* unBlur */]();
     })
   });
 
@@ -341,7 +513,7 @@ $(function() {
 
     if(__WEBPACK_IMPORTED_MODULE_5__posts_edit_post__["b" /* validateEditPost */](editSubject, editMessage, editCategory, errorMsg)) {
       __WEBPACK_IMPORTED_MODULE_5__posts_edit_post__["a" /* editPost */](editSubject, editMessage, editCategory, id, state, __WEBPACK_IMPORTED_MODULE_1__posts_create_user_posts__["a" /* getUserPosts */])
-      closeSidePullOut('#edit-post');
+      __WEBPACK_IMPORTED_MODULE_8__helpers__["b" /* closeSidePullOut */]('#edit-post');
     }
   });
 
@@ -354,26 +526,32 @@ $(function() {
   $(".side-pull-out").on('click', '.js-push-back', function(e) {
     e.preventDefault();
     let reference = $(this).attr('href');
-    closeSidePullOut(reference);
+    __WEBPACK_IMPORTED_MODULE_8__helpers__["b" /* closeSidePullOut */](reference);
   });
 
   //Open View Settings, View-Post, and Edit-Post panels
   $("main").on('click', '.js-settings, .view-post, .edit-post, .js-new-post, .js-contact-card', function(e) {
     e.preventDefault();
-    let reference = $(this).attr('href');
+    let reference = $(this).attr('href') || $(this).data('href');
+    let target = $(e.target);
 
     if($(this).hasClass('view-post')){
-      let postId = $(this).attr('class').split(' ')[0];
-      __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__["a" /* createViewPost */](postId, state);
+      const domNode = $(this).attr('href');
+      const postId = $(this).attr('class').split(' ')[0];
+      __WEBPACK_IMPORTED_MODULE_2__posts_create_view_post_panel__["a" /* createViewPost */](postId, state, domNode);
     }
 
     if($(this).hasClass('edit-post')){
       let postId = $(this).attr('class').split(' ')[0];
       __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["b" /* getPost */](postId, state, post => { __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["a" /* createEditPostPanel */](post)});
     }
-    
-    openFromSide(reference);
-    
+
+    if (target.hasClass('js-add-contact') || target.hasClass('js-remove-contact') ) {
+        return;
+    }
+
+    __WEBPACK_IMPORTED_MODULE_8__helpers__["f" /* openFromSide */](reference);
+
   });
 
   // KINDA WORKS for Navbar in the way
@@ -426,7 +604,7 @@ function getAllPosts() {
               <div class="card-content grey lighten-5">
                 <div class="row">
                   <div class="col s6">
-                    <p>${post.firstName} ${post.lastName}</p>
+                    <p><a href="#view-post-contact" data-href="#view-post-contact" data-id="${post.userId}" class="js-contact-card">${post.firstName} ${post.lastName}</a></p>
                   </div>
                   <div class="col s6 right-align">
                     <p>${moment(post.date).format('M/D/Y | h:mm a')}</p>
@@ -441,8 +619,8 @@ function getAllPosts() {
               </div>
               <div class="card-action">
                 <a class="${post._id} right view-post" href="#view-post" >View</a>
-                ${__WEBPACK_IMPORTED_MODULE_0__helpers__["b" /* commentCount */](post)}`;
-               
+                ${__WEBPACK_IMPORTED_MODULE_0__helpers__["c" /* commentCount */](post)}`;
+
       constructPosts += `
               </div>
             </div>
@@ -464,67 +642,73 @@ function getAllPosts() {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = getUserPosts;
-function getUserPosts(state) {
+function getUserPosts() {
   axios.get('/posts/user')
   .then(function (posts) {
-    state.user = {
-      id: posts.data.posts[0].userId,
-      firstName: posts.data.posts[0].firstName,
-      lastName: posts.data.posts[0].lastName,
-    }
-    console.log('GETTING ALL USER POSTS', posts);
     const userPosts = posts.data.posts;
-    
+
     let constructPosts ='';
 
-    userPosts.forEach(function(post) {
+    if(!userPosts.length) {
       constructPosts += `
-      <div class="row">
-        <div class="col s12">
-          <div class="card horizontal grey lighten-5 hoverable">
-      `;
-        if(post.images.length > 0) {
-          constructPosts += `
-          <div class="card-image grey lighten-5">
-          <img src="${post.images[0].image}">
+        <div class="row">
+          <div class="col s12">
+            <h2 class="grey-text">You don't have any Posts yet...</h2>
           </div>
-          `;
-        }
+        </div>`
+    }
+    else {
+      userPosts.forEach(function(post) {
+        constructPosts += `
+        <div class="row">
+          <div class="col s12">
+            <div class="card horizontal grey lighten-5 hoverable">
+        `;
+          if(post.images.length > 0) {
+            constructPosts += `
+            <div class="card-image grey lighten-5">
+            <img src="${post.images[0].image}">
+            </div>
+            `;
+          }
 
-      constructPosts += `
-            <div class="card-stacked">
-              <div class="card-content grey lighten-5">
-                <div class="row">
-                  <div class="col s6">
-                    <p>${post.firstName} ${post.lastName}</p>
-                  </div>
-                  <div class="col s6 right-align">
-                    <p>${moment(post.date).format('M/D/Y | h:mm a')}</p>
+        constructPosts += `
+              <div class="card-stacked">
+                <div class="card-content grey lighten-5">
+                  <div class="row">
+                    <div class="col s6">
+                      <p><a href="#view-post-contact" data-href="#view-post-contact" data-id="${post.userId}" class="js-contact-card">${post.firstName} ${post.lastName}</a></p>
+                    </div>
+                    <div class="col s6 right-align">
+                      <p>${moment(post.date).format('M/D/Y | h:mm a')}</p>
+                    </div>
+                    <div class="col s12">
+                      <p><strong>${post.type}</strong></p>
+                    </div>
                   </div>
                   <div class="col s12">
-                    <p><strong>${post.type}</strong></p>
+                    <p><strong>${post.subject}</strong></h5>
                   </div>
                 </div>
-                <div class="col s12">
-                  <p><strong>${post.subject}</strong></h5>
+                <div class="card-action right-align">
+                  <a class="${post._id} view-post" href="#view-post">View</a>
+                  <a class="${post._id} left-border left-padding light-blue-text edit-post" href="#edit-post"> Edit</a>
+                  `;
+                  if(post.comments.length > 0) {
+                    constructPosts += `
+                    <span class="left">${post.comments.length} comments</span>`;
+                  }
+        constructPosts += `
                 </div>
-              </div>
-              <div class="card-action right-align">
-                <a class="${post._id} view-post" href="#view-post">View</a>
-                <a class="${post._id} left-border left-padding light-blue-text edit-post" href="#edit-post"> Edit</a>
-                `;
-                if(post.comments.length > 0) {
-                  constructPosts += `
-                  <span class="left">${post.comments.length} comments</span>`; 
-                }
-      constructPosts += `
               </div>
             </div>
           </div>
         </div>
-      </div>
-      `;
-    });
+        `;
+      });
+    }
+
+
     $('#js-user-posts').html(constructPosts);
 
     $('#user-posts-tab').click();
@@ -541,28 +725,28 @@ function getUserPosts(state) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = createViewPost;
-function createViewPost(arg, state) {
+function createViewPost(arg, state, domNode) {
   axios.get(`/posts/${arg}`)
-  .then(function(post) {
-    console.log(post);
+  .then(_post => {
+    const post = _post.data.post;
     let viewedPost = '';
 
     viewedPost = `
     <div class="row">
       <div class="col s12">
-        <a href="#view-post" class="js-push-back"><img class="pull-out-back-icon"
+        <a href="${domNode}" class="js-push-back"><img class="pull-out-back-icon"
         src="/assets/images/arrow-right-black.svg" /></a>
       </div>
     </div>`;
 
     //Carousel
-    if(post.data.post.images.length > 0) {
+    if(post.images.length > 0) {
       viewedPost += `<div class="carousel">`;
 
-      for(let i=0; i < post.data.post.images.length; i++) {
+      for(let i=0; i < post.images.length; i++) {
         viewedPost += `
         <a class="carousel-item" href="#${i}">
-          <img class="materialboxed slider-img" src="${post.data.post.images[i].image}" >
+          <img class="materialboxed slider-img" src="${post.images[i].image}" >
         </a>`;
       }
 
@@ -573,20 +757,20 @@ function createViewPost(arg, state) {
     <div class="row">
       <div class="col s12">
         <div class="center dont-break-on-overflow">
-          <h4>${post.data.post.firstName} ${post.data.post.lastName}</h4>
-          <h5>${post.data.post.subject}</h5>
-          <p>${post.data.post.body}</p>
+          <h4><a href="#view-post-contact" data-href="#view-post-contact" data-id="${post.userId}" class="js-contact-card">${post.firstName} ${post.lastName}</a></h4>
+          <h5>${post.subject}</h5>
+          <p>${post.body}</p>
         </div>
       </div>
     </div>
-    
+
     <div class="row">
       <div class="col s12">
         <div class="divider"></div>
         <h5>Comments</h5>
       </div>
     </div>
-    
+
     <div class="row">
       <form class="col s12">
         <div class="row">
@@ -595,13 +779,13 @@ function createViewPost(arg, state) {
             <textarea id="icon_prefix2" class="materialize-textarea js-comment-field"></textarea>
             <label for="icon_prefix2">Comment</label>
           </div>
-          
+
           <div class="col s12">
             <button class="left btn waves-effect waves-light light-blue js-comment-post-btn"
-            type="submit" data-id="${arg}">Submit</button>
+            type="submit" data-id="${arg}" data-target="${domNode}">Submit</button>
           </div>
         </div>
-        
+
         <div class="row">
           <div class="col s12">
             <div class="divider"></div>
@@ -610,20 +794,19 @@ function createViewPost(arg, state) {
       </form>
     </div>
     `;
-    
-    if(post.data.post.comments.length > 0) {
+
+    if(post.comments.length > 0) {
       let str = '';
-      
+
       const deleteComment = (comment) => {
-        if(comment.userId === state.user.id){
-          return `<a href="#" data-id="${comment._id}" data-post-id="${arg}" class="red-text right js-delete-comment-btn">Delete</a>`;
+        if(comment.userId === state.user._id){
+          return `<a href="${domNode}" data-id="${comment._id}" data-post-id="${arg}" class="red-text right js-delete-comment-btn">Delete</a>`;
         } else {
           return '';
         }
       }
-      
-      post.data.post.comments.forEach(comment => {
-        console.log(comment);
+
+      post.comments.forEach(comment => {
         str += `
         <div class="row">
           <div class="col s12">
@@ -635,7 +818,7 @@ function createViewPost(arg, state) {
             ${deleteComment(comment)}
           </div>
         </div>
-        
+
         <div class="row">
           <div class="col s12">
             <div class="divider"></div>
@@ -646,7 +829,7 @@ function createViewPost(arg, state) {
       viewedPost += str;
     }
 
-    $('#view-post>.js-blur').html(viewedPost);
+    $(`${domNode}>.js-blur`).html(viewedPost);
     setTimeout(function () {
       $('.carousel').carousel();
       $('.materialboxed').materialbox();
@@ -945,7 +1128,7 @@ const postComment = (arg, state, comment, resolve) => {
       data: {
         "firstName": state.user.firstName,
         "lastName": state.user.lastName,
-        "userId": state.user.id,
+        "userId": state.user._id,
         "body": comment,
         "date": new Date()
       } 
@@ -978,45 +1161,194 @@ const postComment = (arg, state, comment, resolve) => {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-const getAllContacts = () => {
-  axios.get('/users')
-  .then((users) => { 
-      console.log(users);
-      createAllContacts(users)})
+
+const getAllContacts = (state) => {
+  axios.get('/users/')
+  .then((users) => {
+      createAllContacts(users, '#all-contacts', state)})
   .catch(err => { console.log(err) })
 }
 /* harmony export (immutable) */ __webpack_exports__["a"] = getAllContacts;
 
 
-const createAllContacts = (users) => {
+const getUserContacts = (state) => {
+  axios.get('/users/current/contacts')
+  .then(contacts => {
+    createAllContacts(contacts, '#user-contacts', state);
+  })
+}
+/* harmony export (immutable) */ __webpack_exports__["b"] = getUserContacts;
+
+
+//
+
+const createAllContacts = (users, domNode, state) => {
     const beginning = '<div class="row">';
     const end = '</div>';
     let contactList = '';
-    
-    users.data.users.forEach((user) => {
-        contactList += `<div class="row">
-        <div class="col s12 m6 l4">
-          <a target="_blank" href="#view-contact" class="js-contact-card" data-id="${user._}">
-            <div class="card-panel grey lighten-5 z-depth-1 height-115 hovered">
-              <i class="small material-icons icon-blue hovered right">add</i>
-              <div class="row valign-wrapper">
-                <div class="col s3">
-                  <img src="https://lorempixel.com/400/400/" alt="" class="circle responsive-img">
-                </div>
-                <div class="col s9">
-                  <h5 class="black-text">${user.firstName} ${user.lastName}</h5>
-                  <h6 class="black-text truncate">${user.company}</h6>
+
+    if(!users.data.users.length > 0) {
+      contactList += `
+      <div class="col s12">
+        <h2 class="grey-text">You don't have any contacts yet...</h2>
+      </div`
+    }
+    else {
+      users.data.users.forEach((user) => {
+        const notInUsrContact = !state.user.contacts.map(user => user.userId).includes(user._id);
+        const clickHandler = notInUsrContact  ? 'js-add-contact' : 'js-remove-contact';
+        const icon = notInUsrContact  ? 'add' : 'remove';
+        const iconColor = notInUsrContact  ? 'icon-blue' : 'icon-red';
+
+        contactList += `
+          <div class="col s12 m6 l4">
+            <div data-href="#view-contact" class="js-contact-card" data-id="${user._id}">
+              <div class="card-panel grey lighten-5 z-depth-1 height-115 hovered">
+                <i class="small material-icons ${iconColor} hovered right ${clickHandler}" >${icon}</i>
+                <div class="row valign-wrapper">
+                  <div class="col s3">
+                    <img src="https://lorempixel.com/400/400/" alt="" class="circle responsive-img">
+                  </div>
+                  <div class="col s9">
+                    <h5 class="black-text">${user.firstName} ${user.lastName}</h5>
+                    <h6 class="black-text truncate">${user.company}</h6>
+                  </div>
                 </div>
               </div>
             </div>
-          </a>
-        </div>`;
-    });
-    
-    $('#all-contacts').html(beginning + contactList + end);
-      
+          </div>`;
+      });
+    }
+
+    $(domNode).html(beginning + contactList + end);
+
 }
 /* unused harmony export createAllContacts */
+
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const getContactInfo = (id, domNode, state, resolve) => {
+    axios.get(`/users/${id}`)
+    .then((user) => {
+        createViewContact(user, domNode, state);
+        resolve();
+    })
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = getContactInfo;
+
+
+const createViewContact = (_user, domNode, state) => {
+    const user = _user.data.user;
+
+    const notInUsrContact = !state.user.contacts.map(user => user.userId).includes(user._id);
+    const clickHandler = notInUsrContact  ? 'js-add-contact' : 'js-remove-contact';
+    const text = notInUsrContact  ? 'Add Contact' : 'Remove Contact';
+    const color = notInUsrContact  ? 'light-blue' : 'red';
+
+    const beginning = `
+    <div class="row">
+      <div class="col s12">
+        <a href="${domNode}" class="js-push-back"><img class="pull-out-back-icon"
+        src="/assets/images/arrow-right-black.svg" /></a>
+      </div>
+    </div>`;
+
+    const contactInfo = `
+    <div class="row">
+        <div class="col s12 dont-break-on-overflow">
+            <h4 class="center-align">${user.firstName} ${user.lastName}</h4>
+            <h5 class="center-align">${user.company}</h5>
+            <div class="col s6 offset-s3">
+              <img src="https://lorempixel.com/400/400/" class="circle responsive-img" />
+            </div>
+            <div class="col s12">
+                <p class="flow-text center-align">${user.bio}</p>
+            </div>
+            <div class="col s12 center">
+              <button class="btn waves-effect waves-light ${clickHandler} ${color}" data-id="${user._id}"
+              type="submit">${text}</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col s12">
+            <div class="divider"></div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col s12">
+                <p class="flow-text"><strong>Phone: </strong>${user.phoneNumber}</p>
+                <p class="flow-text"><strong>Email: </strong>${user.email}</p>
+                <p class="flow-text word-break"><strong>Website: </strong>${user.website}</p>
+        </div>
+    </div>`;
+
+    $(`${domNode}`).html(beginning + contactInfo);
+}
+/* unused harmony export createViewContact */
+
+
+const getContactPosts = (id, domNode) => {
+  axios.get(`posts/user/${id}`)
+  .then(posts => {
+      createContactPosts(posts, domNode);
+  })
+  .catch(err => { console.log(err) })
+}
+/* harmony export (immutable) */ __webpack_exports__["b"] = getContactPosts;
+
+
+const createContactPosts = (_posts,domNode) => {
+  const posts = _posts.data.posts;
+
+  if(posts.length) {
+    const beginning = `
+      <div class="row">
+          <div class="col s12">
+              <div class="divider"></div>
+          </div>
+      </div>
+      <div class="row">
+        <div class="col s12">
+          <h5 class="center-align">${posts[0].firstName}'s Posts</h5>
+        </div>
+      `;
+
+    const end = `</div>`;
+
+    let showPosts = ``;
+
+    posts.forEach(post => {
+      showPosts += `
+          <div class="col s12">
+            <a href="#view-contact-post" class="${post._id} js-contact-post view-post">
+              <div class="card-panel grey lighten-5 z-depth-1 hovered hoverable">
+                <div class="row valign-wrapper">
+                  <div class="col s3">
+                    <img src="${post.images.length > 0 ? post.images[0].image : '' }" alt="" class="responsive-img">
+                  </div>
+                  <div class="col s9">
+                    <h5 class="black-text">${post.subject}</h5>
+                    <h6 class="black-text">${moment(post.date).format('M/D/Y | h:mm a')}</h6>
+                  </div>
+                </div>
+              </div>
+            </a>
+          </div>`;
+    });
+
+    $(`${domNode}`).append(beginning + showPosts + end);
+  }
+}
+/* unused harmony export createContactPosts */
+
 
 
 /***/ })

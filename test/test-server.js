@@ -8,20 +8,32 @@ const chaiHttp = require('chai-http');
 const should = chai.should();
 
 const { app, runServer, closeServer } = require('../server');
+const { User } = require('../models/user');
 
 chai.use(chaiHttp);
 describe('Server', function(){
 
   let user;
+   before(function() {
+     user = new User;
+     user.licenseNumber = 0000;
+     user.password = 'password';
+     return user.save()
+     .then(user => {
 
-  before(function() {
-    runServer();
-    
-    // get a user
+       process.env.NODE_ENV = 'test';
+       runServer()
+     });
   });
 
   after(function() {
-    closeServer();
+    User
+    .findByIdAndRemove(user._id)
+     .exec()
+     .then((err, user) =>  {
+       if(err) console.log("something went wrong");
+       closeServer();
+     });
   });
 
   it('Should return static assets on GET at root directory', function() {

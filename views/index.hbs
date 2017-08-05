@@ -24,7 +24,7 @@
           <div class="center dont-break-on-overflow">
             <ul>
               <li><a href="#edit-info" class="js-settings">Edit Public Info</a></li>
-              <li><a href="#" class="js-settings">Manage Associations/Boards</a></li>
+              <!--<li><a href="#" class="js-settings">Manage Associations/Boards</a></li>-->
               <li><a href="#leave-feedback" class="js-settings">Leave Feedback</a></li>
               <li><a href="#about-us" class="js-settings">About REAL Exchange</a></li>
             </ul>
@@ -34,35 +34,44 @@
     </div>
     <!--  Settings Edit Info -->
     <div class="side-pull-out full-height blue darken-4 white-text absolute-right" id="edit-info">
-      <a href="#edit-info" class="js-push-back"><img class="pull-out-back-icon" src="/assets/images/arrow-right.svg" /></a>
-      <div class="row">
-        <form class="col s12">
-          <div class="settings-menu-options dont-break-on-overflow">
-            <div class="row">
-              <div class="input-field col s12 m8 offset-m2">
-                <textarea id="settings-bio" class="materialize-textarea">{{user.bio}}</textarea>
-                <label for="textarea1">Bio</label>
+      <div class="loader-container hidden">
+        <div class="loader">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+      <div class="js-blur">
+        <a href="#edit-info" class="js-push-back"><img class="pull-out-back-icon" src="/assets/images/arrow-right.svg" /></a>
+        <div class="row">
+          <form class="col s12">
+            <div class="settings-menu-options dont-break-on-overflow">
+              <div class="row">
+                <div class="input-field col s12 m8 offset-m2">
+                  <textarea id="settings-bio" class="materialize-textarea">{{user.bio}}</textarea>
+                  <label for="textarea1">Bio</label>
+                </div>
+                <div class="input-field col s12 m8 offset-m2">
+                  <input value="{{user.phoneNumber}}" id="settings-phone-number" type="tel" class="validate">
+                  <label for="telephone">Phone Number</label>
+                </div>
+                <div class="input-field col s12 m8 offset-m2">
+                  <input value="{{user.email}}" id="settings-email" type="email" class="validate">
+                  <label for="email">Email</label>
+                </div>
+                <div class="input-field col s12 m8 offset-m2">
+                  <input value="{{user.website}}" id="settings-website" type="text" class="validate">
+                  <label for="website">Website</label>
+                </div>
               </div>
-              <div class="input-field col s12 m8 offset-m2">
-                <input value="{{user.phoneNumber}}" id="settings-phone-number" type="tel" class="validate">
-                <label for="telephone">Phone Number</label>
-              </div>
-              <div class="input-field col s12 m8 offset-m2">
-                <input value="{{user.email}}" id="settings-email" type="email" class="validate">
-                <label for="email">Email</label>
-              </div>
-              <div class="input-field col s12 m8 offset-m2">
-                <input value="{{user.website}}" id="settings-website" type="text" class="validate">
-                <label for="website">Website</label>
+              <div class="col s12 center">
+                <button class="btn waves-effect waves-light amber" id="submit-credentials" type="submit" name="action">Submit
+                <i class="material-icons right">send</i>
+              </button>
               </div>
             </div>
-            <div class="col s12 center">
-              <button class="btn waves-effect waves-light amber" type="submit" name="action">Submit
-              <i class="material-icons right">send</i>
-            </button>
-            </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
     <!--  Settings Leave Feedback -->
@@ -110,17 +119,17 @@
         <div class="col s4 offset-s4 m2 offset-m5 l4 offset-l4">
           <img src="https://lorempixel.com/400/400/" class="circle responsive-img" />
         </div>
-        <div class="col s12 center-align">
+        <!--<div class="col s12 center-align">
           <h6 class="flow-text hovered"><a>Change Picture</a></h6>
-        </div>
+        </div> -->
       </div>
 
       <div class="col s12 l6 left-border">
         <div class="center-align user-info-displayed">
-          <p class="flow-text">{{user.bio}}</p>
-          <p class="flow-text">{{user.phoneNumber}}</p>
-          <p class="flow-text">{{user.email}}</p>
-          <p class="flow-text word-break">{{user.website}}</p>
+          <p class="flow-text" id="greeting-bio">{{user.bio}}</p>
+          <p class="flow-text" id="greeting-phone-number">{{user.phoneNumber}}</p>
+          <p class="flow-text" ><a href="mailto:{{user.email}}" target="_blank" id="greeting-email">{{user.email}}</a></p>
+          <p class="flow-text word-break" ><a href="{{user.website}}" target="_blank" id="greeting-website">{{user.website}}</a></p>
         </div>
       </div>
     </div>
@@ -131,96 +140,34 @@
   <div id="contacts" class="col s12">
     <div class="row">
       <div class="col s12">
-        <ul class="tabs transparent">
-          <li class="tab col s3"><a id="user-contacts-tab" href="#user-contacts">My Contacts</a></li>
+        <ul class="tabs transparent second-tabs">
+          <li class="tab col s3" ><a id="user-contacts-tab" class="js-get-user-contacts" href="#user-contacts">My Contacts</a></li>
           <li class="tab col s3" id="all-contacts-tab"><a href="#all-contacts">All Contacts</a></li>
         </ul>
       </div>
     </div>
-    
+
     <div id="user-contacts" >
-      
+       <!-- Contacts in users contact list will load here -->
     </div>
-    
+
     <div id="all-contacts">
-      <div class="row">
-        <div class="col s12 m6 l4">
-          <a target="_blank" href="#view-contact" class="js-contact-card">
-            <div class="card-panel grey lighten-5 z-depth-1 height-115 hovered">
-              <i class="small material-icons icon-blue hovered right">add</i>
-              <div class="row valign-wrapper">
-                <div class="col s3">
-                  <img src="https://lorempixel.com/400/400/" alt="" class="circle responsive-img"> <!-- notice the "circle" class -->
-                </div>
-                <div class="col s9">
-                  <h5 class="black-text">Autumn Paige Brown</h5>
-                  <h6 class="black-text truncate">Atlanta Fine Home Southeby's</h6>
-                </div>
-              </div>
-            </div>
-          </a>
-        </div>
-        <div class="col s12 m6 l4">
-          <div class="card-panel grey lighten-5 z-depth-1 height-115 hovered">
-            <i class="small material-icons icon-blue hovered right">add</i>
-            <div class="row valign-wrapper">
-              <div class="col s3">
-                <img src="https://lorempixel.com/400/400/" alt="" class="circle responsive-img"> <!-- notice the "circle" class -->
-              </div>
-              <div class="col s9">
-                <h5>John Douglas Brown II</h5>
-                <h6>Berkshire Hathoway</h6>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col s12 m6 l4">
-          <div class="card-panel grey lighten-5 z-depth-1 height-115 hovered">
-            <i class="small material-icons icon-blue hovered right">add</i>
-            <div class="row valign-wrapper">
-              <div class="col s3">
-                <img src="https://lorempixel.com/400/400/" alt="" class="circle responsive-img"> <!-- notice the "circle" class -->
-              </div>
-              <div class="col s9">
-                  <h5>Baloo Brown</h5>
-                  <h6>CBRE</h6>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col s12 m6 l4">
-          <div class="card-panel grey lighten-5 z-depth-1 height-115 hovered">
-            <i class="small material-icons icon-blue hovered right">add</i>
-            <div class="row valign-wrapper">
-              <div class="col s3">
-                <img src="https://lorempixel.com/400/400/" alt="" class="circle responsive-img"> <!-- notice the "circle" class -->
-              </div>
-              <div class="col s9">
-                  <h5>Baloo Brown</h5>
-                  <h6>CBRE</h6>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col s12 m6 l4">
-          <div class="card-panel grey lighten-5 z-depth-1 height-115 js-contact-card hovered">
-            <i class="small material-icons icon-blue hovered right">add</i>
-            <div class="row valign-wrapper">
-              <div class="col s3">
-                <img src="https://lorempixel.com/400/400/" alt="" class="circle responsive-img"> <!-- notice the "circle" class -->
-              </div>
-              <div class="col s9">
-                  <h5>Baloo Brown</h5>
-                  <h6>CBRE</h6>
-              </div>
-            </div>
-          </div>
+      <!-- All contacts will load here -->
+    </div>
+
+    <!-- Side Pull Out View Contact -->
+    <div class="side-pull-out full-height absolute-right white z-depth-2" id="view-contact"></div>
+    <!-- Side Pull Out View Post -->
+    <div class="side-pull-out full-height absolute-right white z-depth-2" id="view-contact-post">
+      <div class="loader-container hidden">
+        <div class="loader">
+          <span></span>
+          <span></span>
+          <span></span>
         </div>
       </div>
+      <div class="js-blur"></div>
     </div>
-    
-    <div class="side-pull-out full-height absolute-right white z-depth-2" id="view-contact"></div>
-    
   </div>
   <!-- ========================= -->
   <!-- ===== Posts Section ===== -->
@@ -245,7 +192,7 @@
       </div>
       <div class="post" id="js-user-posts"></div>
     </div>
-    
+
     <!--====== All Posts =======-->
     <div id="all-posts">
       <div class="post" id="js-all-posts"></div>
@@ -260,7 +207,7 @@
           <span></span>
         </div>
       </div>
-      
+
       <div class="js-blur"></div>
     </div>
 
@@ -273,14 +220,14 @@
           <span></span>
         </div>
       </div>
-      
+
       <div class="js-blur">
         <div class="row">
           <div class="col s12">
             <a href="#new-post" class="js-push-back"><img class="pull-out-back-icon" src="/assets/images/arrow-right-black.svg" /></a>
           </div>
         </div>
-  
+
         <div class="row center">
           <h5>Images</h5>
           <div class="image-list"></div>
@@ -296,7 +243,7 @@
             </div>
           </form>
         </div>
-  
+
         <div class="row center">
           <h5>Post</h5>
           <form class="col-s12 js-new-form" id="${post.data.post._id}">
@@ -308,7 +255,7 @@
             </div>
             <div class="row">
               <div class="input-field col s12 m6">
-                <select id="new-category" class="validate" required aria-required="true"">
+                <select id="new-category" class="validate" required aria-required="true">
                   <option value="" disabled selected>Choose your category</option>
                   <option value="1">Wanted</option>
                   <option value="2">Available</option>
@@ -342,5 +289,7 @@
       </div>
       <div class="js-blur"></div>
     </div>
+    <!-- Side Pull Out View Contact -->
+    <div class="side-pull-out full-height absolute-right white z-depth-2" id="view-post-contact"></div>
   </div>
 </main>

@@ -3,7 +3,7 @@ export const postComment = (arg, state, comment, resolve) => {
       data: {
         "firstName": state.user.firstName,
         "lastName": state.user.lastName,
-        "userId": state.user.id,
+        "userId": state.user._id,
         "body": comment,
         "date": new Date()
       } 

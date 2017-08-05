@@ -39,12 +39,16 @@ body {
   color: #03a9f4;
 }
 
+.icon-red {
+  color: #f44336;
+}
+
 .navbar-fixed {
   z-index: 2;
 }
 
 .no-scroll {
-  overflow-y: hidden; 
+  overflow-y: hidden;
 }
 
 .hidden {
