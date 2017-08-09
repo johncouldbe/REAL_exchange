@@ -87,16 +87,6 @@ describe('Setting up testing the server', function(){
 
   // ======= POSTS ========
 
-  it('Should return posts on GET /posts', function() {
-    return chai.request(app)
-    .get('/posts')
-    .then(function(res) {
-      res.should.have.status(200);
-      res.should.be.json;
-      res.body.posts.should.have.length.of.at.least(1);
-    })
-  });
-
   it('Should create a new post on POST posts/new', function() {
     const newPost = {
       data : {
@@ -115,6 +105,16 @@ describe('Setting up testing the server', function(){
       res.should.be.a.string;
     })
   })
+
+  it('Should return posts on GET /posts', function() {
+    return chai.request(app)
+    .get('/posts')
+    .then(function(res) {
+      res.should.have.status(200);
+      res.should.be.json;
+      res.body.posts.should.have.length.of.at.least(1);
+    })
+  });
 
   it('Should return the users posts on GET /posts/user/:id', function() {
     const userId = user._id;
