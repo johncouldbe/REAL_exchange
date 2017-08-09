@@ -75,9 +75,10 @@ router.put('/:id', isAuthenticated, (req, res) => {
   const type = req.body.data.type;
 
   Post
-  .updateOne(
+  .findByIdAndUpdate(
     { '_id': id },
-    {$set: {"body": body, "subject": subject, "type": type}}
+    {$set: {"body": body, "subject": subject, "type": type}},
+    {new: true}
   )
   .then( post => res.json(post))
   .catch(err => console.log(err));
@@ -86,9 +87,9 @@ router.put('/:id', isAuthenticated, (req, res) => {
 //Delete Post
 router.delete('/:postId', isAuthenticated, (req, res) => {
   const id = req.params.postId;
-  
+
   let pubIds;
-  
+
   Post
     .findOne({ _id: id })
     .then(post => {
@@ -99,11 +100,11 @@ router.delete('/:postId', isAuthenticated, (req, res) => {
       else {
         deletePost();
       }
-      
+
     }).catch(err => console.log(err));
-    
+
     const removeImages = (post) => {
-      
+
       const promises = pubIds.map( pubId => {
         return new Promise((resolve, reject) => {
           Post
@@ -119,13 +120,13 @@ router.delete('/:postId', isAuthenticated, (req, res) => {
           .catch( err => console.log(err));
         });
       });
-      
+
       Promise.all(promises).then(() => { console.log("Deleted Images"); deletePost(); });
-    }  
+    }
      const deletePost = () => {
        Post
       .findByIdAndRemove(id)
-      .then(() => { console.log(`Deleted post id: ${id}`); res.send(`Deleted post id: ${id}`) });
+      .then(() => { console.log(`Deleted post id: ${id}`); res.send({id}) });
      }
 });
 
@@ -156,12 +157,12 @@ router.post('/image/upload/:postId', isAuthenticated, (req, res) => {
         sendToCloud(file, id, resolve);
       })
     })
-    
-    
+
+
     Promise.all(promises).then(result => {
-      res.send(result);  
+      res.send(result);
     })
-  
+
   });
   // parse the incoming request containing the form data
   form.parse(req);
@@ -171,11 +172,11 @@ router.post('/image/upload/:postId', isAuthenticated, (req, res) => {
 router.put( '/image/delete/:postId', isAuthenticated, (req, res) => {
     const id = req.params.postId;
     let allIds;
-      
+
     const pubIds = req.body.data.publicIds || allIds;
-    
+
     console.log('All the IDS: ', allIds);
-    
+
     const promises = pubIds.map( pubIds => {
       return new Promise((resolve, reject) => {
         Post
@@ -191,7 +192,7 @@ router.put( '/image/delete/:postId', isAuthenticated, (req, res) => {
         .catch( err => console.log(err));
       });
     });
-    
+
     Promise.all(promises).then(result => res.send(result));
 });
 
@@ -220,7 +221,7 @@ router.put('/comment/:postId', isAuthenticated, (req, res) => {
 //Delete comment from post
 router.put('/comment/delete/:postId', (req,res) => {
   const postId = req.params.postId;
-  
+
   Post
   .update(
     { _id: postId },
@@ -251,7 +252,7 @@ const sendToCloud = (file, id, resolve) => {
     const imgNm = result.original_filename;
     const pubId = result.public_id;
     resolve(imgNm);
-    
+
     Post
     .update(
       { '_id': id },
@@ -264,13 +265,13 @@ const sendToCloud = (file, id, resolve) => {
         }
       })
     .then( (image) => {
-      
+
       console.log("Added image to post");
       fs.unlink(file, (err) => {
         if (err) {
             console.log("failed to delete local image:"+err);
         } else {
-            console.log('successfully deleted local image');                                
+            console.log('successfully deleted local image');
         }
       });
     })

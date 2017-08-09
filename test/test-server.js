@@ -11,32 +11,51 @@ const { app, runServer, closeServer } = require('../server');
 const { User } = require('../models/user');
 
 chai.use(chaiHttp);
-describe('Server', function(){
 
-  let user;
-   before(function() {
-     user = new User;
-     user.licenseNumber = 0000;
-     user.password = 'password';
-     return user.save()
-     .then(user => {
+describe('Setting up testing the server', function(){
 
-       process.env.NODE_ENV = 'test';
-       runServer()
-     });
-  });
+  let user, postId
+
+  before(function(done){
+    runServer()
+
+    const userOpts = {
+      licenseNumber: 3343,
+      password: 'abc123',
+      firstName: "Testguy",
+      lastName: "Testerino"
+    }
+
+    user = new User(userOpts);
+
+    user.save()
+      .then(_user => {
+        app.request.user = _user
+        user = _user
+        done()
+      })
+      .catch(err => console.log(err))
+
+  })
 
   after(function() {
-    User
+    // Post
+    // .remove({})
+    // .then(() => {
+    //
+    // })
+
+    return User
     .findByIdAndRemove(user._id)
      .exec()
-     .then((err, user) =>  {
-       if(err) console.log("something went wrong");
-       closeServer();
+     .then((user, err) =>  {
+        if(err) console.log("removing user err", err);
+        return closeServer();
      });
   });
 
   it('Should return static assets on GET at root directory', function() {
+    console.log("user", user)
     return chai.request(app)
     .get('/')
     .then(function(res) {
@@ -45,61 +64,101 @@ describe('Server', function(){
     })
   });
   //
-  // it('Should return users on GET /user', function() {
-  //   return chai.request(app)
-  //   .get('/users')
-  //   .then(function(res) {
-  //     res.should.have.status(200);
-  //     res.should.be.json;
-  //     res.body.users.should.have.length.of.at.least(1);
-  //   })
-  // });
-  //
-  // it('Should return the user on GET /users/:id', function() {
-  //   let userId;
-  //
-  //   return chai.request(app)
-  //   .get('/users')
-  //   .then(function(res) {
-  //     userId = res.body.users[0]._id;
-  //   });
-  //
-  //   return chai.request(app)
-  //   .get('/users/:id')
-  //   .then(function(res) {
-  //     res.should.have.status(200);
-  //     res.body.user._id.should.equal(userId);
-  //     res.should.be.json;
-  //   });
-  // });
-  //
-  // it('Should return posts on GET /posts', function() {
-  //   return chai.request(app)
-  //   .get('/posts')
-  //   .then(function(res) {
-  //     res.should.have.status(200);
-  //     res.should.be.json;
-  //     res.body.posts.should.have.length.of.at.least(1);
-  //   })
-  // });
-  //
-  // it('Should return the users posts on GET /posts/:id', function() {
-  //   let userId;
-  //
-  //   return chai.request(app)
-  //   .get('/posts')
-  //   .then(function(res) {
-  //     userId = res.body[0].user_id;
-  //   });
-  //
-  //   return chai.request(app)
-  //   .get('/posts/:id')
-  //   .then(function(res) {
-  //     res.should.have.status(200);
-  //     res.body.user_id.should.equal(userId);
-  //     res.should.be.json;
-  //     res.body.should.have.length.of.at.least(1);
-  //   });
-  // });
+  it('Should return users on GET /user', function() {
+    return chai.request(app)
+    .get('/users')
+    .then(function(res) {
+      res.should.have.status(200);
+      res.should.be.json;
+      res.body.users.should.have.length.of.at.least(1);
+    })
+  });
+
+  it('Should return a user on GET /users/:id', function() {
+    const userId = user._id;
+    return chai.request(app)
+    .get(`/users/${userId}`)
+    .then(function(res) {
+      res.should.have.status(200);
+      res.body.user._id.should.equal(`${userId}`);
+      res.should.be.json;
+    });
+  });
+
+  // ======= POSTS ========
+
+  it('Should return posts on GET /posts', function() {
+    return chai.request(app)
+    .get('/posts')
+    .then(function(res) {
+      res.should.have.status(200);
+      res.should.be.json;
+      res.body.posts.should.have.length.of.at.least(1);
+    })
+  });
+
+  it('Should create a new post on POST posts/new', function() {
+    const newPost = {
+      data : {
+        "body": "This is a body.",
+        "subject": "This is a subject",
+        "type": "Wanted"
+      }
+    }
+
+    return chai.request(app)
+    .post('/posts/new')
+    .send(newPost)
+    .then(function(res) {
+      postId = res.body;
+      res.should.have.status(200);
+      res.should.be.a.string;
+    })
+  })
+
+  it('Should return the users posts on GET /posts/user/:id', function() {
+    const userId = user._id;
+
+    return chai.request(app)
+    .get(`/posts/user/${userId}`)
+    .then(function(res) {
+      res.body.posts[0].userId.should.equal(`${userId}`);
+      res.body.posts.should.have.length.of.at.least(1);
+      res.should.have.status(200);
+    });
+  })
+
+  it('Should edit post on PUT posts/:postID', function() {
+    const editedPost = {
+      data : {
+        "body": "This is a still a body.",
+        "subject": "This is a still a subject",
+        "type": "Available"
+      }
+    }
+
+    return chai.request(app)
+    .put(`/posts/${postId}`)
+    .send(editedPost)
+    .then(function(res) {
+      res.should.have.status(200);
+      res.should.be.json;
+      console.log(res.body);
+      Object.keys(editedPost.data).forEach(key => {
+        editedPost.data[key].should.equal(res.body[key])
+      })
+    })
+  })
+
+  it('Should delete a  post on DELETE posts/:postID', function() {
+    return chai.request(app)
+    .delete(`/posts/${postId}`)
+    .then(function(res) {
+      console.log(res.body);
+      res.should.have.status(200);
+      res.should.be.a.string;
+      res.body.id.should.equal(postId);
+    })
+  })
 
 });

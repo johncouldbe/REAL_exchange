@@ -48,6 +48,7 @@ $(function() {
   });
 
   const addContact = (id, resolve) => {
+    console.log('ID IS',id);
     axios.put(`/users/add/${id}`)
     .then(() => {
       new Promise((resolve, reject) => {
@@ -71,8 +72,10 @@ $(function() {
       .then(() => {
         if($(e).closest('#user-contacts').length) {
           getUserContacts(state);
+          console.log('YES!');
         } else {
           getAllContacts(state);
+          console.log('NO!');
         }
         resolve();
       })
@@ -185,6 +188,8 @@ $(function() {
     e.preventDefault();
     const id = $(e.currentTarget).data('id');
     const domNode = $(e.currentTarget).data('href');
+
+    if(!id) return
 
     new Promise((resolve, reject) => {
       getContactInfo(id, domNode, state, resolve);
@@ -370,8 +375,13 @@ $(function() {
   //Open View Settings, View-Post, and Edit-Post panels
   $("main").on('click', '.js-settings, .view-post, .edit-post, .js-new-post, .js-contact-card', function(e) {
     e.preventDefault();
+
     let reference = $(this).attr('href') || $(this).data('href');
     let target = $(e.target);
+
+    if (target.hasClass('js-add-contact') || target.hasClass('js-remove-contact') ) {
+        return;
+    }
 
     if($(this).hasClass('view-post')){
       const domNode = $(this).attr('href');
@@ -384,9 +394,7 @@ $(function() {
       getPost(postId, state, post => { createEditPostPanel(post)});
     }
 
-    if (target.hasClass('js-add-contact') || target.hasClass('js-remove-contact') ) {
-        return;
-    }
+
 
     openFromSide(reference);
 

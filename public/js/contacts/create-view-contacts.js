@@ -1,4 +1,5 @@
 export const getContactInfo = (id, domNode, state, resolve) => {
+    console.log('hitting endpoint')
     axios.get(`/users/${id}`)
     .then((user) => {
         createViewContact(user, domNode, state);
@@ -28,7 +29,7 @@ export const createViewContact = (_user, domNode, state) => {
             <h4 class="center-align">${user.firstName} ${user.lastName}</h4>
             <h5 class="center-align">${user.company}</h5>
             <div class="col s6 offset-s3">
-              <img src="https://lorempixel.com/400/400/" class="circle responsive-img" />
+              <img src="${user.profilePic}" class="circle responsive-img" />
             </div>
             <div class="col s12">
                 <p class="flow-text center-align">${user.bio}</p>

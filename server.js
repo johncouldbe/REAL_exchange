@@ -69,7 +69,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// 
+//
 // if(process.env.NODE_ENV === 'test') {
 //   app.use('*', (req, res, next) => {
 //
@@ -87,12 +87,11 @@ app.use('/users', usersRouter);
 app.use('/posts', postsRouter);
 
 app.get('*', function(req, res) {
-  return res.status(404).json({message: 'Not Found'});
+  return res.redirect('/');
 });
 
 //Start and Stop server
 let server;
-
 function runServer(databaseUrl=DATABASE_URL, port=PORT) {
 
   return new Promise((resolve, reject) => {
