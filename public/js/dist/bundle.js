@@ -210,6 +210,7 @@ $(function() {
   });
 
   const addContact = (id, resolve) => {
+    console.log('ID IS',id);
     axios.put(`/users/add/${id}`)
     .then(() => {
       new Promise((resolve, reject) => {
@@ -233,8 +234,10 @@ $(function() {
       .then(() => {
         if($(e).closest('#user-contacts').length) {
           __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["b" /* getUserContacts */](state);
+          console.log('YES!');
         } else {
           __WEBPACK_IMPORTED_MODULE_9__contacts_create_all_contacts__["a" /* getAllContacts */](state);
+          console.log('NO!');
         }
         resolve();
       })
@@ -347,6 +350,8 @@ $(function() {
     e.preventDefault();
     const id = $(e.currentTarget).data('id');
     const domNode = $(e.currentTarget).data('href');
+
+    if(!id) return
 
     new Promise((resolve, reject) => {
       __WEBPACK_IMPORTED_MODULE_10__contacts_create_view_contacts__["a" /* getContactInfo */](id, domNode, state, resolve);
@@ -532,8 +537,13 @@ $(function() {
   //Open View Settings, View-Post, and Edit-Post panels
   $("main").on('click', '.js-settings, .view-post, .edit-post, .js-new-post, .js-contact-card', function(e) {
     e.preventDefault();
+
     let reference = $(this).attr('href') || $(this).data('href');
     let target = $(e.target);
+
+    if (target.hasClass('js-add-contact') || target.hasClass('js-remove-contact') ) {
+        return;
+    }
 
     if($(this).hasClass('view-post')){
       const domNode = $(this).attr('href');
@@ -546,9 +556,7 @@ $(function() {
       __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["b" /* getPost */](postId, state, post => { __WEBPACK_IMPORTED_MODULE_3__posts_create_edit_post_panel__["a" /* createEditPostPanel */](post)});
     }
 
-    if (target.hasClass('js-add-contact') || target.hasClass('js-remove-contact') ) {
-        return;
-    }
+
 
     __WEBPACK_IMPORTED_MODULE_8__helpers__["f" /* openFromSide */](reference);
 
@@ -1207,7 +1215,7 @@ const createAllContacts = (users, domNode, state) => {
                 <i class="small material-icons ${iconColor} hovered right ${clickHandler}" >${icon}</i>
                 <div class="row valign-wrapper">
                   <div class="col s3">
-                    <img src="https://lorempixel.com/400/400/" alt="" class="circle responsive-img">
+                    <img src="${user.profilePic}" alt="" class="circle responsive-img">
                   </div>
                   <div class="col s9">
                     <h5 class="black-text">${user.firstName} ${user.lastName}</h5>
@@ -1233,6 +1241,7 @@ const createAllContacts = (users, domNode, state) => {
 
 "use strict";
 const getContactInfo = (id, domNode, state, resolve) => {
+    console.log('hitting endpoint')
     axios.get(`/users/${id}`)
     .then((user) => {
         createViewContact(user, domNode, state);
@@ -1264,7 +1273,7 @@ const createViewContact = (_user, domNode, state) => {
             <h4 class="center-align">${user.firstName} ${user.lastName}</h4>
             <h5 class="center-align">${user.company}</h5>
             <div class="col s6 offset-s3">
-              <img src="https://lorempixel.com/400/400/" class="circle responsive-img" />
+              <img src="${user.profilePic}" class="circle responsive-img" />
             </div>
             <div class="col s12">
                 <p class="flow-text center-align">${user.bio}</p>

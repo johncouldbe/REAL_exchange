@@ -40,7 +40,7 @@ export const createAllContacts = (users, domNode, state) => {
                 <i class="small material-icons ${iconColor} hovered right ${clickHandler}" >${icon}</i>
                 <div class="row valign-wrapper">
                   <div class="col s3">
-                    <img src="https://lorempixel.com/400/400/" alt="" class="circle responsive-img">
+                    <img src="${user.profilePic}" alt="" class="circle responsive-img">
                   </div>
                   <div class="col s9">
                     <h5 class="black-text">${user.firstName} ${user.lastName}</h5>
