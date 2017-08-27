@@ -22,7 +22,7 @@ export function getUserPosts() {
         `;
           if(post.images.length > 0) {
             constructPosts += `
-            <div class="card-image grey lighten-5">
+            <div class="card-image grey lighten-5 post-image">
             <img src="${post.images[0].image}">
             </div>
             `;

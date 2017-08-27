@@ -12,9 +12,6 @@
   border-bottom: 1px solid #ffc107;
   box-shadow: 0 1px 0 0 #ffc107;
 }
-main .login-screen {
-  transform: translateY(25%);
-}
 
 .login-screen .form-container {
   border-radius: 4px;
@@ -31,6 +28,17 @@ body {
   /*background-position: center center;*/
 }
 
+.logo {
+  width: 200px;
+  height: auto;
+  padding: 10px !important;
+}
+
+.logo-login {
+  width: 50%;
+  min-width: 200px;
+}
+
 .height-115 {
   height: 163px;
 }
@@ -39,12 +47,16 @@ body {
   color: #03a9f4;
 }
 
-.icon-red {
-  color: #f44336;
+.icon-green {
+  color: #4caf50;
 }
 
 .navbar-fixed {
   z-index: 2;
+}
+
+nav {
+  min-height: 80px;
 }
 
 .no-scroll {
@@ -162,7 +174,7 @@ main {
   padding-left: 24px;
 }
 
-.card-image {
+.post-image {
   width: 100px !important;
   height: 100px;
   overflow: hidden !important;
@@ -199,13 +211,13 @@ main {
 }
 
 .absolute-right {
-  top: 112px;
   right: 0;
 }
 
-.absolute-left {
-  top: 112px;
-  left: 0;
+.login-screen {
+  top:0;
+  right: 0;
+  height: calc(100vh);
 }
 
 /* ======= Settings Menu ======= */

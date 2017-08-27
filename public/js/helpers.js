@@ -24,7 +24,7 @@ export const getUser = (state, resolve) => {
   axios.get(`/users/current`)
   .then( user => {
     state.user = user.data.user;
-    
+
     if(resolve) {
       resolve();
     }
@@ -34,7 +34,8 @@ export const getUser = (state, resolve) => {
 
 //Open panel
 export const openFromSide = (arg) => {
-  if($(window).width() < 601){
+
+  if($(window).width() < 601 || arg =='#login'){
     $(arg).animate({
       width:"100vw"
     });

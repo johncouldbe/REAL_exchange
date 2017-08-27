@@ -373,7 +373,7 @@ $(function() {
   });
 
   //Open View Settings, View-Post, and Edit-Post panels
-  $("main").on('click', '.js-settings, .view-post, .edit-post, .js-new-post, .js-contact-card', function(e) {
+  $("body").on('click', '.login, .js-settings, .view-post, .edit-post, .js-new-post, .js-contact-card', function(e) {
     e.preventDefault();
 
     let reference = $(this).attr('href') || $(this).data('href');
@@ -399,18 +399,5 @@ $(function() {
     openFromSide(reference);
 
   });
-
-  // KINDA WORKS for Navbar in the way
-  // $('#view-post').on('click', 'img.materialboxed', (e) => {
-  //   e.stopPropagation();
-  //   console.log(e.currentTarget);
-  //   console.log($(this));
-  //   setTimeout( () => {
-  //     if($(e.currentTarget).hasClass('initialized')){
-  //       $('.navbar-fixed').height('0px');
-  //     }
-  //   }, 100);
-  // });
-
-  //End
+   $('.parallax').parallax();
 });

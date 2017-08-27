@@ -100,7 +100,7 @@ const getUser = (state, resolve) => {
   axios.get(`/users/current`)
   .then( user => {
     state.user = user.data.user;
-    
+
     if(resolve) {
       resolve();
     }
@@ -112,7 +112,8 @@ const getUser = (state, resolve) => {
 
 //Open panel
 const openFromSide = (arg) => {
-  if($(window).width() < 601){
+
+  if($(window).width() < 601 || arg =='#login'){
     $(arg).animate({
       width:"100vw"
     });
@@ -535,7 +536,7 @@ $(function() {
   });
 
   //Open View Settings, View-Post, and Edit-Post panels
-  $("main").on('click', '.js-settings, .view-post, .edit-post, .js-new-post, .js-contact-card', function(e) {
+  $("body").on('click', '.login, .js-settings, .view-post, .edit-post, .js-new-post, .js-contact-card', function(e) {
     e.preventDefault();
 
     let reference = $(this).attr('href') || $(this).data('href');
@@ -561,20 +562,7 @@ $(function() {
     __WEBPACK_IMPORTED_MODULE_8__helpers__["f" /* openFromSide */](reference);
 
   });
-
-  // KINDA WORKS for Navbar in the way
-  // $('#view-post').on('click', 'img.materialboxed', (e) => {
-  //   e.stopPropagation();
-  //   console.log(e.currentTarget);
-  //   console.log($(this));
-  //   setTimeout( () => {
-  //     if($(e.currentTarget).hasClass('initialized')){
-  //       $('.navbar-fixed').height('0px');
-  //     }
-  //   }, 100);
-  // });
-
-  //End
+   $('.parallax').parallax();
 });
 
 
@@ -601,7 +589,7 @@ function getAllPosts() {
       `;
         if(post.images.length > 0) {
           constructPosts += `
-          <div class="card-image grey lighten-5">
+          <div class="card-image grey lighten-5 post-image">
           <img src="${post.images[0].image}">
           </div>
           `;
@@ -674,7 +662,7 @@ function getUserPosts() {
         `;
           if(post.images.length > 0) {
             constructPosts += `
-            <div class="card-image grey lighten-5">
+            <div class="card-image grey lighten-5 post-image">
             <img src="${post.images[0].image}">
             </div>
             `;
@@ -1205,14 +1193,15 @@ const createAllContacts = (users, domNode, state) => {
       users.data.users.forEach((user) => {
         const notInUsrContact = !state.user.contacts.map(user => user.userId).includes(user._id);
         const clickHandler = notInUsrContact  ? 'js-add-contact' : 'js-remove-contact';
-        const icon = notInUsrContact  ? 'add' : 'remove';
-        const iconColor = notInUsrContact  ? 'icon-blue' : 'icon-red';
+        const icon = notInUsrContact  ? 'add' : 'check';
+        const iconColor = notInUsrContact  ? 'icon-blue' : 'icon-green';
+        const toolTip = notInUsrContact  ? 'Click to add to your contacts' : 'Click to remove from your contacts'
 
         contactList += `
           <div class="col s12 m6 l4">
             <div data-href="#view-contact" class="js-contact-card" data-id="${user._id}">
-              <div class="card-panel grey lighten-5 z-depth-1 height-115 hovered">
-                <i class="small material-icons ${iconColor} hovered right ${clickHandler}" >${icon}</i>
+              <div class="card-panel grey lighten-5 z-depth-1 height-115 hovered hoverable">
+                <i class="small material-icons ${iconColor} hovered right ${clickHandler} tooltipped" data-position="top" data-delay="50" data-tooltip="${toolTip}">${icon}</i>
                 <div class="row valign-wrapper">
                   <div class="col s3">
                     <img src="${user.profilePic}" alt="" class="circle responsive-img">
@@ -1229,6 +1218,7 @@ const createAllContacts = (users, domNode, state) => {
     }
 
     $(domNode).html(beginning + contactList + end);
+    $('.tooltipped').tooltip({delay: 50});
 
 }
 /* unused harmony export createAllContacts */
