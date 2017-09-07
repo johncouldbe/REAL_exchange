@@ -160,6 +160,7 @@ $(function() {
         $(target).text('Remove Contact');
       }
     });
+
   });
 
   //Remove contact

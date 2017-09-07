@@ -27,18 +27,17 @@ export const createAllContacts = (users, domNode, state) => {
       </div`
     }
     else {
-      users.data.users.forEach((user) => {
+      users.data.users.forEach(user => {
         const notInUsrContact = !state.user.contacts.map(user => user.userId).includes(user._id);
-        const clickHandler = notInUsrContact  ? 'js-add-contact' : 'js-remove-contact';
-        const icon = notInUsrContact  ? 'add' : 'check';
-        const iconColor = notInUsrContact  ? 'icon-blue' : 'icon-green';
-        const toolTip = notInUsrContact  ? 'Click to add to your contacts' : 'Click to remove from your contacts'
+        const clickHandler = notInUsrContact ? 'js-add-contact' : 'js-remove-contact';
+        const icon = notInUsrContact ? 'add' : 'check';
+        const iconColor = notInUsrContact ? 'icon-blue' : 'icon-green';
 
         contactList += `
           <div class="col s12 m6 l4">
             <div data-href="#view-contact" class="js-contact-card" data-id="${user._id}">
               <div class="card-panel grey lighten-5 z-depth-1 height-115 hovered hoverable">
-                <i class="small material-icons ${iconColor} hovered right ${clickHandler} tooltipped" data-position="top" data-delay="50" data-tooltip="${toolTip}">${icon}</i>
+                <i class="small material-icons ${iconColor} hovered right ${clickHandler}">${icon}</i>
                 <div class="row valign-wrapper">
                   <div class="col s3">
                     <img src="${user.profilePic}" alt="" class="circle responsive-img">
