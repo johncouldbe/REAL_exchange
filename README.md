@@ -1,6 +1,6 @@
 <h1 align="center" style="background-color: #03A9F4;">
   <br>
-  <a href="https://thawing-oasis-96546.herokuapp.com/login"><img src="./public/assets/images/readme-banner.png" alt="Real Exchange" width="100%"></a>
+  <a href="https://thawing-oasis-96546.herokuapp.com/login"><img src="./public/assets/images/readme-banner.png" alt="Real Exchange" width="400px"></a>
 </h1>
 
 <h3 align="center">How REALTORS&reg; Connect</h3>
