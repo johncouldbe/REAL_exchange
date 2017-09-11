@@ -13,7 +13,7 @@
 * Users can add others to their contact list to be able to quickly contact them or view all of their posts in the future
 
 ### Posts
-![Contact list in action](./public/assets/images/add-contact.gif)
+![Contact list in action](./public/assets/images/create-post.gif)
 * Posts can be created in 3 different categories:
   - Available
   - Wanted
@@ -21,7 +21,7 @@
 * Photos, a title and description can be added to each users posts
 * Users can comment on each others posts and choose to delete their comments later
 
-## Credits
+## Credits and Tools
 This software uses code from several open source packages.
 * HTML5, CSS, Javascript
 * Materialize
