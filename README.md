@@ -5,6 +5,8 @@
 
 <h3 align="center">How REALTORS&reg; Connect</h3>
 
+One of the benefits REALTOR® associations offer to their members is being added to a Listserv. A Listserve is basically an email list where you can subscribe to receive emails from those who send to it. This leads to a lot of unnecessary emails. REAL Exchange aims to reduce the inbox noise and create a place where REALTOR members can post their messages and quickly add other members as contacts.
+
 ## Key Features
 
 ### Users
